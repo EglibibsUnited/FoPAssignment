@@ -35,7 +35,8 @@ const int  SIZEY(25);		//vertical dimension
 const char SPOT('@');   	//spot
 const char TUNNEL(' ');    	//tunnel
 const char WALL('#');    	//border
-const char HOLE('0');    	//border
+const char HOLE('0');    	//hole
+const char POWERPILL('*');  //power pill
 							//defining the command letters to move the spot on the maze
 const int  UP(72);			//up arrow
 const int  DOWN(80); 		//down arrow
@@ -163,7 +164,6 @@ void setSpotInitialCoordinates(Item& spot, char maze[][SIZEX])
 
 void setInitialMazeStructure(char maze[][SIZEX])
 { //set the position of the walls in the maze
-  //TODO: initial maze configuration should be amended (size changed and inner walls removed)
   //initialise maze configuration
 	char initialMaze[SIZEY][SIZEX];
 
@@ -182,7 +182,7 @@ void setInitialMazeStructure(char maze[][SIZEX])
 		}
 	}
 
-	for (int holesCount = 12; holesCount >= 0; holesCount--)
+	for (int holesCount = 12; holesCount >= 0; holesCount--) // Add holes //
 	{
 		int x = Random(SIZEX - 2);
 		int y = Random(SIZEY - 2);
@@ -192,6 +192,18 @@ void setInitialMazeStructure(char maze[][SIZEX])
 			y = Random(SIZEY - 2);
 		}
 		initialMaze[y][x] = '0';
+	}
+
+	for (int powerpills = 8; powerpills >= 0; powerpills--) // Add power pills //
+	{
+		int x = Random(SIZEX - 2);
+		int y = Random(SIZEY - 2);
+		while (initialMaze[y][x] == WALL || initialMaze[y][x] == HOLE)
+		{
+			x = Random(SIZEX - 2);
+			y = Random(SIZEY - 2);
+		}
+		initialMaze[y][x] = '*';
 	}
 
 	//with '#' for wall, ' ' for tunnel, etc. 
@@ -204,6 +216,7 @@ void setInitialMazeStructure(char maze[][SIZEX])
 			case '#': maze[row][col] = WALL; break;
 			case ' ': maze[row][col] = TUNNEL; break;
 			case '0': maze[row][col] = HOLE; break;
+			case '*': maze[row][col] = POWERPILL; break;
 			}
 }
 
