@@ -63,6 +63,7 @@ int main()
 	bool isArrowKey(const int k);
 	int  getKeyPress();
 	void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& mess, int& lives);
+	void showMessage(const WORD backColour, const WORD textColour, int x, int y, const string message);
 	void updateGrid(char g[][SIZEX], const char m[][SIZEX], const Item spot);
 	void endProgram();
 
@@ -77,10 +78,9 @@ int main()
 	SetConsoleTitle("Spot and Zombies Game - FoP 2017-18");
 
 	displayStartScreen();
-	while (cin)
-	{
-
-	}
+	string name;
+	cin >> name;
+	Clrscr();
 
 	initialiseGame(grid, maze, spot);	//initialise grid (incl. walls and spot)
 	paintGame(grid, message, lives);			//display game info, modified grid and messages
@@ -96,7 +96,8 @@ int main()
 		else
 			message = "INVALID KEY!";	//set 'Invalid key' message
 		paintGame(grid, message, lives);		//display game info, modified grid and messages
-	} while (!wantsToQuit(key));		//while user does not want to quit
+	} while (!wantsToQuit(key) && lives >= 0);		//while user does not want to quit and they still have lives left //
+	cin.get();
 	endProgram();						//display final message
 	return 0;
 }
@@ -109,26 +110,28 @@ int main()
 void displayStartScreen()
 {
 	void showMessage(const WORD backColour, const WORD textColour, int x, int y, const string message);
-	showMessage(clDarkGrey, clYellow, 5, 2, "-----------------------");
-	showMessage(clDarkGrey, clYellow, 5, 3, "|   SPOT AND ZOMBIES  |");
-	showMessage(clDarkGrey, clYellow, 5, 4, "-----------------------");
+	showMessage(clDarkGrey, clYellow, 5, 2, "--------------------------");
+	showMessage(clDarkGrey, clYellow, 5, 3, "|    SPOT AND ZOMBIES    |");
+	showMessage(clDarkGrey, clYellow, 5, 4, "--------------------------");
 
-	showMessage(clDarkGrey, clYellow, 5, 6, "   Group SE1_5 - 2018  ");
-	showMessage(clDarkGrey, clYellow, 5, 7, " --------------------- ");
-	showMessage(clDarkGrey, clYellow, 5, 8, "	* Michael Elsom	    ");
-	showMessage(clDarkGrey, clYellow, 5, 9, "	* James Nelhams	    ");
-	showMessage(clDarkGrey, clYellow, 5, 10, "	* Jake Stringer	    ");
+	showMessage(clDarkGrey, clYellow, 5, 6, "    Group SE1_5 - 2018    ");
+	showMessage(clDarkGrey, clYellow, 5, 7, " ------------------------ ");
+	showMessage(clDarkGrey, clYellow, 5, 8, " * Michael Elsom 27035059 ");
+	showMessage(clDarkGrey, clYellow, 5, 9, " * James Nelhams 27021413 ");
+	showMessage(clDarkGrey, clYellow, 5, 10, " * Jake Stringer 27003087 ");
 
 	showMessage(clDarkGrey, clYellow, 40, 2, "Date: " + GetDate());
 	showMessage(clDarkGrey, clYellow, 40, 3, "Time: " + GetTime());
 
 	showMessage(clDarkGrey, clYellow, 40, 6, "        Controls       ");
 	showMessage(clDarkGrey, clYellow, 40, 7, "-----------------------");
-	showMessage(clDarkGrey, clYellow, 40, 8, " Movement: Arrows      ");
-	showMessage(clDarkGrey, clYellow, 40, 9, " Attack: X             ");
-	showMessage(clDarkGrey, clYellow, 40, 10, " Freeze: F             ");
-	showMessage(clDarkGrey, clYellow, 40, 11, " Quit: Q               ");
+	showMessage(clDarkGrey, clYellow, 40, 8, "| Movement: Arrows    |");
+	showMessage(clDarkGrey, clYellow, 40, 9, "| Attack: X           |");
+	showMessage(clDarkGrey, clYellow, 40, 10, "| Freeze: F           |");
+	showMessage(clDarkGrey, clYellow, 40, 11, "| Quit: Q             |");
 	showMessage(clDarkGrey, clYellow, 40, 12, "-----------------------");
+
+	showMessage(clDarkGrey, clYellow, 5, 14, "Enter your name to start: ");
 }
 
 void initialiseGame(char grid[][SIZEX], char maze[][SIZEX], Item& spot)
@@ -250,10 +253,12 @@ void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& me
 	case HOLE:			// Fall into a hole //
 		spot.y += dy;
 		spot.x += dx;
-		if (lives - 1 >= 0)
-		{
-			lives--;
-		}
+		lives--;
+	}
+
+	if (lives < 0)
+	{
+		mess = "YOU LOSE!";
 	}
 }
 //---------------------------------------------------------------------------
@@ -337,7 +342,14 @@ void paintGame(const char g[][SIZEX], string mess, int lives)
 
 	// Display lives left //
 	stringstream ss;
-	ss << "LIVES: " << lives;
+	if (lives < 0)
+	{
+		ss << "LIVES: 0H NO";
+	} else
+	{
+		ss << "LIVES: " << lives;
+	}
+	
 	showMessage(clBlack, clGreen, 1, SIZEY+2, ss.str());
 
 	// Display date and time etc. //
