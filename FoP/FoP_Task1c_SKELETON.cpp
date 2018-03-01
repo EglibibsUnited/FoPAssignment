@@ -35,10 +35,7 @@ const int  SIZEY(8);		//vertical dimension
 const char SPOT('@');   	//spot
 const char TUNNEL(' ');    	//tunnel
 const char WALL('#');    	//border
-<<<<<<< HEAD
 const char HOLE('0');
-=======
->>>>>>> parent of 72a652d... Add random holes
 //defining the command letters to move the spot on the maze
 const int  UP(72);			//up arrow
 const int  DOWN(80); 		//down arrow
@@ -140,18 +137,6 @@ void setInitialMazeStructure(char maze[][SIZEX])
 	{ '#', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '#' },
 	{ '#', '#', '#', '#', '#', '#', '#', '#', '#', '#' } };
 
-<<<<<<< HEAD
-=======
-	//char initialMaze[SIZEY][SIZEX];
-	//for (int column = 0; column < SIZEY; column++) // More efficient way of creating the initialMaze array //
-	//{
-	//	for (int row = 0; row < SIZEX; row++)
-	//	{
-	//		initialMaze[column][row] = '#';
-	//	}
-	//}
-
->>>>>>> parent of 72a652d... Add random holes
 	//with '#' for wall, ' ' for tunnel, etc. 
 	//copy into maze structure with appropriate symbols
 	for (int row(0); row < SIZEY; ++row)
