@@ -17,6 +17,7 @@
 #include <cassert> 
 #include <string>
 #include <sstream>
+#include <fstream>
 using namespace std;
 
 //include our own libraries
@@ -29,13 +30,14 @@ using namespace std;
 //---------------------------------------------------------------------------
 
 //defining the size of the grid
-const int  SIZEX(10);    	//horizontal dimension
-const int  SIZEY(8);		//vertical dimension
+const int  SIZEX(38);    	//horizontal dimension
+const int  SIZEY(25);		//vertical dimension
 							//defining symbols used for display of the grid and content
 const char SPOT('@');   	//spot
 const char TUNNEL(' ');    	//tunnel
 const char WALL('#');    	//border
-const char HOLE('0');    	//border
+const char HOLE('0');    	//hole
+const char POWERPILL('*');  //power pill
 							//defining the command letters to move the spot on the maze
 const int  UP(72);			//up arrow
 const int  DOWN(80); 		//down arrow
@@ -58,11 +60,11 @@ int main()
 	//function declarations (prototypes)
 	void displayStartScreen();
 	void initialiseGame(char g[][SIZEX], char m[][SIZEX], Item& spot);
-	void paintGame(const char g[][SIZEX], string mess, int lives);
+	void paintGame(const char g[][SIZEX], string mess, int lives, string playerName, int powerPills);
 	bool wantsToQuit(const int key);
 	bool isArrowKey(const int k);
 	int  getKeyPress();
-	void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& mess, int& lives);
+	void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& mess, int& lives, char m[][SIZEX], int& powerPills);
 	void showMessage(const WORD backColour, const WORD textColour, int x, int y, const string message);
 	void updateGrid(char g[][SIZEX], const char m[][SIZEX], const Item spot);
 	void endProgram();
@@ -73,6 +75,7 @@ int main()
 	Item spot = { 0, 0, SPOT }; 		//spot's position and symbol
 	string message("LET'S START...");	//current message to player
 	int lives = 3;						// Initialise Spot with 3 lives //
+	int powerPills = 8;
 
 	Seed();								//seed the random number generator
 	SetConsoleTitle("Spot and Zombies Game - FoP 2017-18");
@@ -83,20 +86,25 @@ int main()
 	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 0);
 	Clrscr();
 
+	ofstream fout;
+	string filename = "E:\\C++ Files\\C++ Files\\data.txt";
+	fout.open(filename, ios::out);
+
 	initialiseGame(grid, maze, spot);	//initialise grid (incl. walls and spot)
-	paintGame(grid, message, lives);			//display game info, modified grid and messages
+	paintGame(grid, message, lives, playerName, powerPills);			//display game info, modified grid and messages
 	int key;							//current key selected by player
 	do {
 		key = getKeyPress(); 	//read in  selected key: arrow or letter command
 		key = toupper(key);
 		if (isArrowKey(key))
 		{
-			updateGameData(grid, spot, key, message, lives);		//move spot in that direction
+			updateGameData(grid, spot, key, message, lives, maze, powerPills);		//move spot in that direction
 			updateGrid(grid, maze, spot);					//update grid information
 		}
 		else
 			message = "INVALID KEY!";	//set 'Invalid key' message
-		paintGame(grid, message, lives);		//display game info, modified grid and messages
+    
+		paintGame(grid, message, lives, playerName, powerPills);		//display game info, modified grid and messages
 	} while (!wantsToQuit(key) && lives >= 0);		//while user does not want to quit and they still have lives left //
 	cin.get();
 	endProgram();						//display final message
@@ -132,8 +140,8 @@ void displayStartScreen()
 	showMessage(clDarkGrey, clYellow, 40, 11, "| Quit: Q             |");
 	showMessage(clDarkGrey, clYellow, 40, 12, "-----------------------");
 
-	showMessage(clDarkGrey, clYellow, 5, 14, "Enter your name to start: ");
-	showMessage(clDarkGrey, clRed, 31, 14, "");
+	showMessage(clDarkGrey, clYellow, 5, 14, "Enter your name to start:");
+	showMessage(clBlack, clRed, 31, 14, " ");
 }
 
 void initialiseGame(char grid[][SIZEX], char maze[][SIZEX], Item& spot)
@@ -162,19 +170,25 @@ void setSpotInitialCoordinates(Item& spot, char maze[][SIZEX])
 
 void setInitialMazeStructure(char maze[][SIZEX])
 { //set the position of the walls in the maze
-  //TODO: initial maze configuration should be amended (size changed and inner walls removed)
   //initialise maze configuration
-	char initialMaze[SIZEY][SIZEX] 	//local array to store the maze structure
-		= { { '#', '#', '#', '#', '#', '#', '#', '#', '#', '#' },
-	{ '#', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '#' },
-	{ '#', ' ', ' ', '#', ' ', ' ', '#', ' ', ' ', '#' },
-	{ '#', ' ', ' ', '#', ' ', ' ', '#', ' ', ' ', '#' },
-	{ '#', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '#' },
-	{ '#', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '#' },
-	{ '#', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '#' },
-	{ '#', '#', '#', '#', '#', '#', '#', '#', '#', '#' } };
+	char initialMaze[SIZEY][SIZEX];
 
-	for (int holesCount = 12; holesCount >= 0; holesCount--)
+	for (int column = 0; column < SIZEY; column++)
+	{
+		for (int row = 0; row < SIZEX; row++)
+		{
+			if (column == 0 || column == SIZEY-1 || row == 0 || row == SIZEX-1)
+			{
+				// Just a row of walls //
+				initialMaze[column][row] = '#';
+			} else
+			{
+				initialMaze[column][row] = ' ';
+			}
+		}
+	}
+
+	for (int holesCount = 12; holesCount >= 0; holesCount--) // Add holes //
 	{
 		int x = Random(SIZEX - 2);
 		int y = Random(SIZEY - 2);
@@ -184,6 +198,18 @@ void setInitialMazeStructure(char maze[][SIZEX])
 			y = Random(SIZEY - 2);
 		}
 		initialMaze[y][x] = '0';
+	}
+
+	for (int powerpills = 8; powerpills > 0; powerpills--) // Add power pills //
+	{
+		int x = Random(SIZEX - 2);
+		int y = Random(SIZEY - 2);
+		while (initialMaze[y][x] == WALL || initialMaze[y][x] == HOLE)
+		{
+			x = Random(SIZEX - 2);
+			y = Random(SIZEY - 2);
+		}
+		initialMaze[y][x] = '*';
 	}
 
 	//with '#' for wall, ' ' for tunnel, etc. 
@@ -196,6 +222,7 @@ void setInitialMazeStructure(char maze[][SIZEX])
 			case '#': maze[row][col] = WALL; break;
 			case ' ': maze[row][col] = TUNNEL; break;
 			case '0': maze[row][col] = HOLE; break;
+			case '*': maze[row][col] = POWERPILL; break;
 			}
 }
 
@@ -227,7 +254,7 @@ void placeItem(char g[][SIZEX], const Item item)
 //---------------------------------------------------------------------------
 //----- move items on the grid
 //---------------------------------------------------------------------------
-void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& mess, int& lives)
+void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& mess, int& lives, char maze[][SIZEX], int& powerPills)
 { //move spot in required direction
 	bool isArrowKey(const int k);
 	void setKeyDirection(int k, int& dx, int& dy);
@@ -243,19 +270,26 @@ void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& me
 	//check new target position in grid and update game data (incl. spot coordinates) if move is possible
 	switch (g[spot.y + dy][spot.x + dx])
 	{			//...depending on what's on the target position in grid...
-	case TUNNEL:		//can move
-		spot.y += dy;	//go in that Y direction
-		spot.x += dx;	//go in that X direction
-		break;
-	case WALL:  		//hit a wall and stay there
-						//TODO: remove alarm when bumping into walls - too annoying
-		cout << '\a';	//beep the alarm
-		mess = "CANNOT GO THERE!";
-		break;
-	case HOLE:			// Fall into a hole //
-		spot.y += dy;
-		spot.x += dx;
-		lives--;
+		case TUNNEL:		//can move
+			spot.y += dy;	//go in that Y direction
+			spot.x += dx;	//go in that X direction
+			break;
+		case WALL:  		//hit a wall and stay there
+							//TODO: remove alarm when bumping into walls - too annoying
+			cout << '\a';	//beep the alarm
+			mess = "CANNOT GO THERE!";
+			break;
+		case HOLE:			// Fall into a hole //
+			spot.y += dy;
+			spot.x += dx;
+			lives--;
+		case POWERPILL:		// Eat power pill //
+			spot.y += dy;
+			spot.x += dx;
+			maze[spot.y][spot.x] = ' ';
+			lives++;
+			powerPills--;
+
 	}
 
 	if (lives < 0)
@@ -333,7 +367,7 @@ void showMessage(const WORD backColour, const WORD textColour, int x, int y, con
 	SelectTextColour(textColour);
 	cout << message;
 }
-void paintGame(const char g[][SIZEX], string mess, int lives)
+void paintGame(const char g[][SIZEX], string mess, int lives, string playerName, int powerPills)
 { //display game title, messages, maze, spot and other items on screen
 	string tostring(char x);
 	void showMessage(const WORD backColour, const WORD textColour, int x, int y, const string message);
@@ -346,13 +380,21 @@ void paintGame(const char g[][SIZEX], string mess, int lives)
 	stringstream ss;
 	if (lives < 0)
 	{
-		ss << "LIVES: 0H NO";
+		ss << "Lives: 0H NO";
 	} else
 	{
-		ss << "LIVES: " << lives;
+		ss << "Lives: " << lives;
+	}
+	stringstream pps;
+	if (powerPills < 0)
+	{
+		pps << "Power Pills Remaining: 0";	
+	}
+	else
+	{
+		pps << "Power Pills Remaining: " << powerPills;
 	}
 	
-	showMessage(clBlack, clGreen, 1, SIZEY+2, ss.str());
 
 	// Display date and time etc. //
 	showMessage(clDarkGrey, clYellow, 40, 1, "FoP Task 1c: February 2018");
@@ -368,12 +410,15 @@ void paintGame(const char g[][SIZEX], string mess, int lives)
 	showMessage(clDarkGrey, clYellow, 40, 11, "| Quit: Q             |");
 	showMessage(clDarkGrey, clYellow, 40, 12, "-----------------------");
 
+	int score(0);
+	showMessage(clDarkGrey, clYellow, 40, 14, "Player: " + playerName + ": " + to_string(score));
+	showMessage(clBlack, clGreen, 40, 17, ss.str());
+	showMessage(clBlack, clGreen, 40, 18, pps.str());
+
 	//print auxiliary messages if any
-	showMessage(clBlack, clWhite, 40, 14, mess);	//display current message
+	showMessage(clBlack, clWhite, 5, SIZEY + 4, mess);
 
-												//TODO: Show your course, your group number and names on screen
 
-												//display grid contents
 	paintGrid(g);
 }
 
@@ -385,7 +430,18 @@ void paintGrid(const char g[][SIZEX])
 	for (int row(0); row < SIZEY; ++row)
 	{
 		for (int col(0); col < SIZEX; ++col)
-			cout << g[row][col];	//output cell content
+		{
+			if (g[row][col] == '0')
+			{
+				SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 12);
+				cout << g[row][col];
+				SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 7);
+			}
+			else
+			{
+				cout << g[row][col];	//output cell content
+			}
+		}
 		cout << endl;
 	}
 }
