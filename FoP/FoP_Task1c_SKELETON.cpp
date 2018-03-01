@@ -61,7 +61,7 @@ int main()
 	//function declarations (prototypes)
 	void displayStartScreen();
 	void initialiseGame(char g[][SIZEX], char m[][SIZEX], Item& spot);
-	void paintGame(const char g[][SIZEX], string mess, int lives, string playerName, int powerPills);
+	void paintGame(const char g[][SIZEX], string mess, int lives, string playerName, int powerPills, char m[][SIZEX]);
 	bool wantsToQuit(const int key);
 	bool isArrowKey(const int k);
 	int  getKeyPress();
@@ -77,7 +77,7 @@ int main()
 	Item spot = { 0, 0, SPOT }; 		//spot's position and symbol
 	string message("LET'S START...");	//current message to player
 	int lives = 3;						// Initialise Spot with 3 lives //
-	int powerPills = 8;
+	int powerPills = 8;					// Initialise the game with 8 power pills //
 
 	Seed();								//seed the random number generator
 	SetConsoleTitle("Spot and Zombies Game - FoP 2017-18");
@@ -101,10 +101,10 @@ int main()
 	}
 
 	initialiseGame(grid, maze, spot);	//initialise grid (incl. walls and spot)
-	paintGame(grid, message, lives, playerName, powerPills);			//display game info, modified grid and messages
+	paintGame(grid, message, lives, playerName, powerPills, maze);			//display game info, modified grid and messages
 	int key;							//current key selected by player
 	do {
-		key = getKeyPress(); 	//read in  selected key: arrow or letter command
+		key = getKeyPress(); 	//read in selected key: arrow or letter command
 		key = toupper(key);
 		if (isArrowKey(key))
 		{
@@ -114,7 +114,7 @@ int main()
 		else
 			message = "INVALID KEY!";	//set 'Invalid key' message
     
-		paintGame(grid, message, lives, playerName, powerPills);		//display game info, modified grid and messages
+		paintGame(grid, message, lives, playerName, powerPills, maze);		//display game info, modified grid and messages
 	} while (!wantsToQuit(key) && lives >= 0);		//while user does not want to quit and they still have lives left //
 	playerData(playerName, lives);
 	endProgram();						//display final message
@@ -198,11 +198,10 @@ void setInitialMazeStructure(char maze[][SIZEX])
 		}
 	}
 
-	// Add zombies //
 	initialMaze[1][1] = 'Z';
-	initialMaze[1][SIZEX - 2] = 'Z';
-	initialMaze[SIZEY - 2][1] = 'Z';
-	initialMaze[SIZEY - 2][SIZEX - 2] = 'Z';
+	initialMaze[1][SIZEX-2] = 'Z';
+	initialMaze[SIZEY-2][1] = 'Z';
+	initialMaze[SIZEY-2][SIZEX-2] = 'Z';
 
 	for (int holesCount = 12; holesCount >= 0; holesCount--) // Add holes //
 	{
@@ -311,6 +310,20 @@ void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& me
 
 	}
 
+	// Move Zombies //
+	//for (int column = 0; column < SIZEY; column++)
+	//{
+	//	for (int row = 0; row < SIZEX; row++)
+	//	{
+	//		if (maze[row][column] == 'Z')
+	//		{
+	//			// Move the zombie //
+	//			maze[row][column] = ' ';
+	//			maze[row + 1][column + 1] = 'Z';
+	//		}
+	//	}
+	//}
+
 	if (lives < 0)
 	{
 		mess = "YOU LOSE!";
@@ -386,11 +399,11 @@ void showMessage(const WORD backColour, const WORD textColour, int x, int y, con
 	SelectTextColour(textColour);
 	cout << message;
 }
-void paintGame(const char g[][SIZEX], string mess, int lives, string playerName, int powerPills)
+void paintGame(const char g[][SIZEX], string mess, int lives, string playerName, int powerPills, char m[][SIZEX])
 { //display game title, messages, maze, spot and other items on screen
 	string tostring(char x);
 	void showMessage(const WORD backColour, const WORD textColour, int x, int y, const string message);
-	void paintGrid(const char g[][SIZEX]);
+	void paintGrid(const char g[][SIZEX], char m[][SIZEX]);
 	//TODO: Change the colour of the messages
 	//display game title
 	showMessage(clBlack, clYellow, 0, 0, "___GAME___");
@@ -438,10 +451,10 @@ void paintGame(const char g[][SIZEX], string mess, int lives, string playerName,
 	showMessage(clBlack, clWhite, 40, 25, mess);
 
 
-	paintGrid(g);
+	paintGrid(g, m);
 }
 
-void paintGrid(const char g[][SIZEX])
+void paintGrid(const char g[][SIZEX], char m[][SIZEX])
 { //display grid content on screen
 	SelectBackColour(clBlack);
 	SelectTextColour(clWhite);
@@ -465,6 +478,8 @@ void paintGrid(const char g[][SIZEX])
 				SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 10);
 				cout << g[row][col];
 				SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 7);
+
+				// TODO - Update zombie position //
 			}
 			else if (g[row][col] == POWERPILL)
 			{
@@ -510,6 +525,6 @@ void playerData(string playerName, int lives)
 void endProgram()
 {
 	void showMessage(const WORD backColour, const WORD textColour, int x, int y, const string message);
-	showMessage(clRed, clYellow, 40, 26, "");
+	showMessage(clRed, clYellow, 40, 21, "");
 	system("pause");	//hold output screen until a keyboard key is hit
 }
