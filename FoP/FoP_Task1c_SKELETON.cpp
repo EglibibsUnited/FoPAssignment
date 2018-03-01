@@ -53,7 +53,6 @@ struct Item {
 
 int main()
 {
-	cout << "Tess-Tickyoular!" << endl;
 	//function declarations (prototypes)
 	void initialiseGame(char g[][SIZEX], char m[][SIZEX], Item& spot);
 	void paintGame(const char g[][SIZEX], string mess);
@@ -212,6 +211,14 @@ void setKeyDirection(const int key, int& dx, int& dy)
 	case RIGHT: 	//when RIGHT arrow pressed...
 		dx = +1;	//increase the X coordinate
 		dy = 0;
+		break;
+	case UP:
+		dx = 0;
+		dy = -1;
+		break;
+	case DOWN:
+		dx = 0;
+		dy = +1;
 		break;
 	}
 }
