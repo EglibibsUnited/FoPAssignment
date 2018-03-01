@@ -63,6 +63,7 @@ int main()
 	bool isArrowKey(const int k);
 	int  getKeyPress();
 	void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& mess, int& lives);
+	void showMessage(const WORD backColour, const WORD textColour, int x, int y, const string message);
 	void updateGrid(char g[][SIZEX], const char m[][SIZEX], const Item spot);
 	void endProgram();
 
@@ -96,7 +97,8 @@ int main()
 		else
 			message = "INVALID KEY!";	//set 'Invalid key' message
 		paintGame(grid, message, lives);		//display game info, modified grid and messages
-	} while (!wantsToQuit(key));		//while user does not want to quit
+	} while (!wantsToQuit(key) && lives >= 0);		//while user does not want to quit and they still have lives left //
+	cin.get();
 	endProgram();						//display final message
 	return 0;
 }
@@ -253,10 +255,12 @@ void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& me
 	case HOLE:			// Fall into a hole //
 		spot.y += dy;
 		spot.x += dx;
-		if (lives - 1 >= 0)
-		{
-			lives--;
-		}
+		lives--;
+	}
+
+	if (lives < 0)
+	{
+		mess = "YOU LOSE!";
 	}
 }
 //---------------------------------------------------------------------------
@@ -340,7 +344,14 @@ void paintGame(const char g[][SIZEX], string mess, int lives)
 
 	// Display lives left //
 	stringstream ss;
-	ss << "LIVES: " << lives;
+	if (lives < 0)
+	{
+		ss << "LIVES: 0H NO";
+	} else
+	{
+		ss << "LIVES: " << lives;
+	}
+	
 	showMessage(clBlack, clGreen, 1, SIZEY+2, ss.str());
 
 	// Display date and time etc. //
