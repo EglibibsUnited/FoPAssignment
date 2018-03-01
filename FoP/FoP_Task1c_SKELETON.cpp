@@ -76,10 +76,9 @@ int main()
 	SetConsoleTitle("Spot and Zombies Game - FoP 2017-18");
 
 	displayStartScreen();
-	while (cin)
-	{
-
-	}
+	string name;
+	cin >> name;
+	Clrscr();
 
 	initialiseGame(grid, maze, spot);	//initialise grid (incl. walls and spot)
 	paintGame(grid, message);			//display game info, modified grid and messages
@@ -108,26 +107,28 @@ int main()
 void displayStartScreen()
 {
 	void showMessage(const WORD backColour, const WORD textColour, int x, int y, const string message);
-	showMessage(clDarkGrey, clYellow, 5, 2, "-----------------------");
-	showMessage(clDarkGrey, clYellow, 5, 3, "|   SPOT AND ZOMBIES  |");
-	showMessage(clDarkGrey, clYellow, 5, 4, "-----------------------");
+	showMessage(clDarkGrey, clYellow, 5, 2, "--------------------------");
+	showMessage(clDarkGrey, clYellow, 5, 3, "|    SPOT AND ZOMBIES    |");
+	showMessage(clDarkGrey, clYellow, 5, 4, "--------------------------");
 
-	showMessage(clDarkGrey, clYellow, 5, 6, "   Group SE1_5 - 2018  ");
-	showMessage(clDarkGrey, clYellow, 5, 7, " --------------------- ");
-	showMessage(clDarkGrey, clYellow, 5, 8, "	* Michael Elsom	    ");
-	showMessage(clDarkGrey, clYellow, 5, 9, "	* James Nelhams	    ");
-	showMessage(clDarkGrey, clYellow, 5, 10, "	* Jake Stringer	    ");
+	showMessage(clDarkGrey, clYellow, 5, 6, "    Group SE1_5 - 2018    ");
+	showMessage(clDarkGrey, clYellow, 5, 7, " ------------------------ ");
+	showMessage(clDarkGrey, clYellow, 5, 8, " * Michael Elsom 27035059 ");
+	showMessage(clDarkGrey, clYellow, 5, 9, " * James Nelhams 27021413 ");
+	showMessage(clDarkGrey, clYellow, 5, 10, " * Jake Stringer 27003087 ");
 
 	showMessage(clDarkGrey, clYellow, 40, 2, "Date: " + GetDate());
 	showMessage(clDarkGrey, clYellow, 40, 3, "Time: " + GetTime());
 
 	showMessage(clDarkGrey, clYellow, 40, 6, "        Controls       ");
 	showMessage(clDarkGrey, clYellow, 40, 7, "-----------------------");
-	showMessage(clDarkGrey, clYellow, 40, 8, " Movement: Arrows      ");
-	showMessage(clDarkGrey, clYellow, 40, 9, " Attack: X             ");
-	showMessage(clDarkGrey, clYellow, 40, 10, " Freeze: F             ");
-	showMessage(clDarkGrey, clYellow, 40, 11, " Quit: Q               ");
+	showMessage(clDarkGrey, clYellow, 40, 8, "| Movement: Arrows    |");
+	showMessage(clDarkGrey, clYellow, 40, 9, "| Attack: X           |");
+	showMessage(clDarkGrey, clYellow, 40, 10, "| Freeze: F           |");
+	showMessage(clDarkGrey, clYellow, 40, 11, "| Quit: Q             |");
 	showMessage(clDarkGrey, clYellow, 40, 12, "-----------------------");
+
+	showMessage(clDarkGrey, clYellow, 5, 14, "Enter your name to start: ");
 }
 
 void initialiseGame(char grid[][SIZEX], char maze[][SIZEX], Item& spot)
