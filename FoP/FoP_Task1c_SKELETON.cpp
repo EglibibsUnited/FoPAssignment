@@ -79,6 +79,7 @@ int main()
 	displayStartScreen();
 	string name;
 	cin >> name;
+	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 0);
 	Clrscr();
 
 	initialiseGame(grid, maze, spot);	//initialise grid (incl. walls and spot)
@@ -130,6 +131,7 @@ void displayStartScreen()
 	showMessage(clDarkGrey, clYellow, 40, 12, "-----------------------");
 
 	showMessage(clDarkGrey, clYellow, 5, 14, "Enter your name to start: ");
+	showMessage(clDarkGrey, clRed, 31, 14, "");
 }
 
 void initialiseGame(char grid[][SIZEX], char maze[][SIZEX], Item& spot)
