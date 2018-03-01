@@ -353,10 +353,10 @@ void paintGame(const char g[][SIZEX], string mess, int lives, string playerName)
 	stringstream ss;
 	if (lives < 0)
 	{
-		ss << "LIVES: 0H NO";
+		ss << "Lives: 0H NO";
 	} else
 	{
-		ss << "LIVES: " << lives;
+		ss << "Lives: " << lives;
 	}
 	
 	showMessage(clBlack, clGreen, 1, SIZEY+2, ss.str());
@@ -375,10 +375,10 @@ void paintGame(const char g[][SIZEX], string mess, int lives, string playerName)
 	showMessage(clDarkGrey, clYellow, 40, 11, "| Quit: Q             |");
 	showMessage(clDarkGrey, clYellow, 40, 12, "-----------------------");
 
-	int p = playerName.length();
 	int score(0);
-	showMessage(clDarkGrey, clYellow, 40, 14, "Player: " + playerName);
-	showMessage(clDarkGrey, clYellow, 47 + playerName.length() + 1, 14, ": " + to_string(score));
+	showMessage(clDarkGrey, clYellow, 40, 14, "Player: " + playerName + ": " + to_string(score));
+	showMessage(clBlack, clGreen, 40, 17, ss.str());
+	showMessage(clBlack, clGreen, 40, 18, "Power Pills Remaining: ");
 
 	//print auxiliary messages if any
 	showMessage(clBlack, clWhite, 5, SIZEY + 4, mess);
@@ -395,7 +395,18 @@ void paintGrid(const char g[][SIZEX])
 	for (int row(0); row < SIZEY; ++row)
 	{
 		for (int col(0); col < SIZEX; ++col)
-			cout << g[row][col];	//output cell content
+		{
+			if (g[row][col] == '0')
+			{
+				SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 12);
+				cout << g[row][col];
+				SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 7);
+			}
+			else
+			{
+				cout << g[row][col];	//output cell content
+			}
+		}
 		cout << endl;
 	}
 }
