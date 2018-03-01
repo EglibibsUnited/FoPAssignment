@@ -400,6 +400,8 @@ void paintGame(const char g[][SIZEX], string mess, int lives, string playerName,
 	//TODO: Change the colour of the messages
 	//display game title
 	showMessage(clBlack, clYellow, 0, 0, "___GAME___");
+	SelectBackColour(clDarkGrey);
+	SelectTextColour(clYellow);
 
 	// Display lives left //
 	stringstream ss;
@@ -458,27 +460,27 @@ void paintGrid(const char g[][SIZEX], char m[][SIZEX])
 		{
 			if (g[row][col] == SPOT)
 			{
-				SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 29);
+				SelectTextColour(clBlue);
 				cout << g[row][col];
-				SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 7);
+				SelectTextColour(clWhite);
 			} else if (g[row][col] == HOLE)
 			{
-				SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 12);
+				SelectTextColour(clRed);
 				cout << g[row][col];
-				SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 7);
+				SelectTextColour(clWhite);
 			} else if (g[row][col] == ZOMBIE)
 			{
-				SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 10);
+				SelectTextColour(clGreen);
 				cout << g[row][col];
-				SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 7);
+				SelectTextColour(clWhite);
 
 				// TODO - Update zombie position //
 			}
 			else if (g[row][col] == POWERPILL)
 			{
-				SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 14);
+				SelectTextColour(clYellow);
 				cout << g[row][col];
-				SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 7);
+				SelectTextColour(clWhite);
 			} else
 			{
 				cout << g[row][col];	//output cell content
@@ -504,7 +506,7 @@ void playerData(string playerName, int lives)
 	writeScore.open(playerName + ".txt", ios::out);
 	if (sum > 0)
 	{
-		if (value > lives) 
+		if (value < lives) 
 		{
 			writeScore << lives;
 		}		
