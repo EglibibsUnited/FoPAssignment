@@ -88,10 +88,17 @@ int main()
 	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 0);
 	Clrscr();
 
-	ofstream fout;
-	string filename = playerName + ".txt";
-	fout.open(filename, ios::out);
-
+	ifstream getScore;
+	getScore.open(".\\Players\\" + playerName + ".txt", ios::in);
+	int value, sum(0);
+	getScore >> value;
+	if (value < -1)
+	{
+		// Nothing is written in the file //
+		ofstream writeScore;
+		writeScore.open(".\\Players\\" + playerName + ".txt", ios::out);
+		writeScore << "-1";
+	}
 
 	initialiseGame(grid, maze, spot);	//initialise grid (incl. walls and spot)
 	paintGame(grid, message, lives, playerName, powerPills, maze);			//display game info, modified grid and messages
@@ -128,9 +135,9 @@ void displayStartScreen()
 
 	showMessage(clDarkGrey, clYellow, 5, 6, "    Group SE1_5 - 2018    ");
 	showMessage(clDarkGrey, clYellow, 5, 7, " ------------------------ ");
-	showMessage(clDarkGrey, clYellow, 5, 8, " * Michael Elsom 27035059 ");
-	showMessage(clDarkGrey, clYellow, 5, 9, " * James Nelhams 27021413 ");
-	showMessage(clDarkGrey, clYellow, 5, 10, " * Jake Stringer 27003087 ");
+	showMessage(clDarkGrey, clYellow, 5, 8, " > Michael Elsom 27035059 ");
+	showMessage(clDarkGrey, clYellow, 5, 9, " > James Nelhams 27021413 ");
+	showMessage(clDarkGrey, clYellow, 5, 10, " > Jake Stringer 27003087 ");
 
 	showMessage(clDarkGrey, clYellow, 40, 2, "Date: " + GetDate());
 	showMessage(clDarkGrey, clYellow, 40, 3, "Time: " + GetTime());
@@ -492,9 +499,11 @@ void paintGrid(const char g[][SIZEX], char m[][SIZEX])
 
 void playerData(string playerName, int lives)
 {
+	void showMessage(const WORD backColour, const WORD textColour, int x, int y, const string message);
+
 	ifstream getScore;
 	ofstream writeScore;
-	getScore.open(playerName + ".txt", ios::in);
+	getScore.open(".\\Players\\" + playerName + ".txt", ios::in);
 	int value, sum(0);
 	getScore >> value;
 	while (getScore)
@@ -503,11 +512,16 @@ void playerData(string playerName, int lives)
 		sum++;
 	}
 	getScore.close();
-	writeScore.open(playerName + ".txt", ios::out);
+	writeScore.open(".\\Players\\" + playerName + ".txt", ios::out);
 	if (sum > 0)
 	{
+<<<<<<< HEAD
 		if (value < lives) 
+=======
+		if (lives > value) 
+>>>>>>> 52930497ff6a741ea425de954fb8f00baf2e5168
 		{
+			showMessage(clRed, clYellow, 40, 22, "NEW SCORE!");
 			writeScore << lives;
 		}		
 	}
