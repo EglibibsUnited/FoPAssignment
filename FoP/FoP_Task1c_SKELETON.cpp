@@ -444,7 +444,8 @@ void paintGame(const char g[][SIZEX], string mess, int lives, string playerName,
 	showMessage(clDarkGrey, clYellow, 40, 11, "| Quit: Q             |");
 	showMessage(clDarkGrey, clYellow, 40, 12, "-----------------------");
 
-	showMessage(clDarkGrey, clYellow, 40, 14, "Player: " + playerName + ": " + to_string(lives));
+	int score(0);
+	showMessage(clDarkGrey, clYellow, 40, 14, "Player: " + playerName + ": " + to_string(score)+ "  ");
 	showMessage(clBlack, clGreen, 40, 17, ss.str());
 	showMessage(clBlack, clGreen, 40, 18, pps.str());
 
