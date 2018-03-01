@@ -297,7 +297,7 @@ void paintGame(const char g[][SIZEX], string mess)
 	//TODO: Date and time should be displayed from the system
 	showMessage(clWhite, clRed, 40, 0, "FoP Task 1c: February 2018");
 	showMessage(clWhite, clRed, 80, 0, GetTime());
-	showMessage(clWhite, clRed, 140, 0, GetDate());
+	showMessage(clWhite, clRed, 68, 0, GetDate());
 
 	//display menu options available
 	showMessage(clRed, clYellow, 40, 3, "TO MOVE USE KEYBOARD ARROWS ");
