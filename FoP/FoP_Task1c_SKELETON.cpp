@@ -470,7 +470,7 @@ void paintGrid(const char g[][SIZEX], char m[][SIZEX])
 				cout << g[row][col];
 				SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 7);
 
-				// Update zombie position //
+				// TODO - Update zombie position //
 			}
 			else if (g[row][col] == POWERPILL)
 			{
