@@ -76,8 +76,8 @@ int main()
 	paintGame(grid, message);			//display game info, modified grid and messages
 	int key;							//current key selected by player
 	do {
-		//TODO: command letters should not be case sensitive
 		key = getKeyPress(); 	//read in  selected key: arrow or letter command
+		key = toupper(key);
 		if (isArrowKey(key))
 		{
 			updateGameData(grid, spot, key, message);		//move spot in that direction
@@ -99,19 +99,25 @@ int main()
 void initialiseGame(char grid[][SIZEX], char maze[][SIZEX], Item& spot)
 { //initialise grid and place spot in middle
 	void setInitialMazeStructure(char maze[][SIZEX]);
-	void setSpotInitialCoordinates(Item& spot);
+	void setSpotInitialCoordinates(Item& spot, char maze[][SIZEX]);
 	void updateGrid(char g[][SIZEX], const char m[][SIZEX], Item b);
 
 	setInitialMazeStructure(maze);		//initialise maze
-	setSpotInitialCoordinates(spot);
+	setSpotInitialCoordinates(spot, maze);
 	updateGrid(grid, maze, spot);		//prepare grid
 }
 
-void setSpotInitialCoordinates(Item& spot)
+void setSpotInitialCoordinates(Item& spot, char maze[][SIZEX])
 { //set spot coordinates inside the grid at random at beginning of game
 //TODO: Spot should not spwan on inner walls
 	spot.y = Random(SIZEY - 2);      //vertical coordinate in range [1..(SIZEY - 2)]
 	spot.x = Random(SIZEX - 2);      //horizontal coordinate in range [1..(SIZEX - 2)]
+	while (maze[spot.x][spot.y] == WALL)
+	{
+		spot.y = Random(SIZEY - 2);
+		spot.x = Random(SIZEX - 2);
+		cout << "\nWhy?";
+	}
 } 
 
 void setInitialMazeStructure(char maze[][SIZEX])
@@ -120,12 +126,12 @@ void setInitialMazeStructure(char maze[][SIZEX])
   //initialise maze configuration
 	char initialMaze[SIZEY][SIZEX] 	//local array to store the maze structure
 		= { { '#', '#', '#', '#', '#', '#', '#', '#', '#', '#' },
-		{ '#', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '#' },
-		{ '#', ' ', ' ', '#', ' ', ' ', '#', ' ', ' ', '#' },
-		{ '#', ' ', ' ', '#', ' ', ' ', '#', ' ', ' ', '#' },
-		{ '#', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '#' },
-		{ '#', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '#' },
-		{ '#', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '#' },
+	{ '#', '#', '#', '#', '#', '#', '#', '#', '#', '#' },
+	{ '#', '#', '#', '#', '#', '#', '#', '#', '#', '#' },
+	{ '#', '#', '#', '#', '#', ' ', '#', '#', '#', '#' },
+	{ '#', '#', '#', '#', '#', '#', '#', '#', '#', '#' },
+	{ '#', '#', '#', '#', '#', '#', '#', '#', '#', '#' },
+	{ '#', '#', '#', '#', '#', '#', '#', '#', '#', '#' },
 		{ '#', '#', '#', '#', '#', '#', '#', '#', '#', '#' } };
 	//with '#' for wall, ' ' for tunnel, etc. 
 	//copy into maze structure with appropriate symbols
@@ -199,7 +205,6 @@ void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& me
 //---------------------------------------------------------------------------
 void setKeyDirection(const int key, int& dx, int& dy)
 { //calculate direction indicated by key
-//TODO: UP and DOWN arrow keys should work
 	bool isArrowKey(const int k);
 	assert(isArrowKey(key));
 	switch (key)	//...depending on the selected key...
@@ -235,7 +240,6 @@ int getKeyPress()
 
 bool isArrowKey(const int key)
 {	//check if the key pressed is an arrow key (also accept 'K', 'M', 'H' and 'P')
-//TODO: UP and DOWN arrow keys should be detected
 	return (key == LEFT) || (key == RIGHT) || (key == UP) || (key == DOWN);
 }
 bool wantsToQuit(const int key)
