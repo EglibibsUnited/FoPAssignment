@@ -1,5 +1,5 @@
 //---------------------------------------------------------------------------
-//Program: Skeleton for Task 1c – group assignment
+//Program: Skeleton for Task 1c â€“ group assignment
 //Author: Pascale Vacher
 //Last updated: 1 March 2018
 //---------------------------------------------------------------------------
@@ -56,6 +56,7 @@ struct Item {
 int main()
 {
 	//function declarations (prototypes)
+	void displayStartScreen();
 	void initialiseGame(char g[][SIZEX], char m[][SIZEX], Item& spot);
 	void paintGame(const char g[][SIZEX], string mess, int lives);
 	bool wantsToQuit(const int key);
@@ -72,9 +73,15 @@ int main()
 	string message("LET'S START...");	//current message to player
 	int lives = 3;						// Initialise Spot with 3 lives //
 
-										//action...
 	Seed();								//seed the random number generator
 	SetConsoleTitle("Spot and Zombies Game - FoP 2017-18");
+
+	displayStartScreen();
+	while (cin)
+	{
+
+	}
+
 	initialiseGame(grid, maze, spot);	//initialise grid (incl. walls and spot)
 	paintGame(grid, message, lives);			//display game info, modified grid and messages
 	int key;							//current key selected by player
@@ -98,6 +105,31 @@ int main()
 //---------------------------------------------------------------------------
 //----- initialise game state
 //---------------------------------------------------------------------------
+
+void displayStartScreen()
+{
+	void showMessage(const WORD backColour, const WORD textColour, int x, int y, const string message);
+	showMessage(clDarkGrey, clYellow, 5, 2, "-----------------------");
+	showMessage(clDarkGrey, clYellow, 5, 3, "|   SPOT AND ZOMBIES  |");
+	showMessage(clDarkGrey, clYellow, 5, 4, "-----------------------");
+
+	showMessage(clDarkGrey, clYellow, 5, 6, "   Group SE1_5 - 2018  ");
+	showMessage(clDarkGrey, clYellow, 5, 7, " --------------------- ");
+	showMessage(clDarkGrey, clYellow, 5, 8, "	* Michael Elsom	    ");
+	showMessage(clDarkGrey, clYellow, 5, 9, "	* James Nelhams	    ");
+	showMessage(clDarkGrey, clYellow, 5, 10, "	* Jake Stringer	    ");
+
+	showMessage(clDarkGrey, clYellow, 40, 2, "Date: " + GetDate());
+	showMessage(clDarkGrey, clYellow, 40, 3, "Time: " + GetTime());
+
+	showMessage(clDarkGrey, clYellow, 40, 6, "        Controls       ");
+	showMessage(clDarkGrey, clYellow, 40, 7, "-----------------------");
+	showMessage(clDarkGrey, clYellow, 40, 8, " Movement: Arrows      ");
+	showMessage(clDarkGrey, clYellow, 40, 9, " Attack: X             ");
+	showMessage(clDarkGrey, clYellow, 40, 10, " Freeze: F             ");
+	showMessage(clDarkGrey, clYellow, 40, 11, " Quit: Q               ");
+	showMessage(clDarkGrey, clYellow, 40, 12, "-----------------------");
+}
 
 void initialiseGame(char grid[][SIZEX], char maze[][SIZEX], Item& spot)
 { //initialise grid and place spot in middle
