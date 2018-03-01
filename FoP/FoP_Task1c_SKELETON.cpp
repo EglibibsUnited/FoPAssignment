@@ -22,6 +22,7 @@ using namespace std;
 //include our own libraries
 #include "RandomUtils.h"    //for Seed, Random
 #include "ConsoleUtils.h"	//for Clrscr, Gotoxy, etc.
+#include "TimeUtils.h"
 
 //---------------------------------------------------------------------------
 //----- define constants
@@ -134,15 +135,6 @@ void setInitialMazeStructure(char maze[][SIZEX])
 	{ '#', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '#' },
 	{ '#', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '#' },
 	{ '#', '#', '#', '#', '#', '#', '#', '#', '#', '#' } };
-
-	//char initialMaze[SIZEY][SIZEX];
-	//for (int column = 0; column < SIZEY; column++) // More efficient way of creating the initialMaze array //
-	//{
-	//	for (int row = 0; row < SIZEX; row++)
-	//	{
-	//		initialMaze[column][row] = '#';
-	//	}
-	//}
 
 	//with '#' for wall, ' ' for tunnel, etc. 
 	//copy into maze structure with appropriate symbols
@@ -291,6 +283,8 @@ void paintGame(const char g[][SIZEX], string mess)
 	showMessage(clBlack, clYellow, 0, 0, "___GAME___");
 //TODO: Date and time should be displayed from the system
 	showMessage(clWhite, clRed, 40, 0, "FoP Task 1c: February 2018");
+	showMessage(clWhite, clRed, 80, 0, GetTime());
+	showMessage(clWhite, clRed, 120, 0, GetDate());
 
 	//display menu options available
 	showMessage(clRed, clYellow, 40, 3, "TO MOVE USE KEYBOARD ARROWS ");
