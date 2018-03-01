@@ -124,7 +124,7 @@ void setInitialMazeStructure(char maze[][SIZEX])
 { //set the position of the walls in the maze
 //TODO: initial maze configuration should be amended (size changed and inner walls removed)
   //initialise maze configuration
-	char initialMaze[SIZEY][SIZEX] 	//local array to store the maze structure
+	/*char initialMaze[SIZEY][SIZEX] 	//local array to store the maze structure
 		= { { '#', '#', '#', '#', '#', '#', '#', '#', '#', '#' },
 	{ '#', '#', '#', '#', '#', '#', '#', '#', '#', '#' },
 	{ '#', '#', '#', '#', '#', '#', '#', '#', '#', '#' },
@@ -132,7 +132,18 @@ void setInitialMazeStructure(char maze[][SIZEX])
 	{ '#', '#', '#', '#', '#', '#', '#', '#', '#', '#' },
 	{ '#', '#', '#', '#', '#', '#', '#', '#', '#', '#' },
 	{ '#', '#', '#', '#', '#', '#', '#', '#', '#', '#' },
-		{ '#', '#', '#', '#', '#', '#', '#', '#', '#', '#' } };
+		{ '#', '#', '#', '#', '#', '#', '#', '#', '#', '#' } };*/
+
+	char initialMaze[SIZEY][SIZEX];
+	for (int column = 0; column < SIZEY; column++) // More efficient way of creating the initialMaze array //
+	{
+		for (int row = 0; row < SIZEX; row++)
+		{
+			initialMaze[column][row] = '#';
+		}
+		
+	}
+
 	//with '#' for wall, ' ' for tunnel, etc. 
 	//copy into maze structure with appropriate symbols
 	for (int row(0); row < SIZEY; ++row)
