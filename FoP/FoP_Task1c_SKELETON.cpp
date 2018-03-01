@@ -35,6 +35,7 @@ const int  SIZEY(8);		//vertical dimension
 const char SPOT('@');   	//spot
 const char TUNNEL(' ');    	//tunnel
 const char WALL('#');    	//border
+const char HOLE('0');
 //defining the command letters to move the spot on the maze
 const int  UP(72);			//up arrow
 const int  DOWN(80); 		//down arrow
