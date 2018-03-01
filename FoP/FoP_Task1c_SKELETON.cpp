@@ -77,8 +77,8 @@ int main()
 	SetConsoleTitle("Spot and Zombies Game - FoP 2017-18");
 
 	displayStartScreen();
-	string name;
-	cin >> name;
+	string playerName;
+	cin >> playerName;
 	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 0);
 	Clrscr();
 
@@ -344,16 +344,21 @@ void paintGame(const char g[][SIZEX], string mess, int lives)
 	showMessage(clBlack, clGreen, 1, SIZEY+2, ss.str());
 
 	// Display date and time etc. //
-	showMessage(clWhite, clRed, 40, 0, "FoP Task 1c: February 2018");
-	showMessage(clWhite, clRed, 80, 0, GetTime());
-	showMessage(clWhite, clRed, 68, 0, GetDate());
+	showMessage(clDarkGrey, clYellow, 40, 1, "FoP Task 1c: February 2018");
+	showMessage(clDarkGrey, clYellow, 40, 2, "Date: " + GetDate());
+	showMessage(clDarkGrey, clYellow, 40, 3, "Time: " + GetTime());
 
 	//display menu options available
-	showMessage(clRed, clYellow, 40, 3, "TO MOVE USE KEYBOARD ARROWS ");
-	showMessage(clRed, clYellow, 40, 4, "TO QUIT ENTER 'Q'           ");
+	showMessage(clDarkGrey, clYellow, 40, 6, "        Controls       ");
+	showMessage(clDarkGrey, clYellow, 40, 7, "-----------------------");
+	showMessage(clDarkGrey, clYellow, 40, 8, "| Movement: Arrows    |");
+	showMessage(clDarkGrey, clYellow, 40, 9, "| Attack: X           |");
+	showMessage(clDarkGrey, clYellow, 40, 10, "| Freeze: F           |");
+	showMessage(clDarkGrey, clYellow, 40, 11, "| Quit: Q             |");
+	showMessage(clDarkGrey, clYellow, 40, 12, "-----------------------");
 
 	//print auxiliary messages if any
-	showMessage(clBlack, clWhite, 40, 8, mess);	//display current message
+	showMessage(clBlack, clWhite, 40, 14, mess);	//display current message
 
 												//TODO: Show your course, your group number and names on screen
 
