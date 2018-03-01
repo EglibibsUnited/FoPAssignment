@@ -68,6 +68,7 @@ int main()
 	void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& mess, int& lives, char m[][SIZEX], int& powerPills);
 	void showMessage(const WORD backColour, const WORD textColour, int x, int y, const string message);
 	void updateGrid(char g[][SIZEX], const char m[][SIZEX], const Item spot);
+	void playerData(string playerName, int lives);
 	void endProgram();
 
 	//local variable declarations 
@@ -88,8 +89,9 @@ int main()
 	Clrscr();
 
 	ofstream fout;
-	string filename = "E:\\C++ Files\\C++ Files\\data.txt";
+	string filename = playerName + ".txt";
 	fout.open(filename, ios::out);
+
 
 	initialiseGame(grid, maze, spot);	//initialise grid (incl. walls and spot)
 	paintGame(grid, message, lives, playerName, powerPills);			//display game info, modified grid and messages
@@ -107,7 +109,7 @@ int main()
     
 		paintGame(grid, message, lives, playerName, powerPills);		//display game info, modified grid and messages
 	} while (!wantsToQuit(key) && lives >= 0);		//while user does not want to quit and they still have lives left //
-	cin.get();
+	playerData(playerName, lives);
 	endProgram();						//display final message
 	return 0;
 }
@@ -421,12 +423,12 @@ void paintGame(const char g[][SIZEX], string mess, int lives, string playerName,
 	showMessage(clDarkGrey, clYellow, 40, 12, "-----------------------");
 
 	int score(0);
-	showMessage(clDarkGrey, clYellow, 40, 14, "Player: " + playerName + ": " + to_string(score));
+	showMessage(clDarkGrey, clYellow, 40, 14, "Player: " + playerName + ": " + to_string(score)+ "  ");
 	showMessage(clBlack, clGreen, 40, 17, ss.str());
 	showMessage(clBlack, clGreen, 40, 18, pps.str());
 
 	//print auxiliary messages if any
-	showMessage(clBlack, clWhite, 5, SIZEY + 4, mess);
+	showMessage(clBlack, clWhite, 40, 25, mess);
 
 
 	paintGrid(g);
@@ -471,9 +473,33 @@ void paintGrid(const char g[][SIZEX])
 	}
 }
 
+void playerData(string playerName, int lives)
+{
+	ifstream getScore;
+	ofstream writeScore;
+	getScore.open(playerName + ".txt", ios::in);
+	int value, sum(0);
+	getScore >> value;
+	while (getScore)
+	{
+		getScore >> value;
+		sum++;
+	}
+	getScore.close();
+	writeScore.open(playerName + ".txt", ios::out);
+	if (sum > 0)
+	{
+		if (value > lives) 
+		{
+			writeScore << lives;
+		}		
+	}
+	writeScore << lives;
+}
+
 void endProgram()
 {
 	void showMessage(const WORD backColour, const WORD textColour, int x, int y, const string message);
-	showMessage(clRed, clYellow, 40, 8, "");
+	showMessage(clRed, clYellow, 40, 26, "");
 	system("pause");	//hold output screen until a keyboard key is hit
 }
