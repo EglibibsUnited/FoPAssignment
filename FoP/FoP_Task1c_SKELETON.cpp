@@ -58,7 +58,7 @@ int main()
 	//function declarations (prototypes)
 	void displayStartScreen();
 	void initialiseGame(char g[][SIZEX], char m[][SIZEX], Item& spot);
-	void paintGame(const char g[][SIZEX], string mess, int lives);
+	void paintGame(const char g[][SIZEX], string mess, int lives, string playerName);
 	bool wantsToQuit(const int key);
 	bool isArrowKey(const int k);
 	int  getKeyPress();
@@ -84,7 +84,7 @@ int main()
 	Clrscr();
 
 	initialiseGame(grid, maze, spot);	//initialise grid (incl. walls and spot)
-	paintGame(grid, message, lives);			//display game info, modified grid and messages
+	paintGame(grid, message, lives, playerName);			//display game info, modified grid and messages
 	int key;							//current key selected by player
 	do {
 		key = getKeyPress(); 	//read in  selected key: arrow or letter command
@@ -96,7 +96,7 @@ int main()
 		}
 		else
 			message = "INVALID KEY!";	//set 'Invalid key' message
-		paintGame(grid, message, lives);		//display game info, modified grid and messages
+		paintGame(grid, message, lives, playerName);		//display game info, modified grid and messages
 	} while (!wantsToQuit(key) && lives >= 0);		//while user does not want to quit and they still have lives left //
 	cin.get();
 	endProgram();						//display final message
@@ -132,8 +132,8 @@ void displayStartScreen()
 	showMessage(clDarkGrey, clYellow, 40, 11, "| Quit: Q             |");
 	showMessage(clDarkGrey, clYellow, 40, 12, "-----------------------");
 
-	showMessage(clDarkGrey, clYellow, 5, 14, "Enter your name to start: ");
-	showMessage(clDarkGrey, clRed, 31, 14, "");
+	showMessage(clDarkGrey, clYellow, 5, 14, "Enter your name to start:");
+	showMessage(clBlack, clRed, 31, 14, " ");
 }
 
 void initialiseGame(char grid[][SIZEX], char maze[][SIZEX], Item& spot)
@@ -333,7 +333,7 @@ void showMessage(const WORD backColour, const WORD textColour, int x, int y, con
 	SelectTextColour(textColour);
 	cout << message;
 }
-void paintGame(const char g[][SIZEX], string mess, int lives)
+void paintGame(const char g[][SIZEX], string mess, int lives, string playerName)
 { //display game title, messages, maze, spot and other items on screen
 	string tostring(char x);
 	void showMessage(const WORD backColour, const WORD textColour, int x, int y, const string message);
@@ -368,12 +368,15 @@ void paintGame(const char g[][SIZEX], string mess, int lives)
 	showMessage(clDarkGrey, clYellow, 40, 11, "| Quit: Q             |");
 	showMessage(clDarkGrey, clYellow, 40, 12, "-----------------------");
 
+	int p = playerName.length();
+	int score(0);
+	showMessage(clDarkGrey, clYellow, 40, 14, "Player: " + playerName);
+	showMessage(clDarkGrey, clYellow, 47 + playerName.length() + 1, 14, ": " + to_string(score));
+
 	//print auxiliary messages if any
-	showMessage(clBlack, clWhite, 40, 14, mess);	//display current message
+	showMessage(clBlack, clWhite, 5, SIZEY + 4, mess);
 
-												//TODO: Show your course, your group number and names on screen
 
-												//display grid contents
 	paintGrid(g);
 }
 
