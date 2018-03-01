@@ -22,7 +22,6 @@ using namespace std;
 //include our own libraries
 #include "RandomUtils.h"    //for Seed, Random
 #include "ConsoleUtils.h"	//for Clrscr, Gotoxy, etc.
-#include "TimeUtils.h"
 
 //---------------------------------------------------------------------------
 //----- define constants
@@ -31,17 +30,17 @@ using namespace std;
 //defining the size of the grid
 const int  SIZEX(10);    	//horizontal dimension
 const int  SIZEY(8);		//vertical dimension
-//defining symbols used for display of the grid and content
+							//defining symbols used for display of the grid and content
 const char SPOT('@');   	//spot
 const char TUNNEL(' ');    	//tunnel
 const char WALL('#');    	//border
-const char HOLE('0');
-//defining the command letters to move the spot on the maze
+const char HOLE('0');    	//border
+							//defining the command letters to move the spot on the maze
 const int  UP(72);			//up arrow
 const int  DOWN(80); 		//down arrow
 const int  RIGHT(77);		//right arrow
 const int  LEFT(75);		//left arrow
-//defining the other command letters
+							//defining the other command letters
 const char QUIT('Q');		//to end the game
 
 struct Item {
@@ -71,7 +70,7 @@ int main()
 	Item spot = { 0, 0, SPOT }; 		//spot's position and symbol
 	string message("LET'S START...");	//current message to player
 
-	//action...
+										//action...
 	Seed();								//seed the random number generator
 	SetConsoleTitle("Spot and Zombies Game - FoP 2017-18");
 	initialiseGame(grid, maze, spot);	//initialise grid (incl. walls and spot)
@@ -111,7 +110,6 @@ void initialiseGame(char grid[][SIZEX], char maze[][SIZEX], Item& spot)
 
 void setSpotInitialCoordinates(Item& spot, char maze[][SIZEX])
 { //set spot coordinates inside the grid at random at beginning of game
-//TODO: Spot should not spawn on inner walls
 	int y = Random(SIZEY - 2);      //vertical coordinate in range [1..(SIZEY - 2)]
 	int x = Random(SIZEX - 2);      //horizontal coordinate in range [1..(SIZEX - 2)]
 	while (maze[y][x] == WALL)
@@ -121,11 +119,11 @@ void setSpotInitialCoordinates(Item& spot, char maze[][SIZEX])
 	}
 	spot.y = y;
 	spot.x = x;
-} 
+}
 
 void setInitialMazeStructure(char maze[][SIZEX])
 { //set the position of the walls in the maze
-//TODO: initial maze configuration should be amended (size changed and inner walls removed)
+  //TODO: initial maze configuration should be amended (size changed and inner walls removed)
   //initialise maze configuration
 	char initialMaze[SIZEY][SIZEX] 	//local array to store the maze structure
 		= { { '#', '#', '#', '#', '#', '#', '#', '#', '#', '#' },
@@ -137,6 +135,18 @@ void setInitialMazeStructure(char maze[][SIZEX])
 	{ '#', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '#' },
 	{ '#', '#', '#', '#', '#', '#', '#', '#', '#', '#' } };
 
+	for (int holesCount = 12; holesCount >= 0; holesCount--)
+	{
+		int x = Random(SIZEX - 2);
+		int y = Random(SIZEY - 2);
+		while (initialMaze[y][x] == WALL)
+		{
+			x = Random(SIZEX - 2);
+			y = Random(SIZEY - 2);
+		}
+		initialMaze[y][x] = '0';
+	}
+
 	//with '#' for wall, ' ' for tunnel, etc. 
 	//copy into maze structure with appropriate symbols
 	for (int row(0); row < SIZEY; ++row)
@@ -144,8 +154,9 @@ void setInitialMazeStructure(char maze[][SIZEX])
 			switch (initialMaze[row][col])
 			{
 				//not a direct copy, in case the symbols used change
-				case '#': maze[row][col] = WALL; break;
-				case ' ': maze[row][col] = TUNNEL; break;
+			case '#': maze[row][col] = WALL; break;
+			case ' ': maze[row][col] = TUNNEL; break;
+			case '0': maze[row][col] = HOLE; break;
 			}
 }
 
@@ -186,7 +197,7 @@ void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& me
 	//reset message to blank
 	mess = "                                         ";		//reset message to blank
 
-	//calculate direction of movement for given key
+															//calculate direction of movement for given key
 	int dx(0), dy(0);
 	setKeyDirection(key, dx, dy);
 
@@ -198,7 +209,7 @@ void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& me
 		spot.x += dx;	//go in that X direction
 		break;
 	case WALL:  		//hit a wall and stay there
-//TODO: remove alarm when bumping into walls - too annoying
+						//TODO: remove alarm when bumping into walls - too annoying
 		cout << '\a';	//beep the alarm
 		mess = "CANNOT GO THERE!";
 		break;
@@ -261,7 +272,7 @@ string tostring(int x)
 	os << x;
 	return os.str();
 }
-string tostring(char x) 
+string tostring(char x)
 {	//convert a char to a string
 	std::ostringstream os;
 	os << x;
@@ -279,13 +290,11 @@ void paintGame(const char g[][SIZEX], string mess)
 	string tostring(char x);
 	void showMessage(const WORD backColour, const WORD textColour, int x, int y, const string message);
 	void paintGrid(const char g[][SIZEX]);
-//TODO: Change the colour of the messages
+	//TODO: Change the colour of the messages
 	//display game title
 	showMessage(clBlack, clYellow, 0, 0, "___GAME___");
-//TODO: Date and time should be displayed from the system
+	//TODO: Date and time should be displayed from the system
 	showMessage(clWhite, clRed, 40, 0, "FoP Task 1c: February 2018");
-	showMessage(clWhite, clRed, 80, 0, GetTime());
-	showMessage(clWhite, clRed, 120, 0, GetDate());
 
 	//display menu options available
 	showMessage(clRed, clYellow, 40, 3, "TO MOVE USE KEYBOARD ARROWS ");
@@ -294,9 +303,9 @@ void paintGame(const char g[][SIZEX], string mess)
 	//print auxiliary messages if any
 	showMessage(clBlack, clWhite, 40, 8, mess);	//display current message
 
-//TODO: Show your course, your group number and names on screen
+												//TODO: Show your course, your group number and names on screen
 
-	//display grid contents
+												//display grid contents
 	paintGrid(g);
 }
 
@@ -316,6 +325,6 @@ void paintGrid(const char g[][SIZEX])
 void endProgram()
 {
 	void showMessage(const WORD backColour, const WORD textColour, int x, int y, const string message);
-	showMessage(clRed, clYellow, 40, 8, "");	
+	showMessage(clRed, clYellow, 40, 8, "");
 	system("pause");	//hold output screen until a keyboard key is hit
 }
