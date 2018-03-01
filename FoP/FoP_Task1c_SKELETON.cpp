@@ -439,13 +439,28 @@ void paintGrid(const char g[][SIZEX])
 	{
 		for (int col(0); col < SIZEX; ++col)
 		{
-			if (g[row][col] == '0')
+			if (g[row][col] == SPOT)
+			{
+				SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 29);
+				cout << g[row][col];
+				SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 7);
+			} else if (g[row][col] == HOLE)
 			{
 				SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 12);
 				cout << g[row][col];
 				SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 7);
+			} else if (g[row][col] == ZOMBIE)
+			{
+				SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 10);
+				cout << g[row][col];
+				SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 7);
 			}
-			else
+			else if (g[row][col] == POWERPILL)
+			{
+				SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 14);
+				cout << g[row][col];
+				SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 7);
+			} else
 			{
 				cout << g[row][col];	//output cell content
 			}
