@@ -291,12 +291,14 @@ void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& me
 			spot.y += dy;
 			spot.x += dx;
 			lives--;
+			break;
 		case POWERPILL:		// Eat power pill //
 			spot.y += dy;
 			spot.x += dx;
 			maze[spot.y][spot.x] = ' ';
 			lives++;
 			powerPills--;
+			break;
 
 	}
 
