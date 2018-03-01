@@ -17,6 +17,7 @@
 #include <cassert> 
 #include <string>
 #include <sstream>
+#include <fstream>
 using namespace std;
 
 //include our own libraries
@@ -83,6 +84,10 @@ int main()
 	cin >> playerName;
 	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 0);
 	Clrscr();
+
+	ofstream fout;
+	string filename = "E:\\C++ Files\\C++ Files\\data.txt";
+	fout.open(filename, ios::out);
 
 	initialiseGame(grid, maze, spot);	//initialise grid (incl. walls and spot)
 	paintGame(grid, message, lives, playerName);			//display game info, modified grid and messages
@@ -372,8 +377,6 @@ void paintGame(const char g[][SIZEX], string mess, int lives, string playerName)
 	{
 		ss << "Lives: " << lives;
 	}
-	
-	showMessage(clBlack, clGreen, 1, SIZEY+2, ss.str());
 
 	// Display date and time etc. //
 	showMessage(clDarkGrey, clYellow, 40, 1, "FoP Task 1c: February 2018");
