@@ -53,7 +53,7 @@ struct Item {
 
 int main()
 {
-	cout << "Tess-Tickhill!";
+	cout << "Tess-Tickyoular!" << endl;
 	//function declarations (prototypes)
 	void initialiseGame(char g[][SIZEX], char m[][SIZEX], Item& spot);
 	void paintGame(const char g[][SIZEX], string mess);
