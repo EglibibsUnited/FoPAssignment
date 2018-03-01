@@ -109,40 +109,40 @@ void initialiseGame(char grid[][SIZEX], char maze[][SIZEX], Item& spot)
 
 void setSpotInitialCoordinates(Item& spot, char maze[][SIZEX])
 { //set spot coordinates inside the grid at random at beginning of game
-//TODO: Spot should not spwan on inner walls
-	spot.y = Random(SIZEY - 2);      //vertical coordinate in range [1..(SIZEY - 2)]
-	spot.x = Random(SIZEX - 2);      //horizontal coordinate in range [1..(SIZEX - 2)]
-	while (maze[spot.x][spot.y] == WALL)
+//TODO: Spot should not spawn on inner walls
+	int y = Random(SIZEY - 2);      //vertical coordinate in range [1..(SIZEY - 2)]
+	int x = Random(SIZEX - 2);      //horizontal coordinate in range [1..(SIZEX - 2)]
+	while (maze[y][x] == WALL)
 	{
-		spot.y = Random(SIZEY - 2);
-		spot.x = Random(SIZEX - 2);
-		cout << "\nWhy?";
+		y = Random(SIZEY - 2);      //vertical coordinate in range [1..(SIZEY - 2)]
+		x = Random(SIZEX - 2);		//horizontal coordinate in range [1..(SIZEX - 2)]
 	}
+	spot.y = y;
+	spot.x = x;
 } 
 
 void setInitialMazeStructure(char maze[][SIZEX])
 { //set the position of the walls in the maze
 //TODO: initial maze configuration should be amended (size changed and inner walls removed)
   //initialise maze configuration
-	/*char initialMaze[SIZEY][SIZEX] 	//local array to store the maze structure
+	char initialMaze[SIZEY][SIZEX] 	//local array to store the maze structure
 		= { { '#', '#', '#', '#', '#', '#', '#', '#', '#', '#' },
+	{ '#', '#', '#', '#', '#', '#', '#', '#', '#', '#' },
 	{ '#', '#', '#', '#', '#', '#', '#', '#', '#', '#' },
 	{ '#', '#', '#', '#', '#', '#', '#', '#', '#', '#' },
 	{ '#', '#', '#', '#', '#', ' ', '#', '#', '#', '#' },
 	{ '#', '#', '#', '#', '#', '#', '#', '#', '#', '#' },
 	{ '#', '#', '#', '#', '#', '#', '#', '#', '#', '#' },
-	{ '#', '#', '#', '#', '#', '#', '#', '#', '#', '#' },
-		{ '#', '#', '#', '#', '#', '#', '#', '#', '#', '#' } };*/
+		{ '#', '#', '#', '#', '#', '#', '#', '#', '#', '#' } };
 
-	char initialMaze[SIZEY][SIZEX];
-	for (int column = 0; column < SIZEY; column++) // More efficient way of creating the initialMaze array //
-	{
-		for (int row = 0; row < SIZEX; row++)
-		{
-			initialMaze[column][row] = '#';
-		}
-		
-	}
+	//char initialMaze[SIZEY][SIZEX];
+	//for (int column = 0; column < SIZEY; column++) // More efficient way of creating the initialMaze array //
+	//{
+	//	for (int row = 0; row < SIZEX; row++)
+	//	{
+	//		initialMaze[column][row] = '#';
+	//	}
+	//}
 
 	//with '#' for wall, ' ' for tunnel, etc. 
 	//copy into maze structure with appropriate symbols
@@ -150,9 +150,9 @@ void setInitialMazeStructure(char maze[][SIZEX])
 		for (int col(0); col < SIZEX; ++col)
 			switch (initialMaze[row][col])
 			{
-			//not a direct copy, in case the symbols used change
-			case '#': maze[row][col] = WALL; break;
-			case ' ': maze[row][col] = TUNNEL; break;
+				//not a direct copy, in case the symbols used change
+				case '#': maze[row][col] = WALL; break;
+				case ' ': maze[row][col] = TUNNEL; break;
 			}
 }
 
