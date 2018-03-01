@@ -515,11 +515,7 @@ void playerData(string playerName, int lives)
 	writeScore.open(".\\Players\\" + playerName + ".txt", ios::out);
 	if (sum > 0)
 	{
-<<<<<<< HEAD
-		if (value < lives) 
-=======
 		if (lives > value) 
->>>>>>> 52930497ff6a741ea425de954fb8f00baf2e5168
 		{
 			showMessage(clRed, clYellow, 40, 22, "NEW SCORE!");
 			writeScore << lives;
