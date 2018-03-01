@@ -63,7 +63,7 @@ int main()
 	bool wantsToQuit(const int key);
 	bool isArrowKey(const int k);
 	int  getKeyPress();
-	void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& mess, int& lives);
+	void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& mess, int& lives, char m[][SIZEX]);
 	void showMessage(const WORD backColour, const WORD textColour, int x, int y, const string message);
 	void updateGrid(char g[][SIZEX], const char m[][SIZEX], const Item spot);
 	void endProgram();
@@ -92,7 +92,7 @@ int main()
 		key = toupper(key);
 		if (isArrowKey(key))
 		{
-			updateGameData(grid, spot, key, message, lives);		//move spot in that direction
+			updateGameData(grid, spot, key, message, lives, maze);		//move spot in that direction
 			updateGrid(grid, maze, spot);					//update grid information
 		}
 		else
@@ -248,7 +248,7 @@ void placeItem(char g[][SIZEX], const Item item)
 //---------------------------------------------------------------------------
 //----- move items on the grid
 //---------------------------------------------------------------------------
-void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& mess, int& lives)
+void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& mess, int& lives, char maze[][SIZEX])
 { //move spot in required direction
 	bool isArrowKey(const int k);
 	void setKeyDirection(int k, int& dx, int& dy);
@@ -264,19 +264,24 @@ void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& me
 	//check new target position in grid and update game data (incl. spot coordinates) if move is possible
 	switch (g[spot.y + dy][spot.x + dx])
 	{			//...depending on what's on the target position in grid...
-	case TUNNEL:		//can move
-		spot.y += dy;	//go in that Y direction
-		spot.x += dx;	//go in that X direction
-		break;
-	case WALL:  		//hit a wall and stay there
-						//TODO: remove alarm when bumping into walls - too annoying
-		cout << '\a';	//beep the alarm
-		mess = "CANNOT GO THERE!";
-		break;
-	case HOLE:			// Fall into a hole //
-		spot.y += dy;
-		spot.x += dx;
-		lives--;
+		case TUNNEL:		//can move
+			spot.y += dy;	//go in that Y direction
+			spot.x += dx;	//go in that X direction
+			break;
+		case WALL:  		//hit a wall and stay there
+							//TODO: remove alarm when bumping into walls - too annoying
+			cout << '\a';	//beep the alarm
+			mess = "CANNOT GO THERE!";
+			break;
+		case HOLE:			// Fall into a hole //
+			spot.y += dy;
+			spot.x += dx;
+			lives--;
+		case POWERPILL:		// Eat power pill //
+			spot.y += dy;
+			spot.x += dx;
+			maze[spot.y][spot.x] = ' ';
+			lives++;
 	}
 
 	if (lives < 0)
