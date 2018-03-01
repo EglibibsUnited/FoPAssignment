@@ -96,6 +96,7 @@ int main()
 		}
 		else
 			message = "INVALID KEY!";	//set 'Invalid key' message
+    
 		paintGame(grid, message, lives, playerName);		//display game info, modified grid and messages
 	} while (!wantsToQuit(key) && lives >= 0);		//while user does not want to quit and they still have lives left //
 	cin.get();
