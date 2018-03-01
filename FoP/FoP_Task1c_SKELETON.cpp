@@ -489,6 +489,6 @@ void paintGrid(const char g[][SIZEX], char m[][SIZEX])
 void endProgram()
 {
 	void showMessage(const WORD backColour, const WORD textColour, int x, int y, const string message);
-	showMessage(clRed, clYellow, 40, 8, "");
+	showMessage(clRed, clYellow, 40, 21, "");
 	system("pause");	//hold output screen until a keyboard key is hit
 }
