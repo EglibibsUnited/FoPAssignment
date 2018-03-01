@@ -29,8 +29,8 @@ using namespace std;
 //---------------------------------------------------------------------------
 
 //defining the size of the grid
-const int  SIZEX(10);    	//horizontal dimension
-const int  SIZEY(8);		//vertical dimension
+const int  SIZEX(38);    	//horizontal dimension
+const int  SIZEY(25);		//vertical dimension
 							//defining symbols used for display of the grid and content
 const char SPOT('@');   	//spot
 const char TUNNEL(' ');    	//tunnel
@@ -164,15 +164,22 @@ void setInitialMazeStructure(char maze[][SIZEX])
 { //set the position of the walls in the maze
   //TODO: initial maze configuration should be amended (size changed and inner walls removed)
   //initialise maze configuration
-	char initialMaze[SIZEY][SIZEX] 	//local array to store the maze structure
-		= { { '#', '#', '#', '#', '#', '#', '#', '#', '#', '#' },
-	{ '#', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '#' },
-	{ '#', ' ', ' ', '#', ' ', ' ', '#', ' ', ' ', '#' },
-	{ '#', ' ', ' ', '#', ' ', ' ', '#', ' ', ' ', '#' },
-	{ '#', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '#' },
-	{ '#', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '#' },
-	{ '#', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '#' },
-	{ '#', '#', '#', '#', '#', '#', '#', '#', '#', '#' } };
+	char initialMaze[SIZEY][SIZEX];
+
+	for (int column = 0; column < SIZEY; column++)
+	{
+		for (int row = 0; row < SIZEX; row++)
+		{
+			if (column == 0 || column == SIZEY-1 || row == 0 || row == SIZEX-1)
+			{
+				// Just a row of walls //
+				initialMaze[column][row] = '#';
+			} else
+			{
+				initialMaze[column][row] = ' ';
+			}
+		}
+	}
 
 	for (int holesCount = 12; holesCount >= 0; holesCount--)
 	{
