@@ -60,11 +60,11 @@ int main()
 	//function declarations (prototypes)
 	void displayStartScreen();
 	void initialiseGame(char g[][SIZEX], char m[][SIZEX], Item& spot);
-	void paintGame(const char g[][SIZEX], string mess, int lives, string playerName);
+	void paintGame(const char g[][SIZEX], string mess, int lives, string playerName, int powerPills);
 	bool wantsToQuit(const int key);
 	bool isArrowKey(const int k);
 	int  getKeyPress();
-	void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& mess, int& lives, char m[][SIZEX]);
+	void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& mess, int& lives, char m[][SIZEX], int& powerPills);
 	void showMessage(const WORD backColour, const WORD textColour, int x, int y, const string message);
 	void updateGrid(char g[][SIZEX], const char m[][SIZEX], const Item spot);
 	void endProgram();
@@ -75,6 +75,7 @@ int main()
 	Item spot = { 0, 0, SPOT }; 		//spot's position and symbol
 	string message("LET'S START...");	//current message to player
 	int lives = 3;						// Initialise Spot with 3 lives //
+	int powerPills = 8;
 
 	Seed();								//seed the random number generator
 	SetConsoleTitle("Spot and Zombies Game - FoP 2017-18");
@@ -90,20 +91,20 @@ int main()
 	fout.open(filename, ios::out);
 
 	initialiseGame(grid, maze, spot);	//initialise grid (incl. walls and spot)
-	paintGame(grid, message, lives, playerName);			//display game info, modified grid and messages
+	paintGame(grid, message, lives, playerName, powerPills);			//display game info, modified grid and messages
 	int key;							//current key selected by player
 	do {
 		key = getKeyPress(); 	//read in  selected key: arrow or letter command
 		key = toupper(key);
 		if (isArrowKey(key))
 		{
-			updateGameData(grid, spot, key, message, lives, maze);		//move spot in that direction
+			updateGameData(grid, spot, key, message, lives, maze, powerPills);		//move spot in that direction
 			updateGrid(grid, maze, spot);					//update grid information
 		}
 		else
 			message = "INVALID KEY!";	//set 'Invalid key' message
     
-		paintGame(grid, message, lives, playerName);		//display game info, modified grid and messages
+		paintGame(grid, message, lives, playerName, powerPills);		//display game info, modified grid and messages
 	} while (!wantsToQuit(key) && lives >= 0);		//while user does not want to quit and they still have lives left //
 	cin.get();
 	endProgram();						//display final message
@@ -199,7 +200,7 @@ void setInitialMazeStructure(char maze[][SIZEX])
 		initialMaze[y][x] = '0';
 	}
 
-	for (int powerpills = 8; powerpills >= 0; powerpills--) // Add power pills //
+	for (int powerpills = 8; powerpills > 0; powerpills--) // Add power pills //
 	{
 		int x = Random(SIZEX - 2);
 		int y = Random(SIZEY - 2);
@@ -253,7 +254,7 @@ void placeItem(char g[][SIZEX], const Item item)
 //---------------------------------------------------------------------------
 //----- move items on the grid
 //---------------------------------------------------------------------------
-void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& mess, int& lives, char maze[][SIZEX])
+void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& mess, int& lives, char maze[][SIZEX], int& powerPills)
 { //move spot in required direction
 	bool isArrowKey(const int k);
 	void setKeyDirection(int k, int& dx, int& dy);
@@ -287,6 +288,8 @@ void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& me
 			spot.x += dx;
 			maze[spot.y][spot.x] = ' ';
 			lives++;
+			powerPills--;
+
 	}
 
 	if (lives < 0)
@@ -364,7 +367,7 @@ void showMessage(const WORD backColour, const WORD textColour, int x, int y, con
 	SelectTextColour(textColour);
 	cout << message;
 }
-void paintGame(const char g[][SIZEX], string mess, int lives, string playerName)
+void paintGame(const char g[][SIZEX], string mess, int lives, string playerName, int powerPills)
 { //display game title, messages, maze, spot and other items on screen
 	string tostring(char x);
 	void showMessage(const WORD backColour, const WORD textColour, int x, int y, const string message);
@@ -382,6 +385,16 @@ void paintGame(const char g[][SIZEX], string mess, int lives, string playerName)
 	{
 		ss << "Lives: " << lives;
 	}
+	stringstream pps;
+	if (powerPills < 0)
+	{
+		pps << "Power Pills Remaining: 0";	
+	}
+	else
+	{
+		pps << "Power Pills Remaining: " << powerPills;
+	}
+	
 
 	// Display date and time etc. //
 	showMessage(clDarkGrey, clYellow, 40, 1, "FoP Task 1c: February 2018");
@@ -400,7 +413,7 @@ void paintGame(const char g[][SIZEX], string mess, int lives, string playerName)
 	int score(0);
 	showMessage(clDarkGrey, clYellow, 40, 14, "Player: " + playerName + ": " + to_string(score));
 	showMessage(clBlack, clGreen, 40, 17, ss.str());
-	showMessage(clBlack, clGreen, 40, 18, "Power Pills Remaining: ");
+	showMessage(clBlack, clGreen, 40, 18, pps.str());
 
 	//print auxiliary messages if any
 	showMessage(clBlack, clWhite, 5, SIZEY + 4, mess);
