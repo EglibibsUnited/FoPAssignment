@@ -29,8 +29,8 @@ using namespace std;
 //---------------------------------------------------------------------------
 
 //defining the size of the grid
-const int  SIZEX(10);    	//horizontal dimension
-const int  SIZEY(8);		//vertical dimension
+const int  SIZEX(38);    	//horizontal dimension
+const int  SIZEY(25);		//vertical dimension
 							//defining symbols used for display of the grid and content
 const char SPOT('@');   	//spot
 const char TUNNEL(' ');    	//tunnel
@@ -58,7 +58,7 @@ int main()
 	//function declarations (prototypes)
 	void displayStartScreen();
 	void initialiseGame(char g[][SIZEX], char m[][SIZEX], Item& spot);
-	void paintGame(const char g[][SIZEX], string mess, int lives);
+	void paintGame(const char g[][SIZEX], string mess, int lives, string playerName);
 	bool wantsToQuit(const int key);
 	bool isArrowKey(const int k);
 	int  getKeyPress();
@@ -78,12 +78,13 @@ int main()
 	SetConsoleTitle("Spot and Zombies Game - FoP 2017-18");
 
 	displayStartScreen();
-	string name;
-	cin >> name;
+	string playerName;
+	cin >> playerName;
+	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 0);
 	Clrscr();
 
 	initialiseGame(grid, maze, spot);	//initialise grid (incl. walls and spot)
-	paintGame(grid, message, lives);			//display game info, modified grid and messages
+	paintGame(grid, message, lives, playerName);			//display game info, modified grid and messages
 	int key;							//current key selected by player
 	do {
 		key = getKeyPress(); 	//read in  selected key: arrow or letter command
@@ -95,7 +96,8 @@ int main()
 		}
 		else
 			message = "INVALID KEY!";	//set 'Invalid key' message
-		paintGame(grid, message, lives);		//display game info, modified grid and messages
+    
+		paintGame(grid, message, lives, playerName);		//display game info, modified grid and messages
 	} while (!wantsToQuit(key) && lives >= 0);		//while user does not want to quit and they still have lives left //
 	cin.get();
 	endProgram();						//display final message
@@ -131,7 +133,8 @@ void displayStartScreen()
 	showMessage(clDarkGrey, clYellow, 40, 11, "| Quit: Q             |");
 	showMessage(clDarkGrey, clYellow, 40, 12, "-----------------------");
 
-	showMessage(clDarkGrey, clYellow, 5, 14, "Enter your name to start: ");
+	showMessage(clDarkGrey, clYellow, 5, 14, "Enter your name to start:");
+	showMessage(clBlack, clRed, 31, 14, " ");
 }
 
 void initialiseGame(char grid[][SIZEX], char maze[][SIZEX], Item& spot)
@@ -162,15 +165,22 @@ void setInitialMazeStructure(char maze[][SIZEX])
 { //set the position of the walls in the maze
   //TODO: initial maze configuration should be amended (size changed and inner walls removed)
   //initialise maze configuration
-	char initialMaze[SIZEY][SIZEX] 	//local array to store the maze structure
-		= { { '#', '#', '#', '#', '#', '#', '#', '#', '#', '#' },
-	{ '#', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '#' },
-	{ '#', ' ', ' ', '#', ' ', ' ', '#', ' ', ' ', '#' },
-	{ '#', ' ', ' ', '#', ' ', ' ', '#', ' ', ' ', '#' },
-	{ '#', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '#' },
-	{ '#', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '#' },
-	{ '#', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '#' },
-	{ '#', '#', '#', '#', '#', '#', '#', '#', '#', '#' } };
+	char initialMaze[SIZEY][SIZEX];
+
+	for (int column = 0; column < SIZEY; column++)
+	{
+		for (int row = 0; row < SIZEX; row++)
+		{
+			if (column == 0 || column == SIZEY-1 || row == 0 || row == SIZEX-1)
+			{
+				// Just a row of walls //
+				initialMaze[column][row] = '#';
+			} else
+			{
+				initialMaze[column][row] = ' ';
+			}
+		}
+	}
 
 	for (int holesCount = 12; holesCount >= 0; holesCount--)
 	{
@@ -331,7 +341,7 @@ void showMessage(const WORD backColour, const WORD textColour, int x, int y, con
 	SelectTextColour(textColour);
 	cout << message;
 }
-void paintGame(const char g[][SIZEX], string mess, int lives)
+void paintGame(const char g[][SIZEX], string mess, int lives, string playerName)
 { //display game title, messages, maze, spot and other items on screen
 	string tostring(char x);
 	void showMessage(const WORD backColour, const WORD textColour, int x, int y, const string message);
@@ -353,20 +363,28 @@ void paintGame(const char g[][SIZEX], string mess, int lives)
 	showMessage(clBlack, clGreen, 1, SIZEY+2, ss.str());
 
 	// Display date and time etc. //
-	showMessage(clWhite, clRed, 40, 0, "FoP Task 1c: February 2018");
-	showMessage(clWhite, clRed, 80, 0, GetTime());
-	showMessage(clWhite, clRed, 68, 0, GetDate());
+	showMessage(clDarkGrey, clYellow, 40, 1, "FoP Task 1c: February 2018");
+	showMessage(clDarkGrey, clYellow, 40, 2, "Date: " + GetDate());
+	showMessage(clDarkGrey, clYellow, 40, 3, "Time: " + GetTime());
 
 	//display menu options available
-	showMessage(clRed, clYellow, 40, 3, "TO MOVE USE KEYBOARD ARROWS ");
-	showMessage(clRed, clYellow, 40, 4, "TO QUIT ENTER 'Q'           ");
+	showMessage(clDarkGrey, clYellow, 40, 6, "        Controls       ");
+	showMessage(clDarkGrey, clYellow, 40, 7, "-----------------------");
+	showMessage(clDarkGrey, clYellow, 40, 8, "| Movement: Arrows    |");
+	showMessage(clDarkGrey, clYellow, 40, 9, "| Attack: X           |");
+	showMessage(clDarkGrey, clYellow, 40, 10, "| Freeze: F           |");
+	showMessage(clDarkGrey, clYellow, 40, 11, "| Quit: Q             |");
+	showMessage(clDarkGrey, clYellow, 40, 12, "-----------------------");
+
+	int p = playerName.length();
+	int score(0);
+	showMessage(clDarkGrey, clYellow, 40, 14, "Player: " + playerName);
+	showMessage(clDarkGrey, clYellow, 47 + playerName.length() + 1, 14, ": " + to_string(score));
 
 	//print auxiliary messages if any
-	showMessage(clBlack, clWhite, 40, 8, mess);	//display current message
+	showMessage(clBlack, clWhite, 5, SIZEY + 4, mess);
 
-												//TODO: Show your course, your group number and names on screen
 
-												//display grid contents
 	paintGrid(g);
 }
 
