@@ -34,6 +34,7 @@ const int  SIZEY(8);		//vertical dimension
 const char SPOT('@');   	//spot
 const char TUNNEL(' ');    	//tunnel
 const char WALL('#');    	//border
+const char HOLE('0');    	//border
 //defining the command letters to move the spot on the maze
 const int  UP(72);			//up arrow
 const int  DOWN(80); 		//down arrow
@@ -109,7 +110,6 @@ void initialiseGame(char grid[][SIZEX], char maze[][SIZEX], Item& spot)
 
 void setSpotInitialCoordinates(Item& spot, char maze[][SIZEX])
 { //set spot coordinates inside the grid at random at beginning of game
-//TODO: Spot should not spawn on inner walls
 	int y = Random(SIZEY - 2);      //vertical coordinate in range [1..(SIZEY - 2)]
 	int x = Random(SIZEX - 2);      //horizontal coordinate in range [1..(SIZEX - 2)]
 	while (maze[y][x] == WALL)
@@ -135,14 +135,17 @@ void setInitialMazeStructure(char maze[][SIZEX])
 	{ '#', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '#' },
 	{ '#', '#', '#', '#', '#', '#', '#', '#', '#', '#' } };
 
-	//char initialMaze[SIZEY][SIZEX];
-	//for (int column = 0; column < SIZEY; column++) // More efficient way of creating the initialMaze array //
-	//{
-	//	for (int row = 0; row < SIZEX; row++)
-	//	{
-	//		initialMaze[column][row] = '#';
-	//	}
-	//}
+	for (int holesCount = 12; holesCount >= 0; holesCount--)
+	{
+		int x = Random(SIZEX - 2);
+		int y = Random(SIZEY - 2);
+		while (initialMaze[y][x] == WALL)
+		{
+			x = Random(SIZEX - 2);
+			y = Random(SIZEY - 2);
+		}
+		initialMaze[y][x] = '0';
+	}
 
 	//with '#' for wall, ' ' for tunnel, etc. 
 	//copy into maze structure with appropriate symbols
@@ -153,6 +156,7 @@ void setInitialMazeStructure(char maze[][SIZEX])
 				//not a direct copy, in case the symbols used change
 				case '#': maze[row][col] = WALL; break;
 				case ' ': maze[row][col] = TUNNEL; break;
+				case '0': maze[row][col] = HOLE; break;
 			}
 }
 
