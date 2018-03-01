@@ -1,5 +1,5 @@
 //---------------------------------------------------------------------------
-//Program: Skeleton for Task 1c – group assignment
+//Program: Skeleton for Task 1c â€“ group assignment
 //Author: Pascale Vacher
 //Last updated: 1 March 2018
 //---------------------------------------------------------------------------
@@ -58,11 +58,11 @@ int main()
 	//function declarations (prototypes)
 	void displayStartScreen();
 	void initialiseGame(char g[][SIZEX], char m[][SIZEX], Item& spot);
-	void paintGame(const char g[][SIZEX], string mess);
+	void paintGame(const char g[][SIZEX], string mess, int lives);
 	bool wantsToQuit(const int key);
 	bool isArrowKey(const int k);
 	int  getKeyPress();
-	void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& mess);
+	void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& mess, int& lives);
 	void updateGrid(char g[][SIZEX], const char m[][SIZEX], const Item spot);
 	void endProgram();
 
@@ -70,7 +70,8 @@ int main()
 	char grid[SIZEY][SIZEX];			//grid for display
 	char maze[SIZEY][SIZEX];			//structure of the maze
 	Item spot = { 0, 0, SPOT }; 		//spot's position and symbol
-	string message("LET'S START...");	//current message to player									
+	string message("LET'S START...");	//current message to player
+	int lives = 3;						// Initialise Spot with 3 lives //
 
 	Seed();								//seed the random number generator
 	SetConsoleTitle("Spot and Zombies Game - FoP 2017-18");
@@ -82,19 +83,19 @@ int main()
 	}
 
 	initialiseGame(grid, maze, spot);	//initialise grid (incl. walls and spot)
-	paintGame(grid, message);			//display game info, modified grid and messages
+	paintGame(grid, message, lives);			//display game info, modified grid and messages
 	int key;							//current key selected by player
 	do {
 		key = getKeyPress(); 	//read in  selected key: arrow or letter command
 		key = toupper(key);
 		if (isArrowKey(key))
 		{
-			updateGameData(grid, spot, key, message);		//move spot in that direction
+			updateGameData(grid, spot, key, message, lives);		//move spot in that direction
 			updateGrid(grid, maze, spot);					//update grid information
 		}
 		else
 			message = "INVALID KEY!";	//set 'Invalid key' message
-		paintGame(grid, message);		//display game info, modified grid and messages
+		paintGame(grid, message, lives);		//display game info, modified grid and messages
 	} while (!wantsToQuit(key));		//while user does not want to quit
 	endProgram();						//display final message
 	return 0;
@@ -221,7 +222,7 @@ void placeItem(char g[][SIZEX], const Item item)
 //---------------------------------------------------------------------------
 //----- move items on the grid
 //---------------------------------------------------------------------------
-void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& mess)
+void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& mess, int& lives)
 { //move spot in required direction
 	bool isArrowKey(const int k);
 	void setKeyDirection(int k, int& dx, int& dy);
@@ -246,6 +247,13 @@ void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& me
 		cout << '\a';	//beep the alarm
 		mess = "CANNOT GO THERE!";
 		break;
+	case HOLE:			// Fall into a hole //
+		spot.y += dy;
+		spot.x += dx;
+		if (lives - 1 >= 0)
+		{
+			lives--;
+		}
 	}
 }
 //---------------------------------------------------------------------------
@@ -318,7 +326,7 @@ void showMessage(const WORD backColour, const WORD textColour, int x, int y, con
 	SelectTextColour(textColour);
 	cout << message;
 }
-void paintGame(const char g[][SIZEX], string mess)
+void paintGame(const char g[][SIZEX], string mess, int lives)
 { //display game title, messages, maze, spot and other items on screen
 	string tostring(char x);
 	void showMessage(const WORD backColour, const WORD textColour, int x, int y, const string message);
@@ -326,7 +334,13 @@ void paintGame(const char g[][SIZEX], string mess)
 	//TODO: Change the colour of the messages
 	//display game title
 	showMessage(clBlack, clYellow, 0, 0, "___GAME___");
-	//TODO: Date and time should be displayed from the system
+
+	// Display lives left //
+	stringstream ss;
+	ss << "LIVES: " << lives;
+	showMessage(clBlack, clGreen, 1, SIZEY+2, ss.str());
+
+	// Display date and time etc. //
 	showMessage(clWhite, clRed, 40, 0, "FoP Task 1c: February 2018");
 	showMessage(clWhite, clRed, 80, 0, GetTime());
 	showMessage(clWhite, clRed, 68, 0, GetDate());
