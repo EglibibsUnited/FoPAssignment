@@ -38,6 +38,7 @@ const char TUNNEL(' ');    	//tunnel
 const char WALL('#');    	//border
 const char HOLE('0');    	//hole
 const char POWERPILL('*');  //power pill
+const char ZOMBIE('Z');  //zombie
 							//defining the command letters to move the spot on the maze
 const int  UP(72);			//up arrow
 const int  DOWN(80); 		//down arrow
@@ -188,11 +189,17 @@ void setInitialMazeStructure(char maze[][SIZEX])
 		}
 	}
 
+	// Add zombies //
+	initialMaze[1][1] = 'Z';
+	initialMaze[1][SIZEX - 2] = 'Z';
+	initialMaze[SIZEY - 2][1] = 'Z';
+	initialMaze[SIZEY - 2][SIZEX - 2] = 'Z';
+
 	for (int holesCount = 12; holesCount >= 0; holesCount--) // Add holes //
 	{
 		int x = Random(SIZEX - 2);
 		int y = Random(SIZEY - 2);
-		while (initialMaze[y][x] == WALL)
+		while (initialMaze[y][x] == WALL || initialMaze[y][x] == ZOMBIE)
 		{
 			x = Random(SIZEX - 2);
 			y = Random(SIZEY - 2);
@@ -204,7 +211,7 @@ void setInitialMazeStructure(char maze[][SIZEX])
 	{
 		int x = Random(SIZEX - 2);
 		int y = Random(SIZEY - 2);
-		while (initialMaze[y][x] == WALL || initialMaze[y][x] == HOLE)
+		while (initialMaze[y][x] == WALL || initialMaze[y][x] == ZOMBIE || initialMaze[y][x] == HOLE)
 		{
 			x = Random(SIZEX - 2);
 			y = Random(SIZEY - 2);
@@ -223,6 +230,7 @@ void setInitialMazeStructure(char maze[][SIZEX])
 			case ' ': maze[row][col] = TUNNEL; break;
 			case '0': maze[row][col] = HOLE; break;
 			case '*': maze[row][col] = POWERPILL; break;
+			case 'Z': maze[row][col] = ZOMBIE; break;
 			}
 }
 
@@ -431,13 +439,28 @@ void paintGrid(const char g[][SIZEX])
 	{
 		for (int col(0); col < SIZEX; ++col)
 		{
-			if (g[row][col] == '0')
+			if (g[row][col] == SPOT)
+			{
+				SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 29);
+				cout << g[row][col];
+				SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 7);
+			} else if (g[row][col] == HOLE)
 			{
 				SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 12);
 				cout << g[row][col];
 				SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 7);
+			} else if (g[row][col] == ZOMBIE)
+			{
+				SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 10);
+				cout << g[row][col];
+				SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 7);
 			}
-			else
+			else if (g[row][col] == POWERPILL)
+			{
+				SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 14);
+				cout << g[row][col];
+				SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 7);
+			} else
 			{
 				cout << g[row][col];	//output cell content
 			}
