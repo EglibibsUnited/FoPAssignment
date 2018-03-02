@@ -272,9 +272,9 @@ void setMaze(char grid[][SIZEX], const char maze[][SIZEX], Item zombies[], const
 	// ZOMBIES MOVE //
 	for (int zomb = 0; zomb < 4; zomb++)
 	{
-		if (zombies[zomb].x + 1 < SIZEX)
+		if (zombies[zomb].x + 1 < SIZEX-2)
 		{
-			// TODO: FINISH ZOMBIE LOGIC //
+			zombies[zomb].x++;
 		}
 		grid[zombies[zomb].y][zombies[zomb].x] = zombies[zomb].symbol;
 	}
