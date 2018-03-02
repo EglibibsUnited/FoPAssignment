@@ -68,6 +68,7 @@ int main()
 	void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& mess, int& lives, char m[][SIZEX], int& powerPills, Item zombies[]);
 	void showMessage(const WORD backColour, const WORD textColour, int x, int y, const string message);
 	void updateGrid(char g[][SIZEX], const char m[][SIZEX], const Item spot, Item zombies[]);
+	int getPlayerScore(string playerName);
 	void playerData(string playerName, int lives);
 	void endProgram();
 
@@ -89,10 +90,17 @@ int main()
 	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 0);
 	Clrscr();
 
-	ofstream fout;
-	string filename = playerName + ".txt";
-	fout.open(filename, ios::out);
-
+	ifstream getScore;
+	getScore.open(".\\Players\\" + playerName + ".txt", ios::in);
+	int value, sum(0);
+	getScore >> value;
+	if (value < -1)
+	{
+		// Nothing is written in the file //
+		ofstream writeScore;
+		writeScore.open(".\\Players\\" + playerName + ".txt", ios::out);
+		writeScore << "-1";
+	}
 
 	initialiseGame(grid, maze, spot, zombies);	//initialise grid (incl. walls and spot)
 	paintGame(grid, message, lives, playerName, powerPills, maze);			//display game info, modified grid and messages
@@ -129,9 +137,9 @@ void displayStartScreen()
 
 	showMessage(clDarkGrey, clYellow, 5, 6, "    Group SE1_5 - 2018    ");
 	showMessage(clDarkGrey, clYellow, 5, 7, " ------------------------ ");
-	showMessage(clDarkGrey, clYellow, 5, 8, " * Michael Elsom 27035059 ");
-	showMessage(clDarkGrey, clYellow, 5, 9, " * James Nelhams 27021413 ");
-	showMessage(clDarkGrey, clYellow, 5, 10, " * Jake Stringer 27003087 ");
+	showMessage(clDarkGrey, clYellow, 5, 8, " > Michael Elsom 27035059 ");
+	showMessage(clDarkGrey, clYellow, 5, 9, " > James Nelhams 27021413 ");
+	showMessage(clDarkGrey, clYellow, 5, 10, " > Jake Stringer 27003087 ");
 
 	showMessage(clDarkGrey, clYellow, 40, 2, "Date: " + GetDate());
 	showMessage(clDarkGrey, clYellow, 40, 3, "Time: " + GetTime());
@@ -405,9 +413,12 @@ void paintGame(const char g[][SIZEX], string mess, int lives, string playerName,
 	string tostring(char x);
 	void showMessage(const WORD backColour, const WORD textColour, int x, int y, const string message);
 	void paintGrid(const char g[][SIZEX], char m[][SIZEX]);
+	int getPlayerScore(string playerName);
 	//TODO: Change the colour of the messages
 	//display game title
 	showMessage(clBlack, clYellow, 0, 0, "___GAME___");
+	SelectBackColour(clDarkGrey);
+	SelectTextColour(clYellow);
 
 	// Display lives left //
 	stringstream ss;
@@ -443,13 +454,15 @@ void paintGame(const char g[][SIZEX], string mess, int lives, string playerName,
 	showMessage(clDarkGrey, clYellow, 40, 11, "| Quit: Q             |");
 	showMessage(clDarkGrey, clYellow, 40, 12, "-----------------------");
 
-	int score(0);
-	showMessage(clDarkGrey, clYellow, 40, 14, "Player: " + playerName + ": " + to_string(score)+ "  ");
-	showMessage(clBlack, clGreen, 40, 17, ss.str());
-	showMessage(clBlack, clGreen, 40, 18, pps.str());
+	showMessage(clBlack, clGreen, 40, 14, ss.str());
+	showMessage(clBlack, clGreen, 40, 15, pps.str());
+
+	string score = to_string(getPlayerScore(playerName));
+	showMessage(clBlack, clGreen, 40, 18, playerName);
+	showMessage(clBlack, clGreen, 40, 19, playerName + "'s previous best score is: " + score);
 
 	//print auxiliary messages if any
-	showMessage(clBlack, clWhite, 40, 25, mess);
+	showMessage(clBlack, clWhite, 40, 26, mess);
 
 
 	paintGrid(g, m);
@@ -466,27 +479,27 @@ void paintGrid(const char g[][SIZEX], char m[][SIZEX])
 		{
 			if (g[row][col] == SPOT)
 			{
-				SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 29);
+				SelectTextColour(clBlue);
 				cout << g[row][col];
-				SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 7);
+				SelectTextColour(clWhite);
 			} else if (g[row][col] == HOLE)
 			{
-				SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 12);
+				SelectTextColour(clRed);
 				cout << g[row][col];
-				SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 7);
+				SelectTextColour(clWhite);
 			} else if (g[row][col] == ZOMBIE)
 			{
-				SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 10);
+				SelectTextColour(clGreen);
 				cout << g[row][col];
-				SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 7);
+				SelectTextColour(clWhite);
 
 				// TODO - Update zombie position //
 			}
 			else if (g[row][col] == POWERPILL)
 			{
-				SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 14);
+				SelectTextColour(clYellow);
 				cout << g[row][col];
-				SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 7);
+				SelectTextColour(clWhite);
 			} else
 			{
 				cout << g[row][col];	//output cell content
@@ -496,11 +509,10 @@ void paintGrid(const char g[][SIZEX], char m[][SIZEX])
 	}
 }
 
-void playerData(string playerName, int lives)
+int getPlayerScore(string playerName)
 {
 	ifstream getScore;
-	ofstream writeScore;
-	getScore.open(playerName + ".txt", ios::in);
+	getScore.open(".\\Players\\" + playerName + ".txt", ios::in);
 	int value, sum(0);
 	getScore >> value;
 	while (getScore)
@@ -509,20 +521,42 @@ void playerData(string playerName, int lives)
 		sum++;
 	}
 	getScore.close();
-	writeScore.open(playerName + ".txt", ios::out);
+	return value;
+}
+
+void playerData(string playerName, int lives)
+{
+	void showMessage(const WORD backColour, const WORD textColour, int x, int y, const string message);
+
+	ifstream getScore;
+	ofstream writeScore;
+	getScore.open(".\\Players\\" + playerName + ".txt", ios::in);
+	int value, sum(0);
+	getScore >> value;
+	while (getScore)
+	{
+		getScore >> value;
+		sum++;
+	}
+	getScore.close();
+	writeScore.open(".\\Players\\" + playerName + ".txt", ios::out);
 	if (sum > 0)
 	{
-		if (value > lives) 
+		if (lives > value) 
 		{
+			showMessage(clRed, clYellow, 40, 22, "NEW SCORE!");
 			writeScore << lives;
 		}		
 	}
-	writeScore << lives;
+	else
+	{
+		writeScore << lives;
+	}
 }
 
 void endProgram()
 {
 	void showMessage(const WORD backColour, const WORD textColour, int x, int y, const string message);
-	showMessage(clRed, clYellow, 40, 21, "");
+	showMessage(clRed, clYellow, 40, 26, "");
 	system("pause");	//hold output screen until a keyboard key is hit
 }
