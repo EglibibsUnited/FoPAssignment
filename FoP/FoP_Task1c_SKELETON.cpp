@@ -71,12 +71,11 @@ int main()
 
 	void runCheatCode(const int k, int& powerPills, Item zombies[], bool& zombFreeze, int& zombieCount);
 	
-
-	void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& mess, int& lives, char m[][SIZEX], int& powerPills, Item zombies[], int& powerpillTouch, int moveCounter, bool zombMove, int& zombieCount);
+	void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& mess, int& lives, char m[][SIZEX], int& powerPills, Item zombies[], int& powerpillTouch, int moveCounter, bool zombMove, int& zombieCount, bool& powerpillTouched);
 
 	void showMessage(const WORD backColour, const WORD textColour, int x, int y, const string message);
 	void updateGrid(char g[][SIZEX], const char m[][SIZEX], const Item spot, Item zombies[]);
-	void powerpillProtection(int moveCounter, int& powerpillTouch);
+	void powerpillProtection(int moveCounter, int& powerpillTouch, Item& spot, bool& powerpillTouched);
 	int getPlayerScore(string playerName);
 	void playerData(string playerName, int lives, bool hasCheated);
 	void endProgram();
@@ -92,6 +91,7 @@ int main()
 	int zombieCount = 4;				//zombie count for checking game finish
 	bool zombiesMove(true);			//For zombie freeze cheat code
 	bool hasCheated(false);
+	bool powerpillTouched(false);
 
 	int moveCounter(0), powerpillTouch(0);
 
@@ -126,19 +126,19 @@ int main()
 		key = toupper(key);
 		if (isArrowKey(key))
 		{
-			updateGameData(grid, spot, key, message, lives, maze, powerPills, zombies, powerpillTouch, moveCounter, zombiesMove, zombieCount);		//move spot in that direction
+			updateGameData(grid, spot, key, message, lives, maze, powerPills, zombies, powerpillTouch, moveCounter, zombiesMove, zombieCount, powerpillTouched);		//move spot in that direction
 			updateGrid(grid, maze, spot, zombies);					//update grid information
 			moveCounter++;
 		}
 		if (isCheatCode(key)) 
 		{
 			runCheatCode(key, powerPills, zombies, zombiesMove, zombieCount);
-			updateGameData(grid, spot, key, message, lives, maze, powerPills, zombies, powerpillTouch, moveCounter, zombiesMove, zombieCount);
+			updateGameData(grid, spot, key, message, lives, maze, powerPills, zombies, powerpillTouch, moveCounter, zombiesMove, zombieCount, powerpillTouched);
 			updateGrid(grid, maze, spot, zombies);
 			hasCheated = true;
 		}
 		else
-			message = "INVALID KEY!";	//set 'Invalid key' message 
+			message = "INVALID KEY!";	//set 'Invalid key' message
 		paintGame(grid, message, lives, playerName, powerPills, maze, zombies);		//display game info, modified grid and messages
 	} while (!wantsToQuit(key) && lives >= 0);		//while user does not want to quit and they still have lives left //
 	playerData(playerName, lives, hasCheated);
@@ -321,9 +321,7 @@ void placeItem(char g[][SIZEX], const Item item)
 //----- move items on the grid
 //---------------------------------------------------------------------------
 
-
-
-void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& mess, int& lives, char maze[][SIZEX], int& powerPills, Item zombies[], int& powerpillTouch, int moveCounter, bool zombiesMove, int& zombieCount)
+void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& mess, int& lives, char maze[][SIZEX], int& powerPills, Item zombies[], int& powerpillTouch, int moveCounter, bool zombiesMove, int& zombieCount, bool& powerpillTouched)
 
 { //move spot in required direction
 	bool isArrowKey(const int k);
@@ -333,7 +331,7 @@ void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& me
 	if (isArrowKey(key))
 	{
 
-	void powerpillProtection(int moveCounter, int& powerpillTouch);
+	void powerpillProtection(int moveCounter, int& powerpillTouch, Item& spot, bool& powerpillTouched);
 	assert(isArrowKey(key));
 
 
@@ -353,21 +351,23 @@ void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& me
 		case TUNNEL:		//can move
 			spot.y += dy;	//go in that Y direction
 			spot.x += dx;	//go in that X direction
+			powerpillProtection(moveCounter, powerpillTouch, spot, powerpillTouched);
 			break;
 		case WALL:  		//hit a wall and stay there
 			mess = "CANNOT GO THERE!";
 			break;
-		case HOLE:			// Fall into a hole //
+			case HOLE;			// Fall into a hole //
 			spot.y += dy;
 			spot.x += dx;
 			lives--;
 			break;
-		case POWERPILL:		// Eat power pill //
+		case POWERPILL:		// Eat power pill // Task 2a Function Call
 			spot.y += dy;
 			spot.x += dx;
 			maze[spot.y][spot.x] = ' ';
 			powerpillTouch = moveCounter;
-			powerpillProtection(moveCounter, powerpillTouch);
+			powerpillTouched = true;
+			powerpillProtection(moveCounter, powerpillTouch, spot, powerpillTouched);
 			lives++;
 			powerPills--;
 			break;
@@ -425,7 +425,7 @@ void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& me
 					zombieCount--;
 					zombies[zomb].canMove = false;
 				}
-
+        
 				// Check if a zombie is touching another zombie //
 				if (g[zombies[zomb].y][zombies[zomb].x + 1] == ZOMBIE)
 				{
@@ -703,11 +703,18 @@ void paintGrid(const char g[][SIZEX], char m[][SIZEX])
 	}
 }
 
-void powerpillProtection(int moveCounter, int& powerpillTouch)
+//TODO: Task 2a Magic Protections
+
+void powerpillProtection(int moveCounter, int& powerpillTouch, Item& spot, bool& powerpillTouched)
 {
-	if (moveCounter - 10 < powerpillTouch)
+	if (moveCounter - 10 < powerpillTouch && powerpillTouched == true)
 	{
-		SPOT = '%';
+		spot.symbol = '$';
+	}
+	else if (moveCounter - 10 > powerpillTouch && powerpillTouched == true)
+	{
+		spot.symbol = '@';
+		powerpillTouched = false;
 	}
 }
 
