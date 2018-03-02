@@ -66,12 +66,17 @@ int main()
 	bool isArrowKey(const int k);
 	bool isCheatCode(const int k);
 	int  getKeyPress();
-	void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& mess, int& lives, char m[][SIZEX], int& powerPills, Item zombies[], int& powerpillTouch, int moveCounter);
+
+	void runCheatCode(const int k, int& powerPills, Item zombies[], bool& zombFreeze);
+	
+
+	void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& mess, int& lives, char m[][SIZEX], int& powerPills, Item zombies[], int& powerpillTouch, int moveCounter, bool zombMove);
+
 	void showMessage(const WORD backColour, const WORD textColour, int x, int y, const string message);
 	void updateGrid(char g[][SIZEX], const char m[][SIZEX], const Item spot, Item zombies[]);
 	void powerpillProtection(int moveCounter, int& powerpillTouch);
 	int getPlayerScore(string playerName);
-	void playerData(string playerName, int lives);
+	void playerData(string playerName, int lives, bool hasCheated);
 	void endProgram();
 
 	//local variable declarations 
@@ -82,7 +87,12 @@ int main()
 	string message("LET'S START...");	//current message to player
 	int lives = 3;						// Initialise Spot with 3 lives //
 	int powerPills = 8;					// Initialise the game with 8 power pills //
+
+	bool zombiesMove(true);			//For zombie freeze cheat code
+	bool hasCheated(false);
+
 	int moveCounter(0), powerpillTouch(0);
+
 
 	Seed();								//seed the random number generator
 	SetConsoleTitle("Spot and Zombies Game - FoP 2017-18");
@@ -114,20 +124,31 @@ int main()
 		key = toupper(key);
 		if (isArrowKey(key))
 		{
-			updateGameData(grid, spot, key, message, lives, maze, powerPills, zombies, powerpillTouch, moveCounter);		//move spot in that direction
+
+			
+
+			updateGameData(grid, spot, key, message, lives, maze, powerPills, zombies, powerpillTouch, moveCounter, zombiesMove);		//move spot in that direction
+
 			updateGrid(grid, maze, spot, zombies);					//update grid information
 			moveCounter++;
 		}
 		if (isCheatCode(key)) 
 		{
+
+			runCheatCode(key, powerPills, zombies, zombiesMove);
+			updateGameData(grid, spot, key, message, lives, maze, powerPills, zombies, powerpillTouch, moveCounter, zombiesMove);
+			updateGrid(grid, maze, spot, zombies);
+			hasCheated = true;
+
       
+
 		}
 		else
 			message = "INVALID KEY!";	//set 'Invalid key' message
     
 		paintGame(grid, message, lives, playerName, powerPills, maze);		//display game info, modified grid and messages
 	} while (!wantsToQuit(key) && lives >= 0);		//while user does not want to quit and they still have lives left //
-	playerData(playerName, lives);
+	playerData(playerName, lives, hasCheated);
 	endProgram();						//display final message
 	return 0;
 }
@@ -278,14 +299,11 @@ void setMaze(char grid[][SIZEX], const char maze[][SIZEX], Item zombies[], const
 		for (int col(0); col < SIZEX; ++col)
 			grid[row][col] = maze[row][col];
 
-	// ZOMBIES MOVE //
+	// ZOMBIES placement on grid //
 	for (int zomb = 0; zomb < 4; zomb++)
 	{
 
-		if (zombies[zomb].x + 1 < SIZEX-2)
-		{
-			zombies[zomb].x++;
-		}
+		
 
 		grid[zombies[zomb].y][zombies[zomb].x] = zombies[zomb].symbol;
 	}
@@ -299,23 +317,36 @@ void placeItem(char g[][SIZEX], const Item item)
 //---------------------------------------------------------------------------
 //----- move items on the grid
 //---------------------------------------------------------------------------
-void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& mess, int& lives, char maze[][SIZEX], int& powerPills, Item zombies[], int& powerpillTouch, int moveCounter)
+
+
+
+void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& mess, int& lives, char maze[][SIZEX], int& powerPills, Item zombies[], int& powerpillTouch, int moveCounter, bool zombiesMove)
+
 { //move spot in required direction
 	bool isArrowKey(const int k);
+	bool isCheatCode(const int k);
 	void setKeyDirection(int k, int& dx, int& dy);
+
+	if (isArrowKey(key))
+	{
+
 	void powerpillProtection(int moveCounter, int& powerpillTouch);
 	assert(isArrowKey(key));
 
-	//reset message to blank
-	mess = "                                         ";		//reset message to blank
 
-															//calculate direction of movement for given key
-	int dx(0), dy(0);
-	setKeyDirection(key, dx, dy);
 
-	//check new target position in grid and update game data (incl. spot coordinates) if move is possible
-	switch (g[spot.y + dy][spot.x + dx])
-	{			//...depending on what's on the target position in grid...
+		assert(isArrowKey(key));
+
+		//reset message to blank
+		mess = "                                         ";		//reset message to blank
+
+																//calculate direction of movement for given key
+		int dx(0), dy(0);
+		setKeyDirection(key, dx, dy);
+
+		//check new target position in grid and update game data (incl. spot coordinates) if move is possible
+		switch (g[spot.y + dy][spot.x + dx])
+		{			//...depending on what's on the target position in grid...
 		case TUNNEL:		//can move
 			spot.y += dy;	//go in that Y direction
 			spot.x += dx;	//go in that X direction
@@ -337,83 +368,113 @@ void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& me
 			lives++;
 			powerPills--;
 			break;
-	}
-
-	// Move Zombies //
-	for (int zomb = 0; zomb < 4; zomb++)
-	{
-
-		if (zombies[zomb].x < spot.x && zombies[zomb].x + 1 < SIZEX - 2)
-		{
-			zombies[zomb].x++;
-		}
-		else if (zombies[zomb].y < spot.y && zombies[zomb].y + 1 < SIZEY - 2)
-		{
-			zombies[zomb].y++;
 		}
 
-		if (zombies[zomb].x > spot.x && zombies[zomb].x + 1 > 1)
+		// Move Zombies //
+
 		{
-			zombies[zomb].x--;
+
 		}
-		else if (zombies[zomb].y > spot.y && zombies[zomb].y + 1 > 1)
+		if (zombiesMove)
 		{
-			zombies[zomb].y--;
-		}
 
 
-		// See if a zombie is touching spot //
-		if (g[zombies[zomb].y][zombies[zomb].x] == SPOT)
-		{
-			switch (zomb)
+			for (int zomb = 0; zomb < 4; zomb++)
 			{
-				case 0:
-					zombies[zomb].y = 1; zombies[zomb].x = 1;	
-					break;
-				case 1:
-					zombies[zomb].y = 1; zombies[zomb].x = SIZEX - 2;
-					break;
-				case 2:
-					zombies[zomb].y = SIZEY - 2; zombies[zomb].x = 1;
-					break;
-				case 3:
-					zombies[zomb].y = SIZEY - 2; zombies[zomb].x = SIZEX - 2;
-					break;
+
+				if (zombies[zomb].x < spot.x && zombies[zomb].x + 1 < SIZEX - 2)
+				{
+					zombies[zomb].x++;
+				}
+				else if (zombies[zomb].y < spot.y && zombies[zomb].y + 1 < SIZEY - 2)
+				{
+					zombies[zomb].y++;
+				}
+
+				if (zombies[zomb].x > spot.x && zombies[zomb].x + 1 > 1)
+				{
+					zombies[zomb].x--;
+				}
+				else if (zombies[zomb].y > spot.y && zombies[zomb].y + 1 > 1)
+				{
+					zombies[zomb].y--;
+				}
+
+
+				// See if a zombie is touching spot //
+				if (g[zombies[zomb].y][zombies[zomb].x] == SPOT)
+				{
+					switch (zomb)
+					{
+					case 0:
+						zombies[zomb].y = 1; zombies[zomb].x = 1;
+						break;
+					case 1:
+						zombies[zomb].y = 1; zombies[zomb].x = SIZEX - 2;
+						break;
+					case 2:
+						zombies[zomb].y = SIZEY - 2; zombies[zomb].x = 1;
+						break;
+					case 3:
+						zombies[zomb].y = SIZEY - 2; zombies[zomb].x = SIZEX - 2;
+						break;
+					}
+					lives--;
+				}
+				//else if (g[zombies[zomb].y][zombies[zomb].x] == ZOMBIE)
+				//{
+				//	// Do a quick scan round to see where this other zombie is //
+				//	for (int scan = 1; scan < 5; scan++)
+				//	{
+				//		if (g[zombies[zomb].y + scan][zombies[zomb].x] == ZOMBIE)
+				//		{
+				//			g[zombies[zomb].y][zombies[zomb].x]
+				//		}
+				//	}
+				//}
 			}
 
 			// Lose a life //
-			lives--;
+			
 		}
-		//else if (g[zombies[zomb].y][zombies[zomb].x] == ZOMBIE)
+
+		// Move Zombies //
+		//for (int column = 0; column < SIZEY; column++)
 		//{
-		//	// Do a quick scan round to see where this other zombie is //
-		//	for (int scan = 1; scan < 5; scan++)
+		//	for (int row = 0; row < SIZEX; row++)
 		//	{
-		//		if (g[zombies[zomb].y + scan][zombies[zomb].x] == ZOMBIE)
+		//		if (maze[row][column] == 'Z')
 		//		{
-		//			g[zombies[zomb].y][zombies[zomb].x]
+		//			// Move the zombie //
+		//			maze[row][column] = ' ';
+		//			maze[row + 1][column + 1] = 'Z';
 		//		}
 		//	}
 		//}
+
+		if (lives < 0)
+		{
+			mess = "YOU LOSE!";
+		}
 	}
 
-	// Move Zombies //
-	//for (int column = 0; column < SIZEY; column++)
-	//{
-	//	for (int row = 0; row < SIZEX; row++)
-	//	{
-	//		if (maze[row][column] == 'Z')
-	//		{
-	//			// Move the zombie //
-	//			maze[row][column] = ' ';
-	//			maze[row + 1][column + 1] = 'Z';
-	//		}
-	//	}
-	//}
+	//Remove pills from game on E press
+	if (isCheatCode(key)) {
+		if (key == 'E')
+		{
 
-	if (lives < 0)
-	{
-		mess = "YOU LOSE!";
+
+			for (int row(0); row < SIZEY; row++)
+			{
+				for (int col(0); col < SIZEX; col++)
+				{
+					if (maze[row][col] == POWERPILL)
+					{
+						maze[row][col] = TUNNEL;
+					}
+				}
+			}
+		}
 	}
 }
 //---------------------------------------------------------------------------
@@ -464,16 +525,33 @@ bool isCheatCode(const int key)
 	return (key == 'E') || (key == 'X') || (key == 'F');
 }
 
-void runCheatCode(const int key, int& powerPills, Item zombs[]) {
+//Runs a cheat on right button press
+void runCheatCode(const int key, int& powerPills, Item zombs[4], bool& zombieMove) {
 	switch (key)
 	{
 	case 'E': powerPills = 0;
 		break;
 	case 'X': 
-	
-
-
-	case 'F':
+		for (int i = 0; i < 4; i++)
+	{
+		if (zombs[i].symbol == ' ') 
+		{
+			zombs[i].symbol = ZOMBIE;
+			zombieMove = true;
+		}
+		else 
+		{
+			zombs[i].symbol = ' ';
+			zombs[0].y = 1; zombs[0].x = 1;
+			zombs[1].y = 1; zombs[1].x = SIZEX - 2;
+			zombs[2].y = SIZEY - 2; zombs[2].x = 1;
+			zombs[3].y = SIZEY - 2; zombs[3].x = SIZEX - 2;
+			zombieMove = false;
+		}
+	}
+		break;
+	case 'F': zombieMove = !zombieMove;
+		break;
 	default:
 		break;
 	}
@@ -631,7 +709,7 @@ int getPlayerScore(string playerName)
 	return value;
 }
 
-void playerData(string playerName, int lives)
+void playerData(string playerName, int lives, bool hasCheated)
 {
 	void showMessage(const WORD backColour, const WORD textColour, int x, int y, const string message);
 
@@ -647,7 +725,7 @@ void playerData(string playerName, int lives)
 	}
 	getScore.close();
 	writeScore.open(".\\Players\\" + playerName + ".txt", ios::out);
-	if (sum > 0)
+	if (sum > 0 && hasCheated == false)
 	{
 		if (lives > value) 
 		{
@@ -655,7 +733,7 @@ void playerData(string playerName, int lives)
 			writeScore << lives;
 		}		
 	}
-	else
+	else if(sum < 0 && hasCheated == false)
 	{
 		writeScore << lives;
 	}
