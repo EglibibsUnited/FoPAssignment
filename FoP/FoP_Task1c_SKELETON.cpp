@@ -105,6 +105,7 @@ void runGame(string playerName)
 	int getPlayerScore(string playerName);
 	void playerData(string playerName, int lives, bool hasCheated);
 	bool hasWon(Item zombies[], int powerPills);
+	void displayStartScreen();
 
 	//local variable declarations 
 	char grid[SIZEY][SIZEX];			//grid for display
@@ -125,7 +126,7 @@ void runGame(string playerName)
 	SetConsoleTitle("Spot and Zombies Game - FoP 2017-18");
 
 	displayStartScreen();
-	string playerName;
+	//string playerName;
 	cin >> playerName;
 	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 0);
 	Clrscr();
