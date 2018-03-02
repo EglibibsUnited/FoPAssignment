@@ -363,6 +363,9 @@ void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& me
 					zombies[zomb].y = SIZEY - 2; zombies[zomb].x = SIZEX - 2;
 					break;
 			}
+
+			// Lose a life //
+			lives--;
 		}
 		//else if (g[zombies[zomb].y][zombies[zomb].x] == ZOMBIE)
 		//{
