@@ -76,7 +76,7 @@ int main()
 	void updateGrid(char g[][SIZEX], const char m[][SIZEX], const Item spot, Item zombies[]);
 	void powerpillProtection(int moveCounter, int& powerpillTouch);
 	int getPlayerScore(string playerName);
-	void playerData(string playerName, int lives);
+	void playerData(string playerName, int lives, bool hasCheated);
 	void endProgram();
 
 	//local variable declarations 
@@ -148,7 +148,7 @@ int main()
     
 		paintGame(grid, message, lives, playerName, powerPills, maze);		//display game info, modified grid and messages
 	} while (!wantsToQuit(key) && lives >= 0);		//while user does not want to quit and they still have lives left //
-	playerData(playerName, lives);
+	playerData(playerName, lives, hasCheated);
 	endProgram();						//display final message
 	return 0;
 }
@@ -402,6 +402,7 @@ void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& me
 
 
 				// See if a zombie is touching spot //
+
 				if ((zombies[zomb].y == spot.y) && (zombies[zomb].x == spot.x))
 				{
 					switch (zomb)
@@ -709,7 +710,7 @@ int getPlayerScore(string playerName)
 	return value;
 }
 
-void playerData(string playerName, int lives)
+void playerData(string playerName, int lives, bool hasCheated)
 {
 	void showMessage(const WORD backColour, const WORD textColour, int x, int y, const string message);
 
@@ -725,7 +726,7 @@ void playerData(string playerName, int lives)
 	}
 	getScore.close();
 	writeScore.open(".\\Players\\" + playerName + ".txt", ios::out);
-	if (sum > 0)
+	if (sum > 0 && hasCheated == false)
 	{
 		if (lives > value) 
 		{
@@ -733,7 +734,7 @@ void playerData(string playerName, int lives)
 			writeScore << lives;
 		}		
 	}
-	else
+	else if(sum < 0 && hasCheated == false)
 	{
 		writeScore << lives;
 	}
