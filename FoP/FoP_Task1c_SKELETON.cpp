@@ -338,6 +338,7 @@ void setInitialMazeStructure(char maze[][SIZEX], Item zombies[])
 			}
 			else
 			{
+				// Make it a tunnel //
 				initialMaze[column][row] = ' ';
 			}
 		}
@@ -462,7 +463,7 @@ void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& me
 			spot.y += dy;	//go in that Y direction
 			spot.x += dx;	//go in that X direction
 			if (powerpillTouched == true) cout << "\a";
-			powerpillProtection(moveCounter, powerpillTouch, spot, powerpillTouched);
+				powerpillProtection(moveCounter, powerpillTouch, spot, powerpillTouched);
 			break;
 		case WALL:  		//hit a wall and stay there
 			mess = "CANNOT GO THERE!";
@@ -489,118 +490,90 @@ void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& me
 		{
 			for (int zomb = 0; zomb < 4; zomb++)
 			{
-				if (zombies[zomb].x < spot.x && zombies[zomb].x + 1 < SIZEX - 2 && zombies[zomb].canMove == true && powerpillTouched == false)
+				if (zombies[zomb].canMove)
 				{
-					zombies[zomb].x++;
-				}
-				else if (zombies[zomb].y < spot.y && zombies[zomb].y + 1 < SIZEY - 2 && zombies[zomb].canMove == true && powerpillTouched == false)
-				{
-					zombies[zomb].y++;
-				}
+					// Move the zombie //
+					if ((maze[zombies[zomb].y][zombies[zomb].x + 1] != WALL) && (spot.x > zombies[zomb].x)) // Right //
+					{
+						if (powerpillTouched && maze[zombies[zomb].y][zombies[zomb].x - 1] != WALL)
+						{
+							zombies[zomb].x--;
+						}
+						else
+						{
+							zombies[zomb].x++;
+						}
+					}
+					else if ((maze[zombies[zomb].y][zombies[zomb].x - 1] != WALL) && (spot.x < zombies[zomb].x)) // Left //
+					{
+						if (powerpillTouched && maze[zombies[zomb].y][zombies[zomb].x + 1] != WALL)
+						{
+							zombies[zomb].x++;
+						}
+						else
+						{
+							zombies[zomb].x--;
+						}
+					}
 
-				if (zombies[zomb].x > spot.x && zombies[zomb].x + 1 > 1 && zombies[zomb].canMove == true && powerpillTouched == false)
-				{
-					zombies[zomb].x--;
-				}
-				else if (zombies[zomb].y > spot.y && zombies[zomb].y + 1 > 1 && zombies[zomb].canMove == true && powerpillTouched == false)
-				{
-					zombies[zomb].y--;
-				}
-
-				if (zombies[zomb].x < spot.x && zombies[zomb].x + 1 < SIZEX - 2 && zombies[zomb].canMove == true && powerpillTouched == true)
-				{
-					zombies[zomb].x--;
-				}
-				else if (zombies[zomb].y < spot.y && zombies[zomb].y + 1 < SIZEY - 2 && zombies[zomb].canMove == true && powerpillTouched == true)
-				{
-					zombies[zomb].y--;
-				}
-
-				if (zombies[zomb].x > spot.x && zombies[zomb].x + 1 > 1 && zombies[zomb].canMove == true && powerpillTouched == true)
-				{
-					zombies[zomb].x++;
-				}
-				else if (zombies[zomb].y > spot.y && zombies[zomb].y + 1 > 1 && zombies[zomb].canMove == true && powerpillTouched == true)
-				{
-					zombies[zomb].y++;
+					if ((maze[zombies[zomb].y - 1][zombies[zomb].x] != WALL) && (spot.y < zombies[zomb].y)) // Up //
+					{
+						if (powerpillTouched && maze[zombies[zomb].y + 1][zombies[zomb].x] != WALL)
+						{
+							zombies[zomb].y++;
+						}
+						else
+						{
+							zombies[zomb].y--;
+						}
+					}
+					else if ((maze[zombies[zomb].y + 1][zombies[zomb].x] != WALL) && (spot.y > zombies[zomb].y)) // Downs //
+					{
+						if (powerpillTouched && maze[zombies[zomb].y - 1][zombies[zomb].x] != WALL)
+						{
+							zombies[zomb].y--;
+						}
+						else
+						{
+							zombies[zomb].y++;
+						}
+					}
 				}
 
 				// See if a zombie is touching spot //
 
-				if ((zombies[zomb].y == spot.y) && (zombies[zomb].x == spot.x) && powerpillTouched == false)
+				if ((zombies[zomb].y == spot.y) && (zombies[zomb].x == spot.x))
 				{
-					switch (zomb)
+					if (powerpillTouched)
 					{
-					case 0:
-						zombies[zomb].y = 1; zombies[zomb].x = 1;
-						break;
-					case 1:
-						zombies[zomb].y = 1; zombies[zomb].x = SIZEX - 2;
-						break;
-					case 2:
-						zombies[zomb].y = SIZEY - 2; zombies[zomb].x = 1;
-						break;
-					case 3:
-						zombies[zomb].y = SIZEY - 2; zombies[zomb].x = SIZEX - 2;
-						break;
+						zombies[zomb].canMove = false;
+						zombies[zomb].x = -1;
+						zombies[zomb].y = -1;
 					}
-					lives--;
-				}
-				if ((zombies[zomb].y == spot.y) && (zombies[zomb].x == spot.x) && powerpillTouched == true) // Powerpill active, kills zombies when touched
-				{
-					switch (zomb)
+					else
 					{
-					case 0:
-						zombies[zomb].y = -1; zombies[zomb].x = -1;
-						zombies[zomb].canMove = false;
-						break;
-					case 1:
-						zombies[zomb].y = -1; zombies[zomb].x = -1;
-						zombies[zomb].canMove = false;
-						break;
-					case 2:
-						zombies[zomb].y = -1; zombies[zomb].x = -1;
-						zombies[zomb].canMove = false;
-						break;
-					case 3:
-						zombies[zomb].y = -1; zombies[zomb].x = -1;
-						zombies[zomb].canMove = false;
-						break;
+						lives--;
+						zombies[zomb].x = zombies[zomb].defaultX;
+						zombies[zomb].y = zombies[zomb].defaultY;
 					}
+					
 				}
 
 				// Check for zombies touching a hole //
-				if (g[zombies[zomb].y][zombies[zomb].x] == HOLE)
+				if (maze[zombies[zomb].y][zombies[zomb].x] == HOLE)
 				{
 					zombies[zomb].y = -1; zombies[zomb].x = -1;
 					zombieCount--;
 					zombies[zomb].canMove = false;
 				}
 
-				// Check if a zombie is touching another zombie //
-				if (g[zombies[zomb].y][zombies[zomb].x + 1] == ZOMBIE)
-				{
+				//// Check if a zombie is touching another zombie //
+				//if (maze[zombies[zomb].y][zombies[zomb].x + 1] == ZOMBIE)
+				//{
 
-				}
+				//}
 			}
-
-			// Lose a life //
-
 		}
-
-		// Move Zombies //
-		//for (int column = 0; column < SIZEY; column++)
-		//{
-		//	for (int row = 0; row < SIZEX; row++)
-		//	{
-		//		if (maze[row][column] == 'Z')
-		//		{
-		//			// Move the zombie //
-		//			maze[row][column] = ' ';
-		//			maze[row + 1][column + 1] = 'Z';
-		//		}
-		//	}
-		//}
 
 		if (lives < 0)
 		{
@@ -612,8 +585,6 @@ void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& me
 	if (isCheatCode(key)) {
 		if (key == 'E')
 		{
-
-
 			for (int row(0); row < SIZEY; row++)
 			{
 				for (int col(0); col < SIZEX; col++)
