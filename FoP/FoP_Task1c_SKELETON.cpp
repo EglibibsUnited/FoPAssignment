@@ -122,6 +122,7 @@ void runGame(string playerName)
 
 	int moveCounter(0), powerpillTouch(0);
 
+	changeCursorVisibility(false);
 	checkPlayerScore(playerName);		// Check for previous high scores, handle save files etc. //
 
 	initialiseGame(grid, maze, spot, zombies);	// Initialise grid (incl. walls and spot) //
@@ -244,6 +245,8 @@ bool menuScreen(string playerName)
 {
 
 	void showMessage(const WORD backColour, const WORD textColour, int x, int y, const string message);
+	void scoreScreen(string playerName);
+	void rulesScreen();
 	void endProgram();
 
 	bool quit = false;
@@ -268,11 +271,42 @@ bool menuScreen(string playerName)
 		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 0);
 		runGame(playerName);
 		break;
+	case 'S':
+		scoreScreen(playerName);
+		break;
+	case 'R':
+		rulesScreen();
+		break;
 	case 'Q':
 		quit = true;
 		break;
 	}
 	return quit;
+}
+void scoreScreen(string playerName)
+{
+	void showMessage(const WORD backColour, const WORD textColour, int x, int y, const string message);
+	int getPlayerScore(string playerName);
+
+	Clrscr();
+	showMessage(clDarkGrey, clYellow, 5, 2, "--------------------------");
+	showMessage(clDarkGrey, clYellow, 5, 3, "|    SPOT AND ZOMBIES    |");
+	showMessage(clDarkGrey, clYellow, 5, 4, "--------------------------");
+	int score =  getPlayerScore(playerName);
+	showMessage(clDarkGrey, clYellow, 5, 5, "|> Previous Best Score: " + to_string(score) +"|");
+	showMessage(clBlack, clYellow, 5, 7, "Press enter to return...");
+
+	cin.ignore();
+
+}
+void rulesScreen()
+{
+	void showMessage(const WORD backColour, const WORD textColour, int x, int y, const string message);
+
+	Clrscr();
+	showMessage(clDarkGrey, clYellow, 5, 2, "--------------------------");
+	showMessage(clDarkGrey, clYellow, 5, 3, "|    SPOT AND ZOMBIES    |");
+	showMessage(clDarkGrey, clYellow, 5, 4, "--------------------------");
 }
 
 void setSpotInitialCoordinates(Item& spot, char maze[][SIZEX])
