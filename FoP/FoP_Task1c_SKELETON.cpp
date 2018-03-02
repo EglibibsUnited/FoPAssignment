@@ -103,6 +103,7 @@ int main()
 	}
 
 	initialiseGame(grid, maze, spot, zombies);	//initialise grid (incl. walls and spot)
+  
 	paintGame(grid, message, lives, playerName, powerPills, maze);			//display game info, modified grid and messages
 	int key;							//current key selected by player
 	do {
@@ -199,7 +200,7 @@ void setInitialMazeStructure(char maze[][SIZEX], Item zombies[])
 			}
 		}
 	}
-
+  
 	// Create Zombies //
 	zombies[0].y = 1; zombies[0].x = 1;
 	zombies[1].y = 1; zombies[1].x = SIZEX - 2;
@@ -332,6 +333,20 @@ void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& me
 	{
 
 	}
+
+	// Move Zombies //
+	//for (int column = 0; column < SIZEY; column++)
+	//{
+	//	for (int row = 0; row < SIZEX; row++)
+	//	{
+	//		if (maze[row][column] == 'Z')
+	//		{
+	//			// Move the zombie //
+	//			maze[row][column] = ' ';
+	//			maze[row + 1][column + 1] = 'Z';
+	//		}
+	//	}
+	//}
 
 	if (lives < 0)
 	{
