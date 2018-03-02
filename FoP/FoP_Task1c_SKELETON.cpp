@@ -402,7 +402,8 @@ void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& me
 
 
 				// See if a zombie is touching spot //
-				if (g[zombies[zomb].y][zombies[zomb].x] == SPOT)
+
+				if ((zombies[zomb].y == spot.y) && (zombies[zomb].x == spot.x))
 				{
 					switch (zomb)
 					{
