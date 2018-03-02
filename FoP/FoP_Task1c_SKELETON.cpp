@@ -64,6 +64,7 @@ int main()
 	void paintGame(const char g[][SIZEX], string mess, int lives, string playerName, int powerPills, char m[][SIZEX]);
 	bool wantsToQuit(const int key);
 	bool isArrowKey(const int k);
+	bool isCheatCode(const int k);
 	int  getKeyPress();
 	void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& mess, int& lives, char m[][SIZEX], int& powerPills, Item zombies[], int& powerpillTouch, int moveCounter);
 	void showMessage(const WORD backColour, const WORD textColour, int x, int y, const string message);
@@ -116,6 +117,10 @@ int main()
 			updateGameData(grid, spot, key, message, lives, maze, powerPills, zombies, powerpillTouch, moveCounter);		//move spot in that direction
 			updateGrid(grid, maze, spot, zombies);					//update grid information
 			moveCounter++;
+		}
+		if (isCheatCode(key)) 
+		{
+      
 		}
 		else
 			message = "INVALID KEY!";	//set 'Invalid key' message
@@ -276,10 +281,12 @@ void setMaze(char grid[][SIZEX], const char maze[][SIZEX], Item zombies[], const
 	// ZOMBIES MOVE //
 	for (int zomb = 0; zomb < 4; zomb++)
 	{
+
 		if (zombies[zomb].x + 1 < SIZEX-2)
 		{
 			zombies[zomb].x++;
 		}
+
 		grid[zombies[zomb].y][zombies[zomb].x] = zombies[zomb].symbol;
 	}
 }
@@ -336,6 +343,58 @@ void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& me
 	for (int zomb = 0; zomb < 4; zomb++)
 	{
 
+		if (zombies[zomb].x < spot.x && zombies[zomb].x + 1 < SIZEX - 2)
+		{
+			zombies[zomb].x++;
+		}
+		else if (zombies[zomb].y < spot.y && zombies[zomb].y + 1 < SIZEY - 2)
+		{
+			zombies[zomb].y++;
+		}
+
+		if (zombies[zomb].x > spot.x && zombies[zomb].x + 1 > 1)
+		{
+			zombies[zomb].x--;
+		}
+		else if (zombies[zomb].y > spot.y && zombies[zomb].y + 1 > 1)
+		{
+			zombies[zomb].y--;
+		}
+
+
+		// See if a zombie is touching spot //
+		if (g[zombies[zomb].y][zombies[zomb].x] == SPOT)
+		{
+			switch (zomb)
+			{
+				case 0:
+					zombies[zomb].y = 1; zombies[zomb].x = 1;	
+					break;
+				case 1:
+					zombies[zomb].y = 1; zombies[zomb].x = SIZEX - 2;
+					break;
+				case 2:
+					zombies[zomb].y = SIZEY - 2; zombies[zomb].x = 1;
+					break;
+				case 3:
+					zombies[zomb].y = SIZEY - 2; zombies[zomb].x = SIZEX - 2;
+					break;
+			}
+
+			// Lose a life //
+			lives--;
+		}
+		//else if (g[zombies[zomb].y][zombies[zomb].x] == ZOMBIE)
+		//{
+		//	// Do a quick scan round to see where this other zombie is //
+		//	for (int scan = 1; scan < 5; scan++)
+		//	{
+		//		if (g[zombies[zomb].y + scan][zombies[zomb].x] == ZOMBIE)
+		//		{
+		//			g[zombies[zomb].y][zombies[zomb].x]
+		//		}
+		//	}
+		//}
 	}
 
 	// Move Zombies //
@@ -399,6 +458,27 @@ bool isArrowKey(const int key)
 {	//check if the key pressed is an arrow key (also accept 'K', 'M', 'H' and 'P')
 	return (key == LEFT) || (key == RIGHT) || (key == UP) || (key == DOWN);
 }
+
+bool isCheatCode(const int key)
+{
+	return (key == 'E') || (key == 'X') || (key == 'F');
+}
+
+void runCheatCode(const int key, int& powerPills, Item zombs[]) {
+	switch (key)
+	{
+	case 'E': powerPills = 0;
+		break;
+	case 'X': 
+	
+
+
+	case 'F':
+	default:
+		break;
+	}
+}
+
 bool wantsToQuit(const int key)
 {	//check if the user wants to quit (when key is 'Q' or 'q')
 	return key == QUIT;
