@@ -78,6 +78,7 @@ int main()
 	void powerpillProtection(int moveCounter, int& powerpillTouch, Item& spot, bool& powerpillTouched);
 	int getPlayerScore(string playerName);
 	void playerData(string playerName, int lives, bool hasCheated);
+	bool hasWon(Item zombies[], int powerPills);
 	void endProgram();
 
 	//local variable declarations 
@@ -140,7 +141,7 @@ int main()
 		else
 			message = "INVALID KEY!";	//set 'Invalid key' message
 		paintGame(grid, message, lives, playerName, powerPills, maze, zombies);		//display game info, modified grid and messages
-	} while (!wantsToQuit(key) && lives >= 0);		//while user does not want to quit and they still have lives left //
+	} while (!wantsToQuit(key) && lives >= 0 && hasWon(zombies, powerPills) == false);		//while user does not want to quit and they still have lives left //
 	playerData(playerName, lives, hasCheated);
 	endProgram();						//display final message
 	return 0;
@@ -762,6 +763,23 @@ void playerData(string playerName, int lives, bool hasCheated)
 		writeScore << lives;
 	}
 }
+bool hasWon(Item zombies[], int powerPills)
+{
+	bool winner = false;
+	int zombiesRemaining = 0;
+	for (int zomb = 0; zomb < 4; zomb++)
+	{
+		if (zombies[zomb].canMove)
+		{
+			zombiesRemaining++;
+		}
+	}
+	if (zombiesRemaining == 0 && powerPills == 0)
+	{
+		winner = true;
+	}
+	return winner;
+}	
 
 void endProgram()
 {
