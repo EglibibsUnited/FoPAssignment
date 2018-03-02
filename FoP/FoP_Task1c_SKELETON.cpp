@@ -38,6 +38,7 @@ const char TUNNEL(' ');    	//tunnel
 const char WALL('#');    	//border
 const char HOLE('0');    	//hole
 const char POWERPILL('*');  //power pill
+const char ZOMBIE('Z');  //zombie
 							//defining the command letters to move the spot on the maze
 const int  UP(72);			//up arrow
 const int  DOWN(80); 		//down arrow
@@ -60,13 +61,15 @@ int main()
 	//function declarations (prototypes)
 	void displayStartScreen();
 	void initialiseGame(char g[][SIZEX], char m[][SIZEX], Item& spot);
-	void paintGame(const char g[][SIZEX], string mess, int lives, string playerName, int powerPills);
+	void paintGame(const char g[][SIZEX], string mess, int lives, string playerName, int powerPills, char m[][SIZEX]);
 	bool wantsToQuit(const int key);
 	bool isArrowKey(const int k);
 	int  getKeyPress();
 	void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& mess, int& lives, char m[][SIZEX], int& powerPills);
 	void showMessage(const WORD backColour, const WORD textColour, int x, int y, const string message);
 	void updateGrid(char g[][SIZEX], const char m[][SIZEX], const Item spot);
+	int getPlayerScore(string playerName);
+	void playerData(string playerName, int lives);
 	void endProgram();
 
 	//local variable declarations 
@@ -75,7 +78,7 @@ int main()
 	Item spot = { 0, 0, SPOT }; 		//spot's position and symbol
 	string message("LET'S START...");	//current message to player
 	int lives = 3;						// Initialise Spot with 3 lives //
-	int powerPills = 8;
+	int powerPills = 8;					// Initialise the game with 8 power pills //
 
 	Seed();								//seed the random number generator
 	SetConsoleTitle("Spot and Zombies Game - FoP 2017-18");
@@ -86,15 +89,23 @@ int main()
 	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 0);
 	Clrscr();
 
-	ofstream fout;
-	string filename = "E:\\C++ Files\\C++ Files\\data.txt";
-	fout.open(filename, ios::out);
+	ifstream getScore;
+	getScore.open(".\\Players\\" + playerName + ".txt", ios::in);
+	int value, sum(0);
+	getScore >> value;
+	if (value < -1)
+	{
+		// Nothing is written in the file //
+		ofstream writeScore;
+		writeScore.open(".\\Players\\" + playerName + ".txt", ios::out);
+		writeScore << "-1";
+	}
 
 	initialiseGame(grid, maze, spot);	//initialise grid (incl. walls and spot)
-	paintGame(grid, message, lives, playerName, powerPills);			//display game info, modified grid and messages
+	paintGame(grid, message, lives, playerName, powerPills, maze);			//display game info, modified grid and messages
 	int key;							//current key selected by player
 	do {
-		key = getKeyPress(); 	//read in  selected key: arrow or letter command
+		key = getKeyPress(); 	//read in selected key: arrow or letter command
 		key = toupper(key);
 		if (isArrowKey(key))
 		{
@@ -104,9 +115,9 @@ int main()
 		else
 			message = "INVALID KEY!";	//set 'Invalid key' message
     
-		paintGame(grid, message, lives, playerName, powerPills);		//display game info, modified grid and messages
+		paintGame(grid, message, lives, playerName, powerPills, maze);		//display game info, modified grid and messages
 	} while (!wantsToQuit(key) && lives >= 0);		//while user does not want to quit and they still have lives left //
-	cin.get();
+	playerData(playerName, lives);
 	endProgram();						//display final message
 	return 0;
 }
@@ -125,9 +136,9 @@ void displayStartScreen()
 
 	showMessage(clDarkGrey, clYellow, 5, 6, "    Group SE1_5 - 2018    ");
 	showMessage(clDarkGrey, clYellow, 5, 7, " ------------------------ ");
-	showMessage(clDarkGrey, clYellow, 5, 8, " * Michael Elsom 27035059 ");
-	showMessage(clDarkGrey, clYellow, 5, 9, " * James Nelhams 27021413 ");
-	showMessage(clDarkGrey, clYellow, 5, 10, " * Jake Stringer 27003087 ");
+	showMessage(clDarkGrey, clYellow, 5, 8, " > Michael Elsom 27035059 ");
+	showMessage(clDarkGrey, clYellow, 5, 9, " > James Nelhams 27021413 ");
+	showMessage(clDarkGrey, clYellow, 5, 10, " > Jake Stringer 27003087 ");
 
 	showMessage(clDarkGrey, clYellow, 40, 2, "Date: " + GetDate());
 	showMessage(clDarkGrey, clYellow, 40, 3, "Time: " + GetTime());
@@ -188,11 +199,16 @@ void setInitialMazeStructure(char maze[][SIZEX])
 		}
 	}
 
+	initialMaze[1][1] = 'Z';
+	initialMaze[1][SIZEX-2] = 'Z';
+	initialMaze[SIZEY-2][1] = 'Z';
+	initialMaze[SIZEY-2][SIZEX-2] = 'Z';
+
 	for (int holesCount = 12; holesCount >= 0; holesCount--) // Add holes //
 	{
 		int x = Random(SIZEX - 2);
 		int y = Random(SIZEY - 2);
-		while (initialMaze[y][x] == WALL)
+		while (initialMaze[y][x] == WALL || initialMaze[y][x] == ZOMBIE)
 		{
 			x = Random(SIZEX - 2);
 			y = Random(SIZEY - 2);
@@ -204,7 +220,7 @@ void setInitialMazeStructure(char maze[][SIZEX])
 	{
 		int x = Random(SIZEX - 2);
 		int y = Random(SIZEY - 2);
-		while (initialMaze[y][x] == WALL || initialMaze[y][x] == HOLE)
+		while (initialMaze[y][x] == WALL || initialMaze[y][x] == ZOMBIE || initialMaze[y][x] == HOLE)
 		{
 			x = Random(SIZEX - 2);
 			y = Random(SIZEY - 2);
@@ -223,6 +239,7 @@ void setInitialMazeStructure(char maze[][SIZEX])
 			case ' ': maze[row][col] = TUNNEL; break;
 			case '0': maze[row][col] = HOLE; break;
 			case '*': maze[row][col] = POWERPILL; break;
+			case 'Z': maze[row][col] = ZOMBIE; break;
 			}
 }
 
@@ -283,14 +300,30 @@ void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& me
 			spot.y += dy;
 			spot.x += dx;
 			lives--;
+			break;
 		case POWERPILL:		// Eat power pill //
 			spot.y += dy;
 			spot.x += dx;
 			maze[spot.y][spot.x] = ' ';
 			lives++;
 			powerPills--;
+			break;
 
 	}
+
+	// Move Zombies //
+	//for (int column = 0; column < SIZEY; column++)
+	//{
+	//	for (int row = 0; row < SIZEX; row++)
+	//	{
+	//		if (maze[row][column] == 'Z')
+	//		{
+	//			// Move the zombie //
+	//			maze[row][column] = ' ';
+	//			maze[row + 1][column + 1] = 'Z';
+	//		}
+	//	}
+	//}
 
 	if (lives < 0)
 	{
@@ -367,14 +400,17 @@ void showMessage(const WORD backColour, const WORD textColour, int x, int y, con
 	SelectTextColour(textColour);
 	cout << message;
 }
-void paintGame(const char g[][SIZEX], string mess, int lives, string playerName, int powerPills)
+void paintGame(const char g[][SIZEX], string mess, int lives, string playerName, int powerPills, char m[][SIZEX])
 { //display game title, messages, maze, spot and other items on screen
 	string tostring(char x);
 	void showMessage(const WORD backColour, const WORD textColour, int x, int y, const string message);
-	void paintGrid(const char g[][SIZEX]);
+	void paintGrid(const char g[][SIZEX], char m[][SIZEX]);
+	int getPlayerScore(string playerName);
 	//TODO: Change the colour of the messages
 	//display game title
 	showMessage(clBlack, clYellow, 0, 0, "___GAME___");
+	SelectBackColour(clDarkGrey);
+	SelectTextColour(clYellow);
 
 	// Display lives left //
 	stringstream ss;
@@ -410,19 +446,21 @@ void paintGame(const char g[][SIZEX], string mess, int lives, string playerName,
 	showMessage(clDarkGrey, clYellow, 40, 11, "| Quit: Q             |");
 	showMessage(clDarkGrey, clYellow, 40, 12, "-----------------------");
 
-	int score(0);
-	showMessage(clDarkGrey, clYellow, 40, 14, "Player: " + playerName + ": " + to_string(score));
-	showMessage(clBlack, clGreen, 40, 17, ss.str());
-	showMessage(clBlack, clGreen, 40, 18, pps.str());
+	showMessage(clBlack, clGreen, 40, 14, ss.str());
+	showMessage(clBlack, clGreen, 40, 15, pps.str());
+
+	string score = to_string(getPlayerScore(playerName));
+	showMessage(clBlack, clGreen, 40, 18, playerName);
+	showMessage(clBlack, clGreen, 40, 19, playerName + "'s previous best score is: " + score);
 
 	//print auxiliary messages if any
-	showMessage(clBlack, clWhite, 5, SIZEY + 4, mess);
+	showMessage(clBlack, clWhite, 40, 26, mess);
 
 
-	paintGrid(g);
+	paintGrid(g, m);
 }
 
-void paintGrid(const char g[][SIZEX])
+void paintGrid(const char g[][SIZEX], char m[][SIZEX])
 { //display grid content on screen
 	SelectBackColour(clBlack);
 	SelectTextColour(clWhite);
@@ -431,13 +469,30 @@ void paintGrid(const char g[][SIZEX])
 	{
 		for (int col(0); col < SIZEX; ++col)
 		{
-			if (g[row][col] == '0')
+			if (g[row][col] == SPOT)
 			{
-				SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 12);
+				SelectTextColour(clBlue);
 				cout << g[row][col];
-				SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 7);
+				SelectTextColour(clWhite);
+			} else if (g[row][col] == HOLE)
+			{
+				SelectTextColour(clRed);
+				cout << g[row][col];
+				SelectTextColour(clWhite);
+			} else if (g[row][col] == ZOMBIE)
+			{
+				SelectTextColour(clGreen);
+				cout << g[row][col];
+				SelectTextColour(clWhite);
+
+				// TODO - Update zombie position //
 			}
-			else
+			else if (g[row][col] == POWERPILL)
+			{
+				SelectTextColour(clYellow);
+				cout << g[row][col];
+				SelectTextColour(clWhite);
+			} else
 			{
 				cout << g[row][col];	//output cell content
 			}
@@ -446,9 +501,54 @@ void paintGrid(const char g[][SIZEX])
 	}
 }
 
+int getPlayerScore(string playerName)
+{
+	ifstream getScore;
+	getScore.open(".\\Players\\" + playerName + ".txt", ios::in);
+	int value, sum(0);
+	getScore >> value;
+	while (getScore)
+	{
+		getScore >> value;
+		sum++;
+	}
+	getScore.close();
+	return value;
+}
+
+void playerData(string playerName, int lives)
+{
+	void showMessage(const WORD backColour, const WORD textColour, int x, int y, const string message);
+
+	ifstream getScore;
+	ofstream writeScore;
+	getScore.open(".\\Players\\" + playerName + ".txt", ios::in);
+	int value, sum(0);
+	getScore >> value;
+	while (getScore)
+	{
+		getScore >> value;
+		sum++;
+	}
+	getScore.close();
+	writeScore.open(".\\Players\\" + playerName + ".txt", ios::out);
+	if (sum > 0)
+	{
+		if (lives > value) 
+		{
+			showMessage(clRed, clYellow, 40, 22, "NEW SCORE!");
+			writeScore << lives;
+		}		
+	}
+	else
+	{
+		writeScore << lives;
+	}
+}
+
 void endProgram()
 {
 	void showMessage(const WORD backColour, const WORD textColour, int x, int y, const string message);
-	showMessage(clRed, clYellow, 40, 8, "");
+	showMessage(clRed, clYellow, 40, 26, "");
 	system("pause");	//hold output screen until a keyboard key is hit
 }
