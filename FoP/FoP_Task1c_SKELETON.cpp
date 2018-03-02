@@ -68,6 +68,7 @@ int main()
 	void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& mess, int& lives, char m[][SIZEX], int& powerPills);
 	void showMessage(const WORD backColour, const WORD textColour, int x, int y, const string message);
 	void updateGrid(char g[][SIZEX], const char m[][SIZEX], const Item spot);
+	int getPlayerScore(string playerName);
 	void playerData(string playerName, int lives);
 	void endProgram();
 
@@ -404,6 +405,7 @@ void paintGame(const char g[][SIZEX], string mess, int lives, string playerName,
 	string tostring(char x);
 	void showMessage(const WORD backColour, const WORD textColour, int x, int y, const string message);
 	void paintGrid(const char g[][SIZEX], char m[][SIZEX]);
+	int getPlayerScore(string playerName);
 	//TODO: Change the colour of the messages
 	//display game title
 	showMessage(clBlack, clYellow, 0, 0, "___GAME___");
@@ -444,13 +446,15 @@ void paintGame(const char g[][SIZEX], string mess, int lives, string playerName,
 	showMessage(clDarkGrey, clYellow, 40, 11, "| Quit: Q             |");
 	showMessage(clDarkGrey, clYellow, 40, 12, "-----------------------");
 
-	int score(0);
-	showMessage(clDarkGrey, clYellow, 40, 14, "Player: " + playerName + ": " + to_string(score)+ "  ");
-	showMessage(clBlack, clGreen, 40, 17, ss.str());
-	showMessage(clBlack, clGreen, 40, 18, pps.str());
+	showMessage(clBlack, clGreen, 40, 14, ss.str());
+	showMessage(clBlack, clGreen, 40, 15, pps.str());
+
+	string score = to_string(getPlayerScore(playerName));
+	showMessage(clBlack, clGreen, 40, 18, playerName);
+	showMessage(clBlack, clGreen, 40, 19, playerName + "'s previous best score is: " + score);
 
 	//print auxiliary messages if any
-	showMessage(clBlack, clWhite, 40, 25, mess);
+	showMessage(clBlack, clWhite, 40, 26, mess);
 
 
 	paintGrid(g, m);
@@ -497,6 +501,21 @@ void paintGrid(const char g[][SIZEX], char m[][SIZEX])
 	}
 }
 
+int getPlayerScore(string playerName)
+{
+	ifstream getScore;
+	getScore.open(".\\Players\\" + playerName + ".txt", ios::in);
+	int value, sum(0);
+	getScore >> value;
+	while (getScore)
+	{
+		getScore >> value;
+		sum++;
+	}
+	getScore.close();
+	return value;
+}
+
 void playerData(string playerName, int lives)
 {
 	void showMessage(const WORD backColour, const WORD textColour, int x, int y, const string message);
@@ -521,12 +540,15 @@ void playerData(string playerName, int lives)
 			writeScore << lives;
 		}		
 	}
-	writeScore << lives;
+	else
+	{
+		writeScore << lives;
+	}
 }
 
 void endProgram()
 {
 	void showMessage(const WORD backColour, const WORD textColour, int x, int y, const string message);
-	showMessage(clRed, clYellow, 40, 21, "");
+	showMessage(clRed, clYellow, 40, 26, "");
 	system("pause");	//hold output screen until a keyboard key is hit
 }
