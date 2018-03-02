@@ -33,7 +33,7 @@ using namespace std;
 const int  SIZEX(38);    	//horizontal dimension
 const int  SIZEY(25);		//vertical dimension
 							//defining symbols used for display of the grid and content
-const char SPOT('@');   	//spot
+char SPOT('@');			 	//spot
 const char TUNNEL(' ');    	//tunnel
 const char WALL('#');    	//border
 const char HOLE('0');    	//hole
@@ -66,10 +66,15 @@ int main()
 	bool isArrowKey(const int k);
 	bool isCheatCode(const int k);
 	int  getKeyPress();
+
 	void runCheatCode(const int k, int& powerPills, Item zombies[], bool& zombFreeze);
 	void updateGameData(char g[][SIZEX], Item& spot, const int key, string& mess, int& lives, char m[][SIZEX], int& powerPills, Item zombies[], bool zombMove);
+
+	void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& mess, int& lives, char m[][SIZEX], int& powerPills, Item zombies[], int& powerpillTouch, int moveCounter);
+
 	void showMessage(const WORD backColour, const WORD textColour, int x, int y, const string message);
 	void updateGrid(char g[][SIZEX], const char m[][SIZEX], const Item spot, Item zombies[]);
+	void powerpillProtection(int moveCounter, int& powerpillTouch);
 	int getPlayerScore(string playerName);
 	void playerData(string playerName, int lives);
 	void endProgram();
@@ -82,8 +87,12 @@ int main()
 	string message("LET'S START...");	//current message to player
 	int lives = 3;						// Initialise Spot with 3 lives //
 	int powerPills = 8;					// Initialise the game with 8 power pills //
+
 	bool zombiesMove(true);			//For zombie freeze cheat code
 	bool hasCheated(false);
+
+	int moveCounter(0), powerpillTouch(0);
+
 
 	Seed();								//seed the random number generator
 	SetConsoleTitle("Spot and Zombies Game - FoP 2017-18");
@@ -115,16 +124,24 @@ int main()
 		key = toupper(key);
 		if (isArrowKey(key))
 		{
-			updateGameData(grid, spot, key, message, lives, maze, powerPills, zombies, zombiesMove);		//move spot in that direction
-			updateGrid(grid, maze, spot, zombies);					//update grid information
 
+			updateGameData(grid, spot, key, message, lives, maze, powerPills, zombies, zombiesMove);		//move spot in that direction
+
+			updateGameData(grid, spot, key, message, lives, maze, powerPills, zombies, powerpillTouch, moveCounter);		//move spot in that direction
+
+			updateGrid(grid, maze, spot, zombies);					//update grid information
+			moveCounter++;
 		}
 		if (isCheatCode(key)) 
 		{
+
 			runCheatCode(key, powerPills, zombies, zombiesMove);
 			updateGameData(grid, spot, key, message, lives, maze, powerPills, zombies, zombiesMove);
 			updateGrid(grid, maze, spot, zombies);
 			hasCheated = true;
+
+      
+
 		}
 		else
 			message = "INVALID KEY!";	//set 'Invalid key' message
@@ -300,13 +317,22 @@ void placeItem(char g[][SIZEX], const Item item)
 //---------------------------------------------------------------------------
 //----- move items on the grid
 //---------------------------------------------------------------------------
+
 void updateGameData(char g[][SIZEX], Item& spot, const int key, string& mess, int& lives, char maze[][SIZEX], int& powerPills, Item zombies[], bool zombiesMove)
+
+void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& mess, int& lives, char maze[][SIZEX], int& powerPills, Item zombies[], int& powerpillTouch, int moveCounter)
+
 { //move spot in required direction
 	bool isArrowKey(const int k);
 	bool isCheatCode(const int k);
 	void setKeyDirection(int k, int& dx, int& dy);
+
 	if (isArrowKey(key))
 	{
+
+	void powerpillProtection(int moveCounter, int& powerpillTouch);
+	assert(isArrowKey(key));
+
 
 
 		assert(isArrowKey(key));
@@ -326,8 +352,6 @@ void updateGameData(char g[][SIZEX], Item& spot, const int key, string& mess, in
 			spot.x += dx;	//go in that X direction
 			break;
 		case WALL:  		//hit a wall and stay there
-							//TODO: remove alarm when bumping into walls - too annoying
-			cout << '\a';	//beep the alarm
 			mess = "CANNOT GO THERE!";
 			break;
 		case HOLE:			// Fall into a hole //
@@ -339,6 +363,8 @@ void updateGameData(char g[][SIZEX], Item& spot, const int key, string& mess, in
 			spot.y += dy;
 			spot.x += dx;
 			maze[spot.y][spot.x] = ' ';
+			powerpillTouch = moveCounter;
+			powerpillProtection(moveCounter, powerpillTouch);
 			lives++;
 			powerPills--;
 			break;
@@ -406,6 +432,9 @@ void updateGameData(char g[][SIZEX], Item& spot, const int key, string& mess, in
 				//	}
 				//}
 			}
+
+			// Lose a life //
+			lives--;
 		}
 
 		// Move Zombies //
@@ -653,6 +682,14 @@ void paintGrid(const char g[][SIZEX], char m[][SIZEX])
 			}
 		}
 		cout << endl;
+	}
+}
+
+void powerpillProtection(int moveCounter, int& powerpillTouch)
+{
+	if (moveCounter - 10 < powerpillTouch)
+	{
+		SPOT = '%';
 	}
 }
 
