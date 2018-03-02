@@ -60,14 +60,14 @@ int main()
 {
 	//function declarations (prototypes)
 	void displayStartScreen();
-	void initialiseGame(char g[][SIZEX], char m[][SIZEX], Item& spot);
+	void initialiseGame(char g[][SIZEX], char m[][SIZEX], Item& spot, Item zombies[]);
 	void paintGame(const char g[][SIZEX], string mess, int lives, string playerName, int powerPills, char m[][SIZEX]);
 	bool wantsToQuit(const int key);
 	bool isArrowKey(const int k);
 	int  getKeyPress();
-	void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& mess, int& lives, char m[][SIZEX], int& powerPills);
+	void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& mess, int& lives, char m[][SIZEX], int& powerPills, Item zombies[]);
 	void showMessage(const WORD backColour, const WORD textColour, int x, int y, const string message);
-	void updateGrid(char g[][SIZEX], const char m[][SIZEX], const Item spot);
+	void updateGrid(char g[][SIZEX], const char m[][SIZEX], const Item spot, Item zombies[]);
 	void playerData(string playerName, int lives);
 	void endProgram();
 
@@ -75,6 +75,7 @@ int main()
 	char grid[SIZEY][SIZEX];			//grid for display
 	char maze[SIZEY][SIZEX];			//structure of the maze
 	Item spot = { 0, 0, SPOT }; 		//spot's position and symbol
+	Item zombies[4];					// Array of zombies // 
 	string message("LET'S START...");	//current message to player
 	int lives = 3;						// Initialise Spot with 3 lives //
 	int powerPills = 8;					// Initialise the game with 8 power pills //
@@ -93,7 +94,7 @@ int main()
 	fout.open(filename, ios::out);
 
 
-	initialiseGame(grid, maze, spot);	//initialise grid (incl. walls and spot)
+	initialiseGame(grid, maze, spot, zombies);	//initialise grid (incl. walls and spot)
 	paintGame(grid, message, lives, playerName, powerPills, maze);			//display game info, modified grid and messages
 	int key;							//current key selected by player
 	do {
@@ -101,8 +102,8 @@ int main()
 		key = toupper(key);
 		if (isArrowKey(key))
 		{
-			updateGameData(grid, spot, key, message, lives, maze, powerPills);		//move spot in that direction
-			updateGrid(grid, maze, spot);					//update grid information
+			updateGameData(grid, spot, key, message, lives, maze, powerPills, zombies);		//move spot in that direction
+			updateGrid(grid, maze, spot, zombies);					//update grid information
 		}
 		else
 			message = "INVALID KEY!";	//set 'Invalid key' message
@@ -147,15 +148,15 @@ void displayStartScreen()
 	showMessage(clBlack, clRed, 31, 14, " ");
 }
 
-void initialiseGame(char grid[][SIZEX], char maze[][SIZEX], Item& spot)
+void initialiseGame(char grid[][SIZEX], char maze[][SIZEX], Item& spot, Item zombies[])
 { //initialise grid and place spot in middle
-	void setInitialMazeStructure(char maze[][SIZEX]);
+	void setInitialMazeStructure(char maze[][SIZEX], Item zombies[]);
 	void setSpotInitialCoordinates(Item& spot, char maze[][SIZEX]);
-	void updateGrid(char g[][SIZEX], const char m[][SIZEX], Item b);
+	void updateGrid(char g[][SIZEX], const char m[][SIZEX], Item b, Item zombies[]);
 
-	setInitialMazeStructure(maze);		//initialise maze
+	setInitialMazeStructure(maze, zombies);		//initialise maze
 	setSpotInitialCoordinates(spot, maze);
-	updateGrid(grid, maze, spot);		//prepare grid
+	updateGrid(grid, maze, spot, zombies);		//prepare grid
 }
 
 void setSpotInitialCoordinates(Item& spot, char maze[][SIZEX])
@@ -171,7 +172,7 @@ void setSpotInitialCoordinates(Item& spot, char maze[][SIZEX])
 	spot.x = x;
 }
 
-void setInitialMazeStructure(char maze[][SIZEX])
+void setInitialMazeStructure(char maze[][SIZEX], Item zombies[])
 { //set the position of the walls in the maze
   //initialise maze configuration
 	char initialMaze[SIZEY][SIZEX];
@@ -191,10 +192,16 @@ void setInitialMazeStructure(char maze[][SIZEX])
 		}
 	}
 
-	initialMaze[1][1] = 'Z';
-	initialMaze[1][SIZEX-2] = 'Z';
-	initialMaze[SIZEY-2][1] = 'Z';
-	initialMaze[SIZEY-2][SIZEX-2] = 'Z';
+	// Create Zombies //
+	zombies[0].y = 1; zombies[0].x = 1;
+	zombies[1].y = 1; zombies[1].x = SIZEX - 2;
+	zombies[2].y = SIZEY - 2; zombies[2].x = 1;
+	zombies[3].y = SIZEY - 2; zombies[3].x = SIZEX - 2;
+	for (int zomb = 0; zomb < 4; zomb++)
+	{
+		zombies[zomb].symbol = 'Z';
+		//initialMaze[zombies[zomb].y][zombies[zomb].x] = zombies[zomb].symbol;
+	}
 
 	for (int holesCount = 12; holesCount >= 0; holesCount--) // Add holes //
 	{
@@ -239,20 +246,30 @@ void setInitialMazeStructure(char maze[][SIZEX])
 //----- update grid state
 //---------------------------------------------------------------------------
 
-void updateGrid(char grid[][SIZEX], const char maze[][SIZEX], const Item spot)
+void updateGrid(char grid[][SIZEX], const char maze[][SIZEX], const Item spot, Item zombies[])
 { //update grid configuration after each move
-	void setMaze(char g[][SIZEX], const char b[][SIZEX]);
+	void setMaze(char g[][SIZEX], const char b[][SIZEX], Item zombies[], const Item spot);
 	void placeItem(char g[][SIZEX], const Item spot);
 
-	setMaze(grid, maze);	//reset the empty maze configuration into grid
+	setMaze(grid, maze, zombies, spot);	//reset the empty maze configuration into grid
 	placeItem(grid, spot);	//set spot in grid
 }
 
-void setMaze(char grid[][SIZEX], const char maze[][SIZEX])
+void setMaze(char grid[][SIZEX], const char maze[][SIZEX], Item zombies[], const Item spot)
 { //reset the empty/fixed maze configuration into grid
 	for (int row(0); row < SIZEY; ++row)
 		for (int col(0); col < SIZEX; ++col)
 			grid[row][col] = maze[row][col];
+
+	// ZOMBIES MOVE //
+	for (int zomb = 0; zomb < 4; zomb++)
+	{
+		if (zombies[zomb].x + 1 < SIZEX)
+		{
+			// TODO: FINISH ZOMBIE LOGIC //
+		}
+		grid[zombies[zomb].y][zombies[zomb].x] = zombies[zomb].symbol;
+	}
 }
 
 void placeItem(char g[][SIZEX], const Item item)
@@ -263,7 +280,7 @@ void placeItem(char g[][SIZEX], const Item item)
 //---------------------------------------------------------------------------
 //----- move items on the grid
 //---------------------------------------------------------------------------
-void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& mess, int& lives, char maze[][SIZEX], int& powerPills)
+void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& mess, int& lives, char maze[][SIZEX], int& powerPills, Item zombies[])
 { //move spot in required direction
 	bool isArrowKey(const int k);
 	void setKeyDirection(int k, int& dx, int& dy);
@@ -300,22 +317,13 @@ void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& me
 			lives++;
 			powerPills--;
 			break;
-
 	}
 
 	// Move Zombies //
-	//for (int column = 0; column < SIZEY; column++)
-	//{
-	//	for (int row = 0; row < SIZEX; row++)
-	//	{
-	//		if (maze[row][column] == 'Z')
-	//		{
-	//			// Move the zombie //
-	//			maze[row][column] = ' ';
-	//			maze[row + 1][column + 1] = 'Z';
-	//		}
-	//	}
-	//}
+	for (int zomb = 0; zomb < 4; zomb++)
+	{
+
+	}
 
 	if (lives < 0)
 	{
