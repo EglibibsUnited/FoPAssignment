@@ -107,17 +107,19 @@ int main()
 
 	changeCursorVisibility(false);
 
-	ifstream getScore;
-	getScore.open(".\\Players\\" + playerName + ".txt", ios::in);
-	int value, sum(0);
-	getScore >> value;
-	if (value < -1)
-	{
-		// Nothing is written in the file //
-		ofstream writeScore;
-		writeScore.open(".\\Players\\" + playerName + ".txt", ios::out);
-		writeScore << "-1";
-	}
+	// This is broken suddenly for some reason //
+	
+	//ifstream getScore;
+	//getScore.open(".\\Players\\" + playerName + ".txt", ios::in);
+	//int value, sum(0);
+	//getScore >> value;
+	//if (value < -1)
+	//{
+	//	// Nothing is written in the file //
+	//	ofstream writeScore;
+	//	writeScore.open(".\\Players\\" + playerName + ".txt", ios::out);
+	//	writeScore << "-1";
+	//}
 
 	initialiseGame(grid, maze, spot, zombies);	//initialise grid (incl. walls and spot)
   
@@ -143,6 +145,7 @@ int main()
 			message = "INVALID KEY!";	//set 'Invalid key' message
 		paintGame(grid, message, lives, playerName, powerPills, maze, zombies);		//display game info, modified grid and messages
 	} while (!wantsToQuit(key) && lives >= 0 && hasWon(zombies, powerPills) == false);		//while user does not want to quit and they still have lives left //
+	showMessage(clRed, clYellow, 40, 24, "Congratulations!! You Win!!");
 	playerData(playerName, lives, hasCheated);
 	changeCursorVisibility(true);
 	endProgram();						//display final message
@@ -222,20 +225,38 @@ void setInitialMazeStructure(char maze[][SIZEX], Item zombies[])
   //initialise maze configuration
 	char initialMaze[SIZEY][SIZEX];
 
-	for (int column = 0; column < SIZEY; column++)
+	//for (int column = 0; column < SIZEY; column++)
+	//{
+	//	for (int row = 0; row < SIZEX; row++)
+	//	{
+	//		if (column == 0 || column == SIZEY-1 || row == 0 || row == SIZEX-1)
+	//		{
+	//			// Just a row of walls //
+	//			initialMaze[column][row] = '#';
+	//		} else
+	//		{
+	//			initialMaze[column][row] = ' ';
+	//		}
+	//	}
+	//}
+
+	// Test reading level in //
+	cout << "Enter a level name to open: ";
+	string levelName;
+	cin >> levelName;
+	ifstream levelReader;
+	levelReader.open(".\\Levels\\" + levelName + ".spot", ios::in);
+
+	string value;
+	for (int column = 0; levelReader; column++)
 	{
-		for (int row = 0; row < SIZEX; row++)
+		getline(levelReader, value);
+		for (int row = 0; row < value.length(); row++)
 		{
-			if (column == 0 || column == SIZEY-1 || row == 0 || row == SIZEX-1)
-			{
-				// Just a row of walls //
-				initialMaze[column][row] = '#';
-			} else
-			{
-				initialMaze[column][row] = ' ';
-			}
+			initialMaze[column][row] = value[row];
 		}
 	}
+	levelReader.close();
   
 	// Create Zombies - set their default X and Y positions and initialise their X and Y coords to the same //
 	zombies[0].defaultY = 1; zombies[0].defaultX = 1; zombies[0].y = 1; zombies[0].x = 1;
@@ -309,9 +330,6 @@ void setMaze(char grid[][SIZEX], const char maze[][SIZEX], Item zombies[])
 	// ZOMBIES placement on grid //
 	for (int zomb = 0; zomb < 4; zomb++)
 	{
-
-		
-
 		grid[zombies[zomb].y][zombies[zomb].x] = zombies[zomb].symbol;
 	}
 }
@@ -355,6 +373,7 @@ void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& me
 		case TUNNEL:		//can move
 			spot.y += dy;	//go in that Y direction
 			spot.x += dx;	//go in that X direction
+			if (powerpillTouched == true) cout << "\a";
 			powerpillProtection(moveCounter, powerpillTouch, spot, powerpillTouched);
 			break;
 		case WALL:  		//hit a wall and stay there
@@ -382,27 +401,45 @@ void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& me
 		{
 			for (int zomb = 0; zomb < 4; zomb++)
 			{
-				if (zombies[zomb].x < spot.x && zombies[zomb].x + 1 < SIZEX - 2 && zombies[zomb].canMove == true)
+				if (zombies[zomb].x < spot.x && zombies[zomb].x + 1 < SIZEX - 2 && zombies[zomb].canMove == true && powerpillTouched == false)
 				{
 					zombies[zomb].x++;
 				}
-				else if (zombies[zomb].y < spot.y && zombies[zomb].y + 1 < SIZEY - 2 && zombies[zomb].canMove == true)
+				else if (zombies[zomb].y < spot.y && zombies[zomb].y + 1 < SIZEY - 2 && zombies[zomb].canMove == true && powerpillTouched == false)
 				{
 					zombies[zomb].y++;
 				}
 
-				if (zombies[zomb].x > spot.x && zombies[zomb].x + 1 > 1 && zombies[zomb].canMove == true)
+				if (zombies[zomb].x > spot.x && zombies[zomb].x + 1 > 1 && zombies[zomb].canMove == true && powerpillTouched == false)
 				{
 					zombies[zomb].x--;
 				}
-				else if (zombies[zomb].y > spot.y && zombies[zomb].y + 1 > 1 && zombies[zomb].canMove == true)
+				else if (zombies[zomb].y > spot.y && zombies[zomb].y + 1 > 1 && zombies[zomb].canMove == true && powerpillTouched == false)
+				{
+					zombies[zomb].y--;
+				}
+				
+				if (zombies[zomb].x < spot.x && zombies[zomb].x + 1 < SIZEX - 2 && zombies[zomb].canMove == true && powerpillTouched == true)
+				{
+					zombies[zomb].x--;
+				}
+				else if (zombies[zomb].y < spot.y && zombies[zomb].y + 1 < SIZEY - 2 && zombies[zomb].canMove == true && powerpillTouched == true)
 				{
 					zombies[zomb].y--;
 				}
 
+				if (zombies[zomb].x > spot.x && zombies[zomb].x + 1 > 1 && zombies[zomb].canMove == true && powerpillTouched == true)
+				{
+					zombies[zomb].x++;
+				}
+				else if (zombies[zomb].y > spot.y && zombies[zomb].y + 1 > 1 && zombies[zomb].canMove == true && powerpillTouched == true)
+				{
+					zombies[zomb].y++;
+				}
+
 				// See if a zombie is touching spot //
 
-				if ((zombies[zomb].y == spot.y) && (zombies[zomb].x == spot.x))
+				if ((zombies[zomb].y == spot.y) && (zombies[zomb].x == spot.x) && powerpillTouched == false)
 				{
 					switch (zomb)
 					{
@@ -420,6 +457,28 @@ void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& me
 						break;
 					}
 					lives--;
+				}
+				if ((zombies[zomb].y == spot.y) && (zombies[zomb].x == spot.x) && powerpillTouched == true) // Powerpill active, kills zombies when touched
+				{
+					switch (zomb)
+					{
+					case 0:
+						zombies[zomb].y = -1; zombies[zomb].x = -1;
+						zombies[zomb].canMove = false;
+						break;
+					case 1:
+						zombies[zomb].y = -1; zombies[zomb].x = -1;
+						zombies[zomb].canMove = false;
+						break;
+					case 2:
+						zombies[zomb].y = -1; zombies[zomb].x = -1;
+						zombies[zomb].canMove = false;
+						break;
+					case 3:
+						zombies[zomb].y = -1; zombies[zomb].x = -1;
+						zombies[zomb].canMove = false;
+						break;
+					}
 				}
 
 				// Check for zombies touching a hole //
