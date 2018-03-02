@@ -57,7 +57,7 @@ struct Item {
 int main()
 {
 	void displayStartScreen();
-	void displayMenuScreen(string playerName);
+	bool menuScreen(string playerName);
 	void runGame();
 	void changeCursorVisibility(bool);
 	void endProgram();
@@ -71,10 +71,11 @@ int main()
 	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 0);
 	Clrscr();
 
-	displayMenuScreen(playerName);
-	Clrscr();
-
-	changeCursorVisibility(false);
+	do
+	{
+		menuScreen(playerName);
+		Clrscr();
+	} while (!menuScreen);
 
 
 	endProgram();						//display final message
@@ -132,6 +133,7 @@ void runGame(string playerName)
 		writeScore << "-1";
 	}
 
+	changeCursorVisibility(false);
 	initialiseGame(grid, maze, spot, zombies);	//initialise grid (incl. walls and spot)
 
 	paintGame(grid, message, lives, playerName, powerPills, maze, zombies);			//display game info, modified grid and messages
@@ -204,12 +206,13 @@ void displayStartScreen()
 	showMessage(clDarkGrey, clYellow, 5, 15, "Enter your name to start:");
 	showMessage(clBlack, clRed, 31, 15, " ");
 }
-void displayMenuScreen(string playerName) 
+bool menuScreen(string playerName) 
 {
 
 	void showMessage(const WORD backColour, const WORD textColour, int x, int y, const string message);
 	void endProgram();
 
+	bool quit = false;
 	showMessage(clDarkGrey, clYellow, 5, 2, "--------------------------");
 	showMessage(clDarkGrey, clYellow, 5, 3, "|    SPOT AND ZOMBIES    |");
 	showMessage(clDarkGrey, clYellow, 5, 4, "--------------------------");
@@ -231,8 +234,10 @@ void displayMenuScreen(string playerName)
 			break;
 
 		case 'Q':
-			endProgram();
+			quit = true;
+			break;
 	}
+	return quit;
 }
 
 void initialiseGame(char grid[][SIZEX], char maze[][SIZEX], Item& spot, Item zombies[])
