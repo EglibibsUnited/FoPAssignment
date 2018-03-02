@@ -51,6 +51,7 @@ struct Item {
 	int x, y;
 	char symbol;
 	bool canMove = true;
+	int defaultX, defaultY;
 };
 
 //---------------------------------------------------------------------------
@@ -62,7 +63,7 @@ int main()
 	//function declarations (prototypes)
 	void displayStartScreen();
 	void initialiseGame(char g[][SIZEX], char m[][SIZEX], Item& spot, Item zombies[]);
-	void paintGame(const char g[][SIZEX], string mess, int lives, string playerName, int powerPills, char m[][SIZEX]);
+	void paintGame(const char g[][SIZEX], string mess, int lives, string playerName, int powerPills, char m[][SIZEX], Item zombies[]);
 	bool wantsToQuit(const int key);
 	bool isArrowKey(const int k);
 	bool isCheatCode(const int k);
@@ -118,7 +119,7 @@ int main()
 
 	initialiseGame(grid, maze, spot, zombies);	//initialise grid (incl. walls and spot)
   
-	paintGame(grid, message, lives, playerName, powerPills, maze);			//display game info, modified grid and messages
+	paintGame(grid, message, lives, playerName, powerPills, maze, zombies);			//display game info, modified grid and messages
 	int key;							//current key selected by player
 	do {
 		key = getKeyPress(); 	//read in selected key: arrow or letter command
@@ -147,7 +148,7 @@ int main()
 		else
 			message = "INVALID KEY!";	//set 'Invalid key' message
     
-		paintGame(grid, message, lives, playerName, powerPills, maze);		//display game info, modified grid and messages
+		paintGame(grid, message, lives, playerName, powerPills, maze, zombies);		//display game info, modified grid and messages
 	} while (!wantsToQuit(key) && lives >= 0);		//while user does not want to quit and they still have lives left //
 	playerData(playerName, lives, hasCheated);
 	endProgram();						//display final message
@@ -231,11 +232,11 @@ void setInitialMazeStructure(char maze[][SIZEX], Item zombies[])
 		}
 	}
   
-	// Create Zombies //
-	zombies[0].y = 1; zombies[0].x = 1;
-	zombies[1].y = 1; zombies[1].x = SIZEX - 2;
-	zombies[2].y = SIZEY - 2; zombies[2].x = 1;
-	zombies[3].y = SIZEY - 2; zombies[3].x = SIZEX - 2;
+	// Create Zombies - set their default X and Y positions and initialise their X and Y coords to the same //
+	zombies[0].defaultY = 1; zombies[0].defaultX = 1; zombies[0].y = 1; zombies[0].x = 1;
+	zombies[1].defaultY = 1; zombies[1].defaultX = SIZEX - 2; zombies[1].y = 1; zombies[1].x = SIZEX - 2;
+	zombies[2].defaultY = SIZEY - 2; zombies[2].defaultX = 1; zombies[2].y = SIZEY - 2; zombies[2].x = 1;
+	zombies[3].defaultY = SIZEY - 2; zombies[3].defaultX = SIZEX - 2; zombies[3].y = SIZEY - 2; zombies[3].x = SIZEX - 2;
 	for (int zomb = 0; zomb < 4; zomb++)
 	{
 		zombies[zomb].symbol = 'Z';
@@ -372,14 +373,8 @@ void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& me
 		}
 
 		// Move Zombies //
-
-		{
-
-		}
 		if (zombiesMove)
 		{
-
-
 			for (int zomb = 0; zomb < 4; zomb++)
 			{
 
@@ -400,7 +395,6 @@ void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& me
 				{
 					zombies[zomb].y--;
 				}
-
 
 				// See if a zombie is touching spot //
 
@@ -424,24 +418,14 @@ void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& me
 					lives--;
 				}
 
-				//Check for zombie touching hole
+				// Check for zombies touching a hole //
 				if (g[zombies[zomb].y][zombies[zomb].x] == HOLE)
 				{
 					zombies[zomb].y = -1; zombies[zomb].x = -1;
 					zombieCount--;
 					zombies[zomb].canMove = false;
 				}
-				//else if (g[zombies[zomb].y][zombies[zomb].x] == ZOMBIE)
-				//{
-				//	// Do a quick scan round to see where this other zombie is //
-				//	for (int scan = 1; scan < 5; scan++)
-				//	{
-				//		if (g[zombies[zomb].y + scan][zombies[zomb].x] == ZOMBIE)
-				//		{
-				//			g[zombies[zomb].y][zombies[zomb].x]
-				//		}
-				//	}
-				//}
+
 			}
 
 			// Lose a life //
@@ -597,13 +581,12 @@ void showMessage(const WORD backColour, const WORD textColour, int x, int y, con
 	SelectTextColour(textColour);
 	cout << message;
 }
-void paintGame(const char g[][SIZEX], string mess, int lives, string playerName, int powerPills, char m[][SIZEX])
+void paintGame(const char g[][SIZEX], string mess, int lives, string playerName, int powerPills, char m[][SIZEX], Item zombies[])
 { //display game title, messages, maze, spot and other items on screen
 	string tostring(char x);
 	void showMessage(const WORD backColour, const WORD textColour, int x, int y, const string message);
 	void paintGrid(const char g[][SIZEX], char m[][SIZEX]);
 	int getPlayerScore(string playerName);
-	//TODO: Change the colour of the messages
 	//display game title
 	showMessage(clBlack, clYellow, 0, 0, "___GAME___");
 	SelectBackColour(clDarkGrey);
@@ -645,11 +628,29 @@ void paintGame(const char g[][SIZEX], string mess, int lives, string playerName,
 
 	showMessage(clBlack, clGreen, 40, 14, ss.str());
 	showMessage(clBlack, clGreen, 40, 15, pps.str());
-	showMessage(clBlack, clGreen, 40, 16, "Zombs remaining");
+
+	int zombiesRemaining = 0;
+	for (int zomb = 0; zomb < 4; zomb++)
+	{
+		if (zombies[zomb].canMove)
+		{
+			zombiesRemaining++;
+		}
+	}
+	string zombs = to_string(zombiesRemaining);
+
+	showMessage(clBlack, clGreen, 40, 16, "Zombs remaining: " + zombs);
 
 	string score = to_string(getPlayerScore(playerName));
 	showMessage(clBlack, clGreen, 40, 18, playerName);
-	showMessage(clBlack, clGreen, 40, 19, playerName + "'s previous best score is: " + score);
+	if (score == "-1")
+	{
+		showMessage(clBlack, clGreen, 40, 19, playerName + " has no previous best score!");
+	}
+	else
+	{
+		showMessage(clBlack, clGreen, 40, 19, playerName + "'s previous best score is: " + score);
+	}
 
 	//print auxiliary messages if any
 	showMessage(clBlack, clWhite, 40, 26, mess);
@@ -682,8 +683,6 @@ void paintGrid(const char g[][SIZEX], char m[][SIZEX])
 				SelectTextColour(clGreen);
 				cout << g[row][col];
 				SelectTextColour(clWhite);
-
-				// TODO - Update zombie position //
 			}
 			else if (g[row][col] == POWERPILL)
 			{
