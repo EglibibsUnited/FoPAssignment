@@ -121,17 +121,30 @@ void runGame(string playerName)
 
 	int moveCounter(0), powerpillTouch(0);
 
-	ifstream getScore;
-	getScore.open(".\\Players\\" + playerName + ".txt", ios::in);
-	int value, sum(0);
-	getScore >> value;
-	if (value < -1)
-	{
-		// Nothing is written in the file //
-		ofstream writeScore;
-		writeScore.open(".\\Players\\" + playerName + ".txt", ios::out);
-		writeScore << "-1";
-	}
+	Seed();								//seed the random number generator
+	SetConsoleTitle("Spot and Zombies Game - FoP 2017-18");
+
+	displayStartScreen();
+	string playerName;
+	cin >> playerName;
+	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 0);
+	Clrscr();
+
+	changeCursorVisibility(false);
+
+	// This is broken suddenly for some reason //
+	
+	//ifstream getScore;
+	//getScore.open(".\\Players\\" + playerName + ".txt", ios::in);
+	//int value, sum(0);
+	//getScore >> value;
+	//if (value < -1)
+	//{
+	//	// Nothing is written in the file //
+	//	ofstream writeScore;
+	//	writeScore.open(".\\Players\\" + playerName + ".txt", ios::out);
+	//	writeScore << "-1";
+	//}
 
 	changeCursorVisibility(false);
 	initialiseGame(grid, maze, spot, zombies);	//initialise grid (incl. walls and spot)
@@ -279,20 +292,38 @@ void setInitialMazeStructure(char maze[][SIZEX], Item zombies[])
   //initialise maze configuration
 	char initialMaze[SIZEY][SIZEX];
 
-	for (int column = 0; column < SIZEY; column++)
+	//for (int column = 0; column < SIZEY; column++)
+	//{
+	//	for (int row = 0; row < SIZEX; row++)
+	//	{
+	//		if (column == 0 || column == SIZEY-1 || row == 0 || row == SIZEX-1)
+	//		{
+	//			// Just a row of walls //
+	//			initialMaze[column][row] = '#';
+	//		} else
+	//		{
+	//			initialMaze[column][row] = ' ';
+	//		}
+	//	}
+	//}
+
+	// Test reading level in //
+	cout << "Enter a level name to open: ";
+	string levelName;
+	cin >> levelName;
+	ifstream levelReader;
+	levelReader.open(".\\Levels\\" + levelName + ".spot", ios::in);
+
+	string value;
+	for (int column = 0; levelReader; column++)
 	{
-		for (int row = 0; row < SIZEX; row++)
+		getline(levelReader, value);
+		for (int row = 0; row < value.length(); row++)
 		{
-			if (column == 0 || column == SIZEY-1 || row == 0 || row == SIZEX-1)
-			{
-				// Just a row of walls //
-				initialMaze[column][row] = '#';
-			} else
-			{
-				initialMaze[column][row] = ' ';
-			}
+			initialMaze[column][row] = value[row];
 		}
 	}
+	levelReader.close();
   
 	// Create Zombies - set their default X and Y positions and initialise their X and Y coords to the same //
 	zombies[0].defaultY = 1; zombies[0].defaultX = 1; zombies[0].y = 1; zombies[0].x = 1;
@@ -366,9 +397,6 @@ void setMaze(char grid[][SIZEX], const char maze[][SIZEX], Item zombies[])
 	// ZOMBIES placement on grid //
 	for (int zomb = 0; zomb < 4; zomb++)
 	{
-
-		
-
 		grid[zombies[zomb].y][zombies[zomb].x] = zombies[zomb].symbol;
 	}
 }
@@ -736,7 +764,6 @@ void paintGame(const char g[][SIZEX], string mess, int lives, string playerName,
 
 	showMessage(clBlack, clGreen, 40, 15, ss.str());
 	showMessage(clBlack, clGreen, 40, 16, pps.str());
-
 	showMessage(clBlack, clGreen, 40, 17, "Zombs remaining: " + to_string(zombieCount));
 
 	string score = to_string(getPlayerScore(playerName));
