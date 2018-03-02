@@ -67,10 +67,10 @@ int main()
 	bool isCheatCode(const int k);
 	int  getKeyPress();
 
-	void runCheatCode(const int k, int& powerPills, Item zombies[], bool& zombFreeze);
+	void runCheatCode(const int k, int& powerPills, Item zombies[], bool& zombFreeze, int& zombieCount);
 	
 
-	void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& mess, int& lives, char m[][SIZEX], int& powerPills, Item zombies[], int& powerpillTouch, int moveCounter, bool zombMove);
+	void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& mess, int& lives, char m[][SIZEX], int& powerPills, Item zombies[], int& powerpillTouch, int moveCounter, bool zombMove, int& zombieCount);
 
 	void showMessage(const WORD backColour, const WORD textColour, int x, int y, const string message);
 	void updateGrid(char g[][SIZEX], const char m[][SIZEX], const Item spot, Item zombies[]);
@@ -87,7 +87,7 @@ int main()
 	string message("LET'S START...");	//current message to player
 	int lives = 3;						// Initialise Spot with 3 lives //
 	int powerPills = 8;					// Initialise the game with 8 power pills //
-
+	int zombieCount = 4;				//zombie count for checking game finish
 	bool zombiesMove(true);			//For zombie freeze cheat code
 	bool hasCheated(false);
 
@@ -127,7 +127,7 @@ int main()
 
 			
 
-			updateGameData(grid, spot, key, message, lives, maze, powerPills, zombies, powerpillTouch, moveCounter, zombiesMove);		//move spot in that direction
+			updateGameData(grid, spot, key, message, lives, maze, powerPills, zombies, powerpillTouch, moveCounter, zombiesMove, zombieCount);		//move spot in that direction
 
 			updateGrid(grid, maze, spot, zombies);					//update grid information
 			moveCounter++;
@@ -135,8 +135,8 @@ int main()
 		if (isCheatCode(key)) 
 		{
 
-			runCheatCode(key, powerPills, zombies, zombiesMove);
-			updateGameData(grid, spot, key, message, lives, maze, powerPills, zombies, powerpillTouch, moveCounter, zombiesMove);
+			runCheatCode(key, powerPills, zombies, zombiesMove, zombieCount);
+			updateGameData(grid, spot, key, message, lives, maze, powerPills, zombies, powerpillTouch, moveCounter, zombiesMove, zombieCount);
 			updateGrid(grid, maze, spot, zombies);
 			hasCheated = true;
 
@@ -320,7 +320,7 @@ void placeItem(char g[][SIZEX], const Item item)
 
 
 
-void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& mess, int& lives, char maze[][SIZEX], int& powerPills, Item zombies[], int& powerpillTouch, int moveCounter, bool zombiesMove)
+void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& mess, int& lives, char maze[][SIZEX], int& powerPills, Item zombies[], int& powerpillTouch, int moveCounter, bool zombiesMove, int& zombieCount)
 
 { //move spot in required direction
 	bool isArrowKey(const int k);
@@ -421,6 +421,13 @@ void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& me
 						break;
 					}
 					lives--;
+				}
+
+				//Check for zombie touching hole
+				if (g[zombies[zomb].y][zombies[zomb].x] == HOLE)
+				{
+					zombies[zomb].y = -1; zombies[zomb].x = -1;
+					zombieCount--;
 				}
 				//else if (g[zombies[zomb].y][zombies[zomb].x] == ZOMBIE)
 				//{
@@ -527,7 +534,7 @@ bool isCheatCode(const int key)
 }
 
 //Runs a cheat on right button press
-void runCheatCode(const int key, int& powerPills, Item zombs[4], bool& zombieMove) {
+void runCheatCode(const int key, int& powerPills, Item zombs[4], bool& zombieMove, int& zombieCount) {
 	switch (key)
 	{
 	case 'E': powerPills = 0;
@@ -539,6 +546,7 @@ void runCheatCode(const int key, int& powerPills, Item zombs[4], bool& zombieMov
 		{
 			zombs[i].symbol = ZOMBIE;
 			zombieMove = true;
+			zombieCount = 4;
 		}
 		else 
 		{
@@ -548,6 +556,7 @@ void runCheatCode(const int key, int& powerPills, Item zombs[4], bool& zombieMov
 			zombs[2].y = SIZEY - 2; zombs[2].x = 1;
 			zombs[3].y = SIZEY - 2; zombs[3].x = SIZEX - 2;
 			zombieMove = false;
+			zombieCount = 0;
 		}
 	}
 		break;
