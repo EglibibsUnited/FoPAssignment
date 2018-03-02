@@ -68,9 +68,9 @@ int main()
 	int  getKeyPress();
 
 	void runCheatCode(const int k, int& powerPills, Item zombies[], bool& zombFreeze);
-	void updateGameData(char g[][SIZEX], Item& spot, const int key, string& mess, int& lives, char m[][SIZEX], int& powerPills, Item zombies[], bool zombMove);
+	
 
-	void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& mess, int& lives, char m[][SIZEX], int& powerPills, Item zombies[], int& powerpillTouch, int moveCounter);
+	void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& mess, int& lives, char m[][SIZEX], int& powerPills, Item zombies[], int& powerpillTouch, int moveCounter, bool zombMove);
 
 	void showMessage(const WORD backColour, const WORD textColour, int x, int y, const string message);
 	void updateGrid(char g[][SIZEX], const char m[][SIZEX], const Item spot, Item zombies[]);
@@ -125,9 +125,9 @@ int main()
 		if (isArrowKey(key))
 		{
 
-			updateGameData(grid, spot, key, message, lives, maze, powerPills, zombies, zombiesMove);		//move spot in that direction
+			
 
-			updateGameData(grid, spot, key, message, lives, maze, powerPills, zombies, powerpillTouch, moveCounter);		//move spot in that direction
+			updateGameData(grid, spot, key, message, lives, maze, powerPills, zombies, powerpillTouch, moveCounter, zombiesMove);		//move spot in that direction
 
 			updateGrid(grid, maze, spot, zombies);					//update grid information
 			moveCounter++;
@@ -136,7 +136,7 @@ int main()
 		{
 
 			runCheatCode(key, powerPills, zombies, zombiesMove);
-			updateGameData(grid, spot, key, message, lives, maze, powerPills, zombies, zombiesMove);
+			updateGameData(grid, spot, key, message, lives, maze, powerPills, zombies, powerpillTouch, moveCounter, zombiesMove);
 			updateGrid(grid, maze, spot, zombies);
 			hasCheated = true;
 
@@ -318,9 +318,9 @@ void placeItem(char g[][SIZEX], const Item item)
 //----- move items on the grid
 //---------------------------------------------------------------------------
 
-void updateGameData(char g[][SIZEX], Item& spot, const int key, string& mess, int& lives, char maze[][SIZEX], int& powerPills, Item zombies[], bool zombiesMove)
 
-void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& mess, int& lives, char maze[][SIZEX], int& powerPills, Item zombies[], int& powerpillTouch, int moveCounter)
+
+void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& mess, int& lives, char maze[][SIZEX], int& powerPills, Item zombies[], int& powerpillTouch, int moveCounter, bool zombiesMove)
 
 { //move spot in required direction
 	bool isArrowKey(const int k);
@@ -419,6 +419,7 @@ void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& me
 						zombies[zomb].y = SIZEY - 2; zombies[zomb].x = SIZEX - 2;
 						break;
 					}
+					lives--;
 				}
 				//else if (g[zombies[zomb].y][zombies[zomb].x] == ZOMBIE)
 				//{
@@ -434,7 +435,7 @@ void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& me
 			}
 
 			// Lose a life //
-			lives--;
+			
 		}
 
 		// Move Zombies //
