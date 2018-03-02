@@ -63,12 +63,12 @@ int main()
 	void endProgram();
 
 	Seed();								//seed the random number generator
-	SetConsoleTitle("Spot and Zombies Game - FoP 2017-18");
+	SetConsoleTitle("Spot and Zombies Game - FoP 2018");
 
 	displayStartScreen();
 	string playerName;
 	cin >> playerName;
-	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 0);
+	changeCursorVisibility(false);
 	Clrscr();
 
 	do
@@ -103,8 +103,9 @@ void runGame(string playerName)
 	void updateGrid(char g[][SIZEX], const char m[][SIZEX], const Item spot, Item zombies[]);
 	void powerpillProtection(int moveCounter, int& powerpillTouch, Item& spot, bool& powerpillTouched);
 	int getPlayerScore(string playerName);
-	void playerData(string playerName, int lives, bool hasCheated);
+	void playerData(string playerName, int lives);
 	bool hasWon(Item zombies[], int powerPills);
+	void checkPlayerScore(string playerName);
 
 	//local variable declarations 
 	char grid[SIZEY][SIZEX];			//grid for display
@@ -115,28 +116,19 @@ void runGame(string playerName)
 	int lives = 3;						// Initialise Spot with 3 lives //
 	int powerPills = 8;					// Initialise the game with 8 power pills //
 	int zombieCount = 4;				//zombie count for checking game finish
-	bool zombiesMove(true);			//For zombie freeze cheat code
+	bool zombiesMove(true);				//For zombie freeze cheat code
 	bool hasCheated(false);
 	bool powerpillTouched(false);
 
 	int moveCounter(0), powerpillTouch(0);
 
-	ifstream getScore;
-	getScore.open(".\\Players\\" + playerName + ".txt", ios::in);
-	int value, sum(0);
-	getScore >> value;
-	if (value < -1)
-	{
-		// Nothing is written in the file //
-		ofstream writeScore;
-		writeScore.open(".\\Players\\" + playerName + ".txt", ios::out);
-		writeScore << "-1";
-	}
-
 	changeCursorVisibility(false);
-	initialiseGame(grid, maze, spot, zombies);	//initialise grid (incl. walls and spot)
+	checkPlayerScore(playerName);		// Check for previous high scores, handle save files etc. //
+
+	initialiseGame(grid, maze, spot, zombies);	// Initialise grid (incl. walls and spot) //
 
 	paintGame(grid, message, lives, playerName, powerPills, maze, zombieCount);			//display game info, modified grid and messages
+	
 	int key;							//current key selected by player
 	do {
 		key = getKeyPress(); 	//read in selected key: arrow or letter command
@@ -150,14 +142,17 @@ void runGame(string playerName)
 		if (isCheatCode(key))
 		{
 			runCheatCode(key, powerPills, zombies, zombiesMove, zombieCount);
-			updateGameData(grid, spot, key, message, lives, maze, powerPills, zombies, powerpillTouch, moveCounter, zombiesMove, zombieCount, powerpillTouched);
-			updateGrid(grid, maze, spot, zombies);
 			hasCheated = true;
+			//updateGameData(grid, spot, key, message, lives, maze, powerPills, zombies, powerpillTouch, moveCounter, zombiesMove, zombieCount, powerpillTouched);
+			//updateGrid(grid, maze, spot, zombies);
 		}
 		else
+		{
 			message = "INVALID KEY!";	//set 'Invalid key' message
+		}
 		paintGame(grid, message, lives, playerName, powerPills, maze, zombieCount);		//display game info, modified grid and messages
-	} while (!wantsToQuit(key) && lives >= 0 && hasWon(zombies, powerPills) == false);		//while user does not want to quit and they still have lives left //
+	} while (!wantsToQuit(key) && lives >= 0 && hasWon(zombies, powerPills) == false); // Game quits if user presses Q, Spot has no lives or wins the game //
+	
 	if (lives < 0)
 	{
 		showMessage(clRed, clYellow, 40, 24, "Unlucky, try again next time!");
@@ -166,21 +161,51 @@ void runGame(string playerName)
 	{
 		showMessage(clBlack, clGreen, 40, 24, "Congratulations!! You Win!!");
 	}
-	playerData(playerName, lives, hasCheated);
+
+	if (!hasCheated)
+	{
+		playerData(playerName, lives);
+	}
+
 	changeCursorVisibility(true);
 	Sleep(2000);
 	showMessage(clBlack, clYellow, 40, 24, "");
 }
 
+void checkPlayerScore(string p)
+{
+	ifstream getScore;
+	getScore.open(".\\Players\\" + p + ".txt", ios::in);
+	int value, sum(0);
+	getScore >> value;
+	if (value < -1)
+	{
+		// Nothing is written in the file //
+		ofstream writeScore;
+		writeScore.open(".\\Players\\" + p + ".txt", ios::out);
+		writeScore << "-1";
+	}
+}
+
 //---------------------------------------------------------------------------
 //----- initialise game state
 //---------------------------------------------------------------------------
+void initialiseGame(char grid[][SIZEX], char maze[][SIZEX], Item& spot, Item zombies[])
+{ //initialise grid and place spot in middle
+	void setInitialMazeStructure(char maze[][SIZEX], Item zombies[]);
+	void setSpotInitialCoordinates(Item& spot, char maze[][SIZEX]);
+	void updateGrid(char g[][SIZEX], const char m[][SIZEX], Item b, Item zombies[]);
+
+	setInitialMazeStructure(maze, zombies);		//initialise maze
+	setSpotInitialCoordinates(spot, maze);
+	updateGrid(grid, maze, spot, zombies);		//prepare grid
+}
 
 void displayStartScreen()
 {
 	void showMessage(const WORD backColour, const WORD textColour, int x, int y, const string message);
 
-	ifstream titleArt;
+	ifstream titleArt;								// Open the 'title.txt' file for displaying the 'Spot and Zombies' title screen art //
 	titleArt.open("title.txt", ios::in);
 	string value;
 	for (int i = 18; titleArt; i++)
@@ -215,6 +240,7 @@ void displayStartScreen()
 	showMessage(clDarkGrey, clYellow, 5, 15, "Enter your name to start:");
 	showMessage(clBlack, clRed, 31, 15, " ");
 }
+
 bool menuScreen(string playerName)
 {
 
@@ -235,7 +261,8 @@ bool menuScreen(string playerName)
 	showMessage(clDarkGrey, clYellow, 5, 10, "| > Quit (Q)             |");
 	showMessage(clDarkGrey, clYellow, 5, 11, "--------------------------");
 	showMessage(clDarkGrey, clYellow, 5, 13, "Please enter answer: ");
-	char answer;
+
+	char answer;								// Get user input regarding what menu options to select //
 	showMessage(clBlack, clRed, 28, 13, " ");
 	cin >> answer;
 	switch (toupper(answer))
@@ -280,17 +307,6 @@ void rulesScreen()
 	showMessage(clDarkGrey, clYellow, 5, 2, "--------------------------");
 	showMessage(clDarkGrey, clYellow, 5, 3, "|    SPOT AND ZOMBIES    |");
 	showMessage(clDarkGrey, clYellow, 5, 4, "--------------------------");
-}
-
-void initialiseGame(char grid[][SIZEX], char maze[][SIZEX], Item& spot, Item zombies[])
-{ //initialise grid and place spot in middle
-	void setInitialMazeStructure(char maze[][SIZEX], Item zombies[]);
-	void setSpotInitialCoordinates(Item& spot, char maze[][SIZEX]);
-	void updateGrid(char g[][SIZEX], const char m[][SIZEX], Item b, Item zombies[]);
-
-	setInitialMazeStructure(maze, zombies);		//initialise maze
-	setSpotInitialCoordinates(spot, maze);
-	updateGrid(grid, maze, spot, zombies);		//prepare grid
 }
 
 void setSpotInitialCoordinates(Item& spot, char maze[][SIZEX])
@@ -863,7 +879,7 @@ int getPlayerScore(string playerName)
 	return value;
 }
 
-void playerData(string playerName, int lives, bool hasCheated)
+void playerData(string playerName, int lives)
 {
 	void showMessage(const WORD backColour, const WORD textColour, int x, int y, const string message);
 
@@ -879,7 +895,7 @@ void playerData(string playerName, int lives, bool hasCheated)
 	}
 	getScore.close();
 	writeScore.open(".\\Players\\" + playerName + ".txt", ios::out);
-	if (sum > 0 && hasCheated == false)
+	if (sum > 0)
 	{
 		if (lives > value)
 		{
@@ -887,7 +903,7 @@ void playerData(string playerName, int lives, bool hasCheated)
 			writeScore << lives;
 		}
 	}
-	else if (sum < 0 && hasCheated == false)
+	else if (sum < 0)
 	{
 		writeScore << lives;
 	}
