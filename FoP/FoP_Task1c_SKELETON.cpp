@@ -75,7 +75,7 @@ int main()
 	{
 		menuScreen(playerName);
 		Clrscr();
-	} while (!menuScreen);
+	} while (!menuScreen(playerName));
 
 
 	endProgram();						//display final message
@@ -90,7 +90,7 @@ void runGame(string playerName)
 {
 	//function declarations (prototypes)
 	void initialiseGame(char g[][SIZEX], char m[][SIZEX], Item& spot, Item zombies[]);
-	void paintGame(const char g[][SIZEX], string mess, int lives, string playerName, int powerPills, char m[][SIZEX], Item zombies[]);
+	void paintGame(const char g[][SIZEX], string mess, int lives, string playerName, int powerPills, char m[][SIZEX],int zombieCount);
 	bool wantsToQuit(const int key);
 	bool isArrowKey(const int k);
 	bool isCheatCode(const int k);
@@ -136,7 +136,7 @@ void runGame(string playerName)
 	changeCursorVisibility(false);
 	initialiseGame(grid, maze, spot, zombies);	//initialise grid (incl. walls and spot)
 
-	paintGame(grid, message, lives, playerName, powerPills, maze, zombies);			//display game info, modified grid and messages
+	paintGame(grid, message, lives, playerName, powerPills, maze, zombieCount);			//display game info, modified grid and messages
 	int key;							//current key selected by player
 	do {
 		key = getKeyPress(); 	//read in selected key: arrow or letter command
@@ -156,11 +156,20 @@ void runGame(string playerName)
 		}
 		else
 			message = "INVALID KEY!";	//set 'Invalid key' message
-		paintGame(grid, message, lives, playerName, powerPills, maze, zombies);		//display game info, modified grid and messages
+		paintGame(grid, message, lives, playerName, powerPills, maze, zombieCount);		//display game info, modified grid and messages
 	} while (!wantsToQuit(key) && lives >= 0 && hasWon(zombies, powerPills) == false);		//while user does not want to quit and they still have lives left //
-	showMessage(clRed, clYellow, 40, 24, "Congratulations!! You Win!!");
+	if (lives < 0)
+	{
+		showMessage(clRed, clYellow, 40, 24, "Unlucky, try again next time!");
+	}
+	else
+	{
+		showMessage(clBlack, clGreen, 40, 24, "Congratulations!! You Win!!");
+	}
 	playerData(playerName, lives, hasCheated);
 	changeCursorVisibility(true);
+	Sleep(2000);
+	showMessage(clBlack, clYellow, 40, 24, "");
 }
 
 //---------------------------------------------------------------------------
@@ -213,6 +222,7 @@ bool menuScreen(string playerName)
 	void endProgram();
 
 	bool quit = false;
+	Clrscr();
 	showMessage(clDarkGrey, clYellow, 5, 2, "--------------------------");
 	showMessage(clDarkGrey, clYellow, 5, 3, "|    SPOT AND ZOMBIES    |");
 	showMessage(clDarkGrey, clYellow, 5, 4, "--------------------------");
@@ -624,24 +634,24 @@ void runCheatCode(const int key, int& powerPills, Item zombs[4], bool& zombieMov
 		break;
 	case 'X': 
 		for (int i = 0; i < 4; i++)
-	{
-		if (zombs[i].symbol == ' ') 
 		{
-			zombs[i].symbol = ZOMBIE;
-			zombieMove = true;
-			zombieCount = 4;
+			if (zombs[i].symbol == ' ') 
+			{
+				zombs[i].symbol = ZOMBIE;
+				zombieMove = true;
+				zombieCount = 4;
+			}
+			else 
+			{
+				zombs[i].symbol = ' ';
+				zombs[0].y = 1; zombs[0].x = 1;
+				zombs[1].y = 1; zombs[1].x = SIZEX - 2;
+				zombs[2].y = SIZEY - 2; zombs[2].x = 1;
+				zombs[3].y = SIZEY - 2; zombs[3].x = SIZEX - 2;
+				zombieMove = false;
+				zombieCount = 0;
+			}
 		}
-		else 
-		{
-			zombs[i].symbol = ' ';
-			zombs[0].y = 1; zombs[0].x = 1;
-			zombs[1].y = 1; zombs[1].x = SIZEX - 2;
-			zombs[2].y = SIZEY - 2; zombs[2].x = 1;
-			zombs[3].y = SIZEY - 2; zombs[3].x = SIZEX - 2;
-			zombieMove = false;
-			zombieCount = 0;
-		}
-	}
 		break;
 	case 'F': zombieMove = !zombieMove;
 		break;
@@ -678,7 +688,7 @@ void showMessage(const WORD backColour, const WORD textColour, int x, int y, con
 	SelectTextColour(textColour);
 	cout << message;
 }
-void paintGame(const char g[][SIZEX], string mess, int lives, string playerName, int powerPills, char m[][SIZEX], Item zombies[])
+void paintGame(const char g[][SIZEX], string mess, int lives, string playerName, int powerPills, char m[][SIZEX], int zombieCount)
 { //display game title, messages, maze, spot and other items on screen
 	string tostring(char x);
 	void showMessage(const WORD backColour, const WORD textColour, int x, int y, const string message);
@@ -727,17 +737,7 @@ void paintGame(const char g[][SIZEX], string mess, int lives, string playerName,
 	showMessage(clBlack, clGreen, 40, 15, ss.str());
 	showMessage(clBlack, clGreen, 40, 16, pps.str());
 
-	int zombiesRemaining = 0;
-	for (int zomb = 0; zomb < 4; zomb++)
-	{
-		if (zombies[zomb].canMove)
-		{
-			zombiesRemaining++;
-		}
-	}
-	string zombs = to_string(zombiesRemaining);
-
-	showMessage(clBlack, clGreen, 40, 17, "Zombs remaining: " + zombs);
+	showMessage(clBlack, clGreen, 40, 17, "Zombs remaining: " + to_string(zombieCount));
 
 	string score = to_string(getPlayerScore(playerName));
 	showMessage(clBlack, clGreen, 40, 18, playerName);
