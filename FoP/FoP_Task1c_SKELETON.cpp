@@ -50,6 +50,7 @@ const char QUIT('Q');		//to end the game
 struct Item {
 	int x, y;
 	char symbol;
+	bool canMove = true;
 };
 
 //---------------------------------------------------------------------------
@@ -382,20 +383,20 @@ void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& me
 			for (int zomb = 0; zomb < 4; zomb++)
 			{
 
-				if (zombies[zomb].x < spot.x && zombies[zomb].x + 1 < SIZEX - 2)
+				if (zombies[zomb].x < spot.x && zombies[zomb].x + 1 < SIZEX - 2 && zombies[zomb].canMove == true)
 				{
 					zombies[zomb].x++;
 				}
-				else if (zombies[zomb].y < spot.y && zombies[zomb].y + 1 < SIZEY - 2)
+				else if (zombies[zomb].y < spot.y && zombies[zomb].y + 1 < SIZEY - 2 && zombies[zomb].canMove == true)
 				{
 					zombies[zomb].y++;
 				}
 
-				if (zombies[zomb].x > spot.x && zombies[zomb].x + 1 > 1)
+				if (zombies[zomb].x > spot.x && zombies[zomb].x + 1 > 1 && zombies[zomb].canMove == true)
 				{
 					zombies[zomb].x--;
 				}
-				else if (zombies[zomb].y > spot.y && zombies[zomb].y + 1 > 1)
+				else if (zombies[zomb].y > spot.y && zombies[zomb].y + 1 > 1 && zombies[zomb].canMove == true)
 				{
 					zombies[zomb].y--;
 				}
@@ -428,6 +429,7 @@ void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& me
 				{
 					zombies[zomb].y = -1; zombies[zomb].x = -1;
 					zombieCount--;
+					zombies[zomb].canMove = false;
 				}
 				//else if (g[zombies[zomb].y][zombies[zomb].x] == ZOMBIE)
 				//{
@@ -643,6 +645,7 @@ void paintGame(const char g[][SIZEX], string mess, int lives, string playerName,
 
 	showMessage(clBlack, clGreen, 40, 14, ss.str());
 	showMessage(clBlack, clGreen, 40, 15, pps.str());
+	showMessage(clBlack, clGreen, 40, 16, "Zombs remaining");
 
 	string score = to_string(getPlayerScore(playerName));
 	showMessage(clBlack, clGreen, 40, 18, playerName);
