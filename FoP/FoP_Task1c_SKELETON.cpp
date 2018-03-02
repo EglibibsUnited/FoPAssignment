@@ -39,7 +39,7 @@ const char WALL('#');    	//border
 const char HOLE('0');    	//hole
 const char POWERPILL('*');  //power pill
 const char ZOMBIE('Z');  //zombie
-							//defining the command letters to move the spot on the maze
+						 //defining the command letters to move the spot on the maze
 const int  UP(72);			//up arrow
 const int  DOWN(80); 		//down arrow
 const int  RIGHT(77);		//right arrow
@@ -54,31 +54,58 @@ struct Item {
 	int defaultX, defaultY;
 };
 
-//---------------------------------------------------------------------------
-//----- run game
-//---------------------------------------------------------------------------
-
 int main()
 {
-	//function declarations (prototypes)
 	void displayStartScreen();
+	bool menuScreen(string playerName);
+	void runGame();
+	void changeCursorVisibility(bool);
+	void endProgram();
+
+	Seed();								//seed the random number generator
+	SetConsoleTitle("Spot and Zombies Game - FoP 2018");
+
+	displayStartScreen();
+	string playerName;
+	cin >> playerName;
+	changeCursorVisibility(false);
+	Clrscr();
+
+	do
+	{
+		menuScreen(playerName);
+		Clrscr();
+	} while (!menuScreen(playerName));
+
+
+	endProgram();						//display final message
+	return 0;
+}
+
+//---------------------------------------------------------------------------
+//----- Run game
+//---------------------------------------------------------------------------
+
+void runGame(string playerName)
+{
+	//function declarations (prototypes)
 	void initialiseGame(char g[][SIZEX], char m[][SIZEX], Item& spot, Item zombies[]);
-	void paintGame(const char g[][SIZEX], string mess, int lives, string playerName, int powerPills, char m[][SIZEX], Item zombies[]);
+	void paintGame(const char g[][SIZEX], string mess, int lives, string playerName, int powerPills, char m[][SIZEX], int zombieCount);
 	bool wantsToQuit(const int key);
 	bool isArrowKey(const int k);
 	bool isCheatCode(const int k);
 	int  getKeyPress();
 	void changeCursorVisibility(bool);
-	void runCheatCode(const int k, int& powerPills, Item zombies[], bool& zombFreeze, int& zombieCount);	
+	void runCheatCode(const int k, int& powerPills, Item zombies[], bool& zombFreeze, int& zombieCount);
 	void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& mess, int& lives, char m[][SIZEX], int& powerPills, Item zombies[], int& powerpillTouch, int moveCounter, bool zombMove, int& zombieCount, bool& powerpillTouched);
 
 	void showMessage(const WORD backColour, const WORD textColour, int x, int y, const string message);
 	void updateGrid(char g[][SIZEX], const char m[][SIZEX], const Item spot, Item zombies[]);
 	void powerpillProtection(int moveCounter, int& powerpillTouch, Item& spot, bool& powerpillTouched);
 	int getPlayerScore(string playerName);
-	void playerData(string playerName, int lives, bool hasCheated);
+	void playerData(string playerName, int lives);
 	bool hasWon(Item zombies[], int powerPills);
-	void endProgram();
+	void checkPlayerScore(string playerName);
 
 	//local variable declarations 
 	char grid[SIZEY][SIZEX];			//grid for display
@@ -89,41 +116,19 @@ int main()
 	int lives = 3;						// Initialise Spot with 3 lives //
 	int powerPills = 8;					// Initialise the game with 8 power pills //
 	int zombieCount = 4;				//zombie count for checking game finish
-	bool zombiesMove(true);			//For zombie freeze cheat code
+	bool zombiesMove(true);				//For zombie freeze cheat code
 	bool hasCheated(false);
 	bool powerpillTouched(false);
 
 	int moveCounter(0), powerpillTouch(0);
 
-
-	Seed();								//seed the random number generator
-	SetConsoleTitle("Spot and Zombies Game - FoP 2017-18");
-
-	displayStartScreen();
-	string playerName;
-	cin >> playerName;
-	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 0);
-	Clrscr();
-
 	changeCursorVisibility(false);
+	checkPlayerScore(playerName);		// Check for previous high scores, handle save files etc. //
 
-	// This is broken suddenly for some reason //
+	initialiseGame(grid, maze, spot, zombies);	// Initialise grid (incl. walls and spot) //
+
+	paintGame(grid, message, lives, playerName, powerPills, maze, zombieCount);			//display game info, modified grid and messages
 	
-	//ifstream getScore;
-	//getScore.open(".\\Players\\" + playerName + ".txt", ios::in);
-	//int value, sum(0);
-	//getScore >> value;
-	//if (value < -1)
-	//{
-	//	// Nothing is written in the file //
-	//	ofstream writeScore;
-	//	writeScore.open(".\\Players\\" + playerName + ".txt", ios::out);
-	//	writeScore << "-1";
-	//}
-
-	initialiseGame(grid, maze, spot, zombies);	//initialise grid (incl. walls and spot)
-  
-	paintGame(grid, message, lives, playerName, powerPills, maze, zombies);			//display game info, modified grid and messages
 	int key;							//current key selected by player
 	do {
 		key = getKeyPress(); 	//read in selected key: arrow or letter command
@@ -134,33 +139,73 @@ int main()
 			updateGrid(grid, maze, spot, zombies);					//update grid information
 			moveCounter++;
 		}
-		if (isCheatCode(key)) 
+		if (isCheatCode(key))
 		{
 			runCheatCode(key, powerPills, zombies, zombiesMove, zombieCount);
-			updateGameData(grid, spot, key, message, lives, maze, powerPills, zombies, powerpillTouch, moveCounter, zombiesMove, zombieCount, powerpillTouched);
-			updateGrid(grid, maze, spot, zombies);
 			hasCheated = true;
+			//updateGameData(grid, spot, key, message, lives, maze, powerPills, zombies, powerpillTouch, moveCounter, zombiesMove, zombieCount, powerpillTouched);
+			//updateGrid(grid, maze, spot, zombies);
 		}
 		else
+		{
 			message = "INVALID KEY!";	//set 'Invalid key' message
-		paintGame(grid, message, lives, playerName, powerPills, maze, zombies);		//display game info, modified grid and messages
-	} while (!wantsToQuit(key) && lives >= 0 && hasWon(zombies, powerPills) == false);		//while user does not want to quit and they still have lives left //
-	showMessage(clRed, clYellow, 40, 24, "Congratulations!! You Win!!");
-	playerData(playerName, lives, hasCheated);
+		}
+		paintGame(grid, message, lives, playerName, powerPills, maze, zombieCount);		//display game info, modified grid and messages
+	} while (!wantsToQuit(key) && lives >= 0 && hasWon(zombies, powerPills) == false); // Game quits if user presses Q, Spot has no lives or wins the game //
+	
+	if (lives < 0)
+	{
+		showMessage(clRed, clYellow, 40, 24, "Unlucky, try again next time!");
+	}
+	else
+	{
+		showMessage(clBlack, clGreen, 40, 24, "Congratulations!! You Win!!");
+	}
+
+	if (!hasCheated)
+	{
+		playerData(playerName, lives);
+	}
+
 	changeCursorVisibility(true);
-	endProgram();						//display final message
-	return 0;
+	Sleep(2000);
+	showMessage(clBlack, clYellow, 40, 24, "");
+}
+
+void checkPlayerScore(string p)
+{
+	ifstream getScore;
+	getScore.open(".\\Players\\" + p + ".txt", ios::in);
+	int value, sum(0);
+	getScore >> value;
+	if (value < -1)
+	{
+		// Nothing is written in the file //
+		ofstream writeScore;
+		writeScore.open(".\\Players\\" + p + ".txt", ios::out);
+		writeScore << "-1";
+	}
 }
 
 //---------------------------------------------------------------------------
 //----- initialise game state
 //---------------------------------------------------------------------------
+void initialiseGame(char grid[][SIZEX], char maze[][SIZEX], Item& spot, Item zombies[])
+{ //initialise grid and place spot in middle
+	void setInitialMazeStructure(char maze[][SIZEX], Item zombies[]);
+	void setSpotInitialCoordinates(Item& spot, char maze[][SIZEX]);
+	void updateGrid(char g[][SIZEX], const char m[][SIZEX], Item b, Item zombies[]);
+
+	setInitialMazeStructure(maze, zombies);		//initialise maze
+	setSpotInitialCoordinates(spot, maze);
+	updateGrid(grid, maze, spot, zombies);		//prepare grid
+}
 
 void displayStartScreen()
 {
 	void showMessage(const WORD backColour, const WORD textColour, int x, int y, const string message);
 
-	ifstream titleArt;
+	ifstream titleArt;								// Open the 'title.txt' file for displaying the 'Spot and Zombies' title screen art //
 	titleArt.open("title.txt", ios::in);
 	string value;
 	for (int i = 18; titleArt; i++)
@@ -196,15 +241,72 @@ void displayStartScreen()
 	showMessage(clBlack, clRed, 31, 15, " ");
 }
 
-void initialiseGame(char grid[][SIZEX], char maze[][SIZEX], Item& spot, Item zombies[])
-{ //initialise grid and place spot in middle
-	void setInitialMazeStructure(char maze[][SIZEX], Item zombies[]);
-	void setSpotInitialCoordinates(Item& spot, char maze[][SIZEX]);
-	void updateGrid(char g[][SIZEX], const char m[][SIZEX], Item b, Item zombies[]);
+bool menuScreen(string playerName)
+{
 
-	setInitialMazeStructure(maze, zombies);		//initialise maze
-	setSpotInitialCoordinates(spot, maze);
-	updateGrid(grid, maze, spot, zombies);		//prepare grid
+	void showMessage(const WORD backColour, const WORD textColour, int x, int y, const string message);
+	void scoreScreen(string playerName);
+	void rulesScreen();
+	void endProgram();
+
+	bool quit = false;
+	Clrscr();
+	showMessage(clDarkGrey, clYellow, 5, 2, "--------------------------");
+	showMessage(clDarkGrey, clYellow, 5, 3, "|    SPOT AND ZOMBIES    |");
+	showMessage(clDarkGrey, clYellow, 5, 4, "--------------------------");
+	showMessage(clDarkGrey, clYellow, 5, 6, "--------------------------");
+	showMessage(clDarkGrey, clYellow, 5, 7, "| > Play Game (P)        |");
+	showMessage(clDarkGrey, clYellow, 5, 8, "| > See Score (S)        |");
+	showMessage(clDarkGrey, clYellow, 5, 9, "| > See Rules (R)        |");
+	showMessage(clDarkGrey, clYellow, 5, 10, "| > Quit (Q)             |");
+	showMessage(clDarkGrey, clYellow, 5, 11, "--------------------------");
+	showMessage(clDarkGrey, clYellow, 5, 13, "Please enter answer: ");
+
+	char answer;								// Get user input regarding what menu options to select //
+	showMessage(clBlack, clRed, 28, 13, " ");
+	cin >> answer;
+	switch (toupper(answer))
+	{
+	case 'P':
+		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 0);
+		runGame(playerName);
+		break;
+	case 'S':
+		scoreScreen(playerName);
+		break;
+	case 'R':
+		rulesScreen();
+		break;
+	case 'Q':
+		quit = true;
+		break;
+	}
+	return quit;
+}
+void scoreScreen(string playerName)
+{
+	void showMessage(const WORD backColour, const WORD textColour, int x, int y, const string message);
+	int getPlayerScore(string playerName);
+
+	Clrscr();
+	showMessage(clDarkGrey, clYellow, 5, 2, "--------------------------");
+	showMessage(clDarkGrey, clYellow, 5, 3, "|    SPOT AND ZOMBIES    |");
+	showMessage(clDarkGrey, clYellow, 5, 4, "--------------------------");
+	int score =  getPlayerScore(playerName);
+	showMessage(clDarkGrey, clYellow, 5, 5, "|> Previous Best Score: " + to_string(score) +"|");
+	showMessage(clBlack, clYellow, 5, 7, "Press enter to return...");
+
+	cin.ignore();
+
+}
+void rulesScreen()
+{
+	void showMessage(const WORD backColour, const WORD textColour, int x, int y, const string message);
+
+	Clrscr();
+	showMessage(clDarkGrey, clYellow, 5, 2, "--------------------------");
+	showMessage(clDarkGrey, clYellow, 5, 3, "|    SPOT AND ZOMBIES    |");
+	showMessage(clDarkGrey, clYellow, 5, 4, "--------------------------");
 }
 
 void setSpotInitialCoordinates(Item& spot, char maze[][SIZEX])
@@ -225,39 +327,23 @@ void setInitialMazeStructure(char maze[][SIZEX], Item zombies[])
   //initialise maze configuration
 	char initialMaze[SIZEY][SIZEX];
 
-	//for (int column = 0; column < SIZEY; column++)
-	//{
-	//	for (int row = 0; row < SIZEX; row++)
-	//	{
-	//		if (column == 0 || column == SIZEY-1 || row == 0 || row == SIZEX-1)
-	//		{
-	//			// Just a row of walls //
-	//			initialMaze[column][row] = '#';
-	//		} else
-	//		{
-	//			initialMaze[column][row] = ' ';
-	//		}
-	//	}
-	//}
-
-	// Test reading level in //
-	cout << "Enter a level name to open: ";
-	string levelName;
-	cin >> levelName;
-	ifstream levelReader;
-	levelReader.open(".\\Levels\\" + levelName + ".spot", ios::in);
-
-	string value;
-	for (int column = 0; levelReader; column++)
+	for (int column = 0; column < SIZEY; column++)
 	{
-		getline(levelReader, value);
-		for (int row = 0; row < value.length(); row++)
+		for (int row = 0; row < SIZEX; row++)
 		{
-			initialMaze[column][row] = value[row];
+			if (column == 0 || column == SIZEY - 1 || row == 0 || row == SIZEX - 1)
+			{
+				// Just a row of walls //
+				initialMaze[column][row] = '#';
+			}
+			else
+			{
+				// Make it a tunnel //
+				initialMaze[column][row] = ' ';
+			}
 		}
 	}
-	levelReader.close();
-  
+
 	// Create Zombies - set their default X and Y positions and initialise their X and Y coords to the same //
 	zombies[0].defaultY = 1; zombies[0].defaultX = 1; zombies[0].y = 1; zombies[0].x = 1;
 	zombies[1].defaultY = 1; zombies[1].defaultX = SIZEX - 2; zombies[1].y = 1; zombies[1].x = SIZEX - 2;
@@ -330,6 +416,9 @@ void setMaze(char grid[][SIZEX], const char maze[][SIZEX], Item zombies[])
 	// ZOMBIES placement on grid //
 	for (int zomb = 0; zomb < 4; zomb++)
 	{
+
+
+
 		grid[zombies[zomb].y][zombies[zomb].x] = zombies[zomb].symbol;
 	}
 }
@@ -353,8 +442,8 @@ void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& me
 	if (isArrowKey(key))
 	{
 
-	void powerpillProtection(int moveCounter, int& powerpillTouch, Item& spot, bool& powerpillTouched);
-	assert(isArrowKey(key));
+		void powerpillProtection(int moveCounter, int& powerpillTouch, Item& spot, bool& powerpillTouched);
+		assert(isArrowKey(key));
 
 
 
@@ -374,7 +463,7 @@ void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& me
 			spot.y += dy;	//go in that Y direction
 			spot.x += dx;	//go in that X direction
 			if (powerpillTouched == true) cout << "\a";
-			powerpillProtection(moveCounter, powerpillTouch, spot, powerpillTouched);
+				powerpillProtection(moveCounter, powerpillTouch, spot, powerpillTouched);
 			break;
 		case WALL:  		//hit a wall and stay there
 			mess = "CANNOT GO THERE!";
@@ -401,118 +490,90 @@ void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& me
 		{
 			for (int zomb = 0; zomb < 4; zomb++)
 			{
-				if (zombies[zomb].x < spot.x && zombies[zomb].x + 1 < SIZEX - 2 && zombies[zomb].canMove == true && powerpillTouched == false)
+				if (zombies[zomb].canMove)
 				{
-					zombies[zomb].x++;
-				}
-				else if (zombies[zomb].y < spot.y && zombies[zomb].y + 1 < SIZEY - 2 && zombies[zomb].canMove == true && powerpillTouched == false)
-				{
-					zombies[zomb].y++;
-				}
+					// Move the zombie //
+					if ((maze[zombies[zomb].y][zombies[zomb].x + 1] != WALL) && (spot.x > zombies[zomb].x)) // Right //
+					{
+						if (powerpillTouched && maze[zombies[zomb].y][zombies[zomb].x - 1] != WALL)
+						{
+							zombies[zomb].x--;
+						}
+						else
+						{
+							zombies[zomb].x++;
+						}
+					}
+					else if ((maze[zombies[zomb].y][zombies[zomb].x - 1] != WALL) && (spot.x < zombies[zomb].x)) // Left //
+					{
+						if (powerpillTouched && maze[zombies[zomb].y][zombies[zomb].x + 1] != WALL)
+						{
+							zombies[zomb].x++;
+						}
+						else
+						{
+							zombies[zomb].x--;
+						}
+					}
 
-				if (zombies[zomb].x > spot.x && zombies[zomb].x + 1 > 1 && zombies[zomb].canMove == true && powerpillTouched == false)
-				{
-					zombies[zomb].x--;
-				}
-				else if (zombies[zomb].y > spot.y && zombies[zomb].y + 1 > 1 && zombies[zomb].canMove == true && powerpillTouched == false)
-				{
-					zombies[zomb].y--;
-				}
-				
-				if (zombies[zomb].x < spot.x && zombies[zomb].x + 1 < SIZEX - 2 && zombies[zomb].canMove == true && powerpillTouched == true)
-				{
-					zombies[zomb].x--;
-				}
-				else if (zombies[zomb].y < spot.y && zombies[zomb].y + 1 < SIZEY - 2 && zombies[zomb].canMove == true && powerpillTouched == true)
-				{
-					zombies[zomb].y--;
-				}
-
-				if (zombies[zomb].x > spot.x && zombies[zomb].x + 1 > 1 && zombies[zomb].canMove == true && powerpillTouched == true)
-				{
-					zombies[zomb].x++;
-				}
-				else if (zombies[zomb].y > spot.y && zombies[zomb].y + 1 > 1 && zombies[zomb].canMove == true && powerpillTouched == true)
-				{
-					zombies[zomb].y++;
+					if ((maze[zombies[zomb].y - 1][zombies[zomb].x] != WALL) && (spot.y < zombies[zomb].y)) // Up //
+					{
+						if (powerpillTouched && maze[zombies[zomb].y + 1][zombies[zomb].x] != WALL)
+						{
+							zombies[zomb].y++;
+						}
+						else
+						{
+							zombies[zomb].y--;
+						}
+					}
+					else if ((maze[zombies[zomb].y + 1][zombies[zomb].x] != WALL) && (spot.y > zombies[zomb].y)) // Downs //
+					{
+						if (powerpillTouched && maze[zombies[zomb].y - 1][zombies[zomb].x] != WALL)
+						{
+							zombies[zomb].y--;
+						}
+						else
+						{
+							zombies[zomb].y++;
+						}
+					}
 				}
 
 				// See if a zombie is touching spot //
 
-				if ((zombies[zomb].y == spot.y) && (zombies[zomb].x == spot.x) && powerpillTouched == false)
+				if ((zombies[zomb].y == spot.y) && (zombies[zomb].x == spot.x))
 				{
-					switch (zomb)
+					if (powerpillTouched)
 					{
-					case 0:
-						zombies[zomb].y = 1; zombies[zomb].x = 1;
-						break;
-					case 1:
-						zombies[zomb].y = 1; zombies[zomb].x = SIZEX - 2;
-						break;
-					case 2:
-						zombies[zomb].y = SIZEY - 2; zombies[zomb].x = 1;
-						break;
-					case 3:
-						zombies[zomb].y = SIZEY - 2; zombies[zomb].x = SIZEX - 2;
-						break;
+						zombies[zomb].canMove = false;
+						zombies[zomb].x = -1;
+						zombies[zomb].y = -1;
 					}
-					lives--;
-				}
-				if ((zombies[zomb].y == spot.y) && (zombies[zomb].x == spot.x) && powerpillTouched == true) // Powerpill active, kills zombies when touched
-				{
-					switch (zomb)
+					else
 					{
-					case 0:
-						zombies[zomb].y = -1; zombies[zomb].x = -1;
-						zombies[zomb].canMove = false;
-						break;
-					case 1:
-						zombies[zomb].y = -1; zombies[zomb].x = -1;
-						zombies[zomb].canMove = false;
-						break;
-					case 2:
-						zombies[zomb].y = -1; zombies[zomb].x = -1;
-						zombies[zomb].canMove = false;
-						break;
-					case 3:
-						zombies[zomb].y = -1; zombies[zomb].x = -1;
-						zombies[zomb].canMove = false;
-						break;
+						lives--;
+						zombies[zomb].x = zombies[zomb].defaultX;
+						zombies[zomb].y = zombies[zomb].defaultY;
 					}
+					
 				}
 
 				// Check for zombies touching a hole //
-				if (g[zombies[zomb].y][zombies[zomb].x] == HOLE)
+				if (maze[zombies[zomb].y][zombies[zomb].x] == HOLE)
 				{
 					zombies[zomb].y = -1; zombies[zomb].x = -1;
 					zombieCount--;
 					zombies[zomb].canMove = false;
 				}
-        
-				// Check if a zombie is touching another zombie //
-				if (g[zombies[zomb].y][zombies[zomb].x + 1] == ZOMBIE)
-				{
 
-				}
+				//// Check if a zombie is touching another zombie //
+				//if (maze[zombies[zomb].y][zombies[zomb].x + 1] == ZOMBIE)
+				//{
+
+				//}
 			}
-
-			// Lose a life //
-			
 		}
-
-		// Move Zombies //
-		//for (int column = 0; column < SIZEY; column++)
-		//{
-		//	for (int row = 0; row < SIZEX; row++)
-		//	{
-		//		if (maze[row][column] == 'Z')
-		//		{
-		//			// Move the zombie //
-		//			maze[row][column] = ' ';
-		//			maze[row + 1][column + 1] = 'Z';
-		//		}
-		//	}
-		//}
 
 		if (lives < 0)
 		{
@@ -524,8 +585,6 @@ void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& me
 	if (isCheatCode(key)) {
 		if (key == 'E')
 		{
-
-
 			for (int row(0); row < SIZEY; row++)
 			{
 				for (int col(0); col < SIZEX; col++)
@@ -593,26 +652,26 @@ void runCheatCode(const int key, int& powerPills, Item zombs[4], bool& zombieMov
 	{
 	case 'E': powerPills = 0;
 		break;
-	case 'X': 
+	case 'X':
 		for (int i = 0; i < 4; i++)
-	{
-		if (zombs[i].symbol == ' ') 
 		{
-			zombs[i].symbol = ZOMBIE;
-			zombieMove = true;
-			zombieCount = 4;
+			if (zombs[i].symbol == ' ')
+			{
+				zombs[i].symbol = ZOMBIE;
+				zombieMove = true;
+				zombieCount = 4;
+			}
+			else
+			{
+				zombs[i].symbol = ' ';
+				zombs[0].y = 1; zombs[0].x = 1;
+				zombs[1].y = 1; zombs[1].x = SIZEX - 2;
+				zombs[2].y = SIZEY - 2; zombs[2].x = 1;
+				zombs[3].y = SIZEY - 2; zombs[3].x = SIZEX - 2;
+				zombieMove = false;
+				zombieCount = 0;
+			}
 		}
-		else 
-		{
-			zombs[i].symbol = ' ';
-			zombs[0].y = 1; zombs[0].x = 1;
-			zombs[1].y = 1; zombs[1].x = SIZEX - 2;
-			zombs[2].y = SIZEY - 2; zombs[2].x = 1;
-			zombs[3].y = SIZEY - 2; zombs[3].x = SIZEX - 2;
-			zombieMove = false;
-			zombieCount = 0;
-		}
-	}
 		break;
 	case 'F': zombieMove = !zombieMove;
 		break;
@@ -649,14 +708,14 @@ void showMessage(const WORD backColour, const WORD textColour, int x, int y, con
 	SelectTextColour(textColour);
 	cout << message;
 }
-void paintGame(const char g[][SIZEX], string mess, int lives, string playerName, int powerPills, char m[][SIZEX], Item zombies[])
+void paintGame(const char g[][SIZEX], string mess, int lives, string playerName, int powerPills, char m[][SIZEX], int zombieCount)
 { //display game title, messages, maze, spot and other items on screen
 	string tostring(char x);
 	void showMessage(const WORD backColour, const WORD textColour, int x, int y, const string message);
 	void paintGrid(const char g[][SIZEX], char m[][SIZEX]);
 	int getPlayerScore(string playerName);
 	//display game title
-	showMessage(clBlack, clYellow, ((SIZEX-2)/2-8), 1, "SPOT AND ZOMBIES");
+	showMessage(clBlack, clYellow, ((SIZEX - 2) / 2 - 8), 1, "SPOT AND ZOMBIES");
 	SelectBackColour(clDarkGrey);
 	SelectTextColour(clYellow);
 
@@ -665,20 +724,21 @@ void paintGame(const char g[][SIZEX], string mess, int lives, string playerName,
 	if (lives < 0)
 	{
 		ss << "Lives: 0H NO";
-	} else
+	}
+	else
 	{
 		ss << "Lives: " << lives;
 	}
 	stringstream pps;
 	if (powerPills < 0)
 	{
-		pps << "Power Pills Remaining: 0";	
+		pps << "Power Pills Remaining: 0";
 	}
 	else
 	{
 		pps << "Power Pills Remaining: " << powerPills;
 	}
-	
+
 
 	// Display date and time etc. //
 	showMessage(clDarkGrey, clYellow, 40, 1, "FoP Task 1c: February 2018");
@@ -698,17 +758,7 @@ void paintGame(const char g[][SIZEX], string mess, int lives, string playerName,
 	showMessage(clBlack, clGreen, 40, 15, ss.str());
 	showMessage(clBlack, clGreen, 40, 16, pps.str());
 
-	int zombiesRemaining = 0;
-	for (int zomb = 0; zomb < 4; zomb++)
-	{
-		if (zombies[zomb].canMove)
-		{
-			zombiesRemaining++;
-		}
-	}
-	string zombs = to_string(zombiesRemaining);
-
-	showMessage(clBlack, clGreen, 40, 17, "Zombs remaining: " + zombs);
+	showMessage(clBlack, clGreen, 40, 17, "Zombs remaining: " + to_string(zombieCount));
 
 	string score = to_string(getPlayerScore(playerName));
 	showMessage(clBlack, clGreen, 40, 18, playerName);
@@ -742,12 +792,14 @@ void paintGrid(const char g[][SIZEX], char m[][SIZEX])
 				SelectTextColour(clBlue);
 				cout << g[row][col];
 				SelectTextColour(clWhite);
-			} else if (g[row][col] == HOLE)
+			}
+			else if (g[row][col] == HOLE)
 			{
 				SelectTextColour(clRed);
 				cout << g[row][col];
 				SelectTextColour(clWhite);
-			} else if (g[row][col] == ZOMBIE)
+			}
+			else if (g[row][col] == ZOMBIE)
 			{
 				SelectTextColour(clGreen);
 				cout << g[row][col];
@@ -758,7 +810,8 @@ void paintGrid(const char g[][SIZEX], char m[][SIZEX])
 				SelectTextColour(clYellow);
 				cout << g[row][col];
 				SelectTextColour(clWhite);
-			} else
+			}
+			else
 			{
 				cout << g[row][col];	//output cell content
 			}
@@ -797,7 +850,7 @@ int getPlayerScore(string playerName)
 	return value;
 }
 
-void playerData(string playerName, int lives, bool hasCheated)
+void playerData(string playerName, int lives)
 {
 	void showMessage(const WORD backColour, const WORD textColour, int x, int y, const string message);
 
@@ -813,15 +866,15 @@ void playerData(string playerName, int lives, bool hasCheated)
 	}
 	getScore.close();
 	writeScore.open(".\\Players\\" + playerName + ".txt", ios::out);
-	if (sum > 0 && hasCheated == false)
+	if (sum > 0)
 	{
-		if (lives > value) 
+		if (lives > value)
 		{
 			showMessage(clRed, clYellow, 40, 22, "NEW SCORE!");
 			writeScore << lives;
-		}		
+		}
 	}
-	else if(sum < 0 && hasCheated == false)
+	else if (sum < 0)
 	{
 		writeScore << lives;
 	}
@@ -842,7 +895,7 @@ bool hasWon(Item zombies[], int powerPills)
 		winner = true;
 	}
 	return winner;
-}	
+}
 
 void endProgram()
 {
