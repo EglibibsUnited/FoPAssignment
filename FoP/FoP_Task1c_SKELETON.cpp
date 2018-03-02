@@ -71,7 +71,6 @@ int main()
 
 	void runCheatCode(const int k, int& powerPills, Item zombies[], bool& zombFreeze, int& zombieCount);
 	
-
 	void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& mess, int& lives, char m[][SIZEX], int& powerPills, Item zombies[], int& powerpillTouch, int moveCounter, bool zombMove, int& zombieCount, bool& powerpillTouched);
 
 	void showMessage(const WORD backColour, const WORD textColour, int x, int y, const string message);
@@ -127,35 +126,25 @@ int main()
 		key = toupper(key);
 		if (isArrowKey(key))
 		{
-
-			
-
 			updateGameData(grid, spot, key, message, lives, maze, powerPills, zombies, powerpillTouch, moveCounter, zombiesMove, zombieCount, powerpillTouched);		//move spot in that direction
-
 			updateGrid(grid, maze, spot, zombies);					//update grid information
 			moveCounter++;
 		}
 		if (isCheatCode(key)) 
 		{
-
 			runCheatCode(key, powerPills, zombies, zombiesMove, zombieCount);
 			updateGameData(grid, spot, key, message, lives, maze, powerPills, zombies, powerpillTouch, moveCounter, zombiesMove, zombieCount, powerpillTouched);
 			updateGrid(grid, maze, spot, zombies);
 			hasCheated = true;
-
-      
-
 		}
 		else
 			message = "INVALID KEY!";	//set 'Invalid key' message
-    
 		paintGame(grid, message, lives, playerName, powerPills, maze, zombies);		//display game info, modified grid and messages
 	} while (!wantsToQuit(key) && lives >= 0);		//while user does not want to quit and they still have lives left //
 	playerData(playerName, lives, hasCheated);
 	endProgram();						//display final message
 	return 0;
 }
-
 
 //---------------------------------------------------------------------------
 //----- initialise game state
@@ -164,6 +153,17 @@ int main()
 void displayStartScreen()
 {
 	void showMessage(const WORD backColour, const WORD textColour, int x, int y, const string message);
+
+	ifstream titleArt;
+	titleArt.open("title.txt", ios::in);
+	string value;
+	for (int i = 18; titleArt; i++)
+	{
+		getline(titleArt, value);
+		showMessage(clRed, clWhite, 18, i, value);
+	}
+	titleArt.close();
+
 	showMessage(clDarkGrey, clYellow, 5, 2, "--------------------------");
 	showMessage(clDarkGrey, clYellow, 5, 3, "|    SPOT AND ZOMBIES    |");
 	showMessage(clDarkGrey, clYellow, 5, 4, "--------------------------");
@@ -180,7 +180,7 @@ void displayStartScreen()
 	showMessage(clDarkGrey, clYellow, 40, 6, "        Controls       ");
 	showMessage(clDarkGrey, clYellow, 40, 7, "-----------------------");
 	showMessage(clDarkGrey, clYellow, 40, 8, "| Movement: Arrows    |");
-	showMessage(clDarkGrey, clYellow, 40, 9, "| Attack: X           |");
+	showMessage(clDarkGrey, clYellow, 40, 9, "| Kill Zombles: X     |");
 	showMessage(clDarkGrey, clYellow, 40, 10, "| Freeze: F           |");
 	showMessage(clDarkGrey, clYellow, 40, 11, "| Quit: Q             |");
 	showMessage(clDarkGrey, clYellow, 40, 12, "-----------------------");
@@ -289,14 +289,14 @@ void setInitialMazeStructure(char maze[][SIZEX], Item zombies[])
 
 void updateGrid(char grid[][SIZEX], const char maze[][SIZEX], const Item spot, Item zombies[])
 { //update grid configuration after each move
-	void setMaze(char g[][SIZEX], const char b[][SIZEX], Item zombies[], const Item spot);
+	void setMaze(char g[][SIZEX], const char b[][SIZEX], Item zombies[]);
 	void placeItem(char g[][SIZEX], const Item spot);
 
-	setMaze(grid, maze, zombies, spot);	//reset the empty maze configuration into grid
+	setMaze(grid, maze, zombies);	//reset the empty maze configuration into grid
 	placeItem(grid, spot);	//set spot in grid
 }
 
-void setMaze(char grid[][SIZEX], const char maze[][SIZEX], Item zombies[], const Item spot)
+void setMaze(char grid[][SIZEX], const char maze[][SIZEX], Item zombies[])
 { //reset the empty/fixed maze configuration into grid
 	for (int row(0); row < SIZEY; ++row)
 		for (int col(0); col < SIZEX; ++col)
@@ -320,8 +320,6 @@ void placeItem(char g[][SIZEX], const Item item)
 //---------------------------------------------------------------------------
 //----- move items on the grid
 //---------------------------------------------------------------------------
-
-
 
 void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& mess, int& lives, char maze[][SIZEX], int& powerPills, Item zombies[], int& powerpillTouch, int moveCounter, bool zombiesMove, int& zombieCount, bool& powerpillTouched)
 
@@ -380,7 +378,6 @@ void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& me
 		{
 			for (int zomb = 0; zomb < 4; zomb++)
 			{
-
 				if (zombies[zomb].x < spot.x && zombies[zomb].x + 1 < SIZEX - 2 && zombies[zomb].canMove == true)
 				{
 					zombies[zomb].x++;
@@ -428,7 +425,12 @@ void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& me
 					zombieCount--;
 					zombies[zomb].canMove = false;
 				}
+        
+				// Check if a zombie is touching another zombie //
+				if (g[zombies[zomb].y][zombies[zomb].x + 1] == ZOMBIE)
+				{
 
+				}
 			}
 
 			// Lose a life //
@@ -624,7 +626,7 @@ void paintGame(const char g[][SIZEX], string mess, int lives, string playerName,
 	showMessage(clDarkGrey, clYellow, 40, 6, "        Controls       ");
 	showMessage(clDarkGrey, clYellow, 40, 7, "-----------------------");
 	showMessage(clDarkGrey, clYellow, 40, 8, "| Movement: Arrows    |");
-	showMessage(clDarkGrey, clYellow, 40, 9, "| Attack: X           |");
+	showMessage(clDarkGrey, clYellow, 40, 9, "| Kill Zombles: X     |");
 	showMessage(clDarkGrey, clYellow, 40, 10, "| Freeze: F           |");
 	showMessage(clDarkGrey, clYellow, 40, 11, "| Quit: Q             |");
 	showMessage(clDarkGrey, clYellow, 40, 12, "-----------------------");
