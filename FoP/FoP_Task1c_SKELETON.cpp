@@ -68,9 +68,8 @@ int main()
 	bool isArrowKey(const int k);
 	bool isCheatCode(const int k);
 	int  getKeyPress();
-
-	void runCheatCode(const int k, int& powerPills, Item zombies[], bool& zombFreeze, int& zombieCount);
-	
+	void changeCursorVisibility(bool);
+	void runCheatCode(const int k, int& powerPills, Item zombies[], bool& zombFreeze, int& zombieCount);	
 	void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& mess, int& lives, char m[][SIZEX], int& powerPills, Item zombies[], int& powerpillTouch, int moveCounter, bool zombMove, int& zombieCount, bool& powerpillTouched);
 
 	void showMessage(const WORD backColour, const WORD textColour, int x, int y, const string message);
@@ -104,6 +103,8 @@ int main()
 	cin >> playerName;
 	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 0);
 	Clrscr();
+
+	changeCursorVisibility(false);
 
 	ifstream getScore;
 	getScore.open(".\\Players\\" + playerName + ".txt", ios::in);
@@ -142,6 +143,7 @@ int main()
 		paintGame(grid, message, lives, playerName, powerPills, maze, zombies);		//display game info, modified grid and messages
 	} while (!wantsToQuit(key) && lives >= 0);		//while user does not want to quit and they still have lives left //
 	playerData(playerName, lives, hasCheated);
+	changeCursorVisibility(true);
 	endProgram();						//display final message
 	return 0;
 }
@@ -182,11 +184,12 @@ void displayStartScreen()
 	showMessage(clDarkGrey, clYellow, 40, 8, "| Movement: Arrows    |");
 	showMessage(clDarkGrey, clYellow, 40, 9, "| Kill Zombles: X     |");
 	showMessage(clDarkGrey, clYellow, 40, 10, "| Freeze: F           |");
-	showMessage(clDarkGrey, clYellow, 40, 11, "| Quit: Q             |");
-	showMessage(clDarkGrey, clYellow, 40, 12, "-----------------------");
+	showMessage(clDarkGrey, clYellow, 40, 11, "| Eat Pills: E        |");
+	showMessage(clDarkGrey, clYellow, 40, 12, "| Quit: Q             |");
+	showMessage(clDarkGrey, clYellow, 40, 13, "-----------------------");
 
-	showMessage(clDarkGrey, clYellow, 5, 14, "Enter your name to start:");
-	showMessage(clBlack, clRed, 31, 14, " ");
+	showMessage(clDarkGrey, clYellow, 5, 15, "Enter your name to start:");
+	showMessage(clBlack, clRed, 31, 15, " ");
 }
 
 void initialiseGame(char grid[][SIZEX], char maze[][SIZEX], Item& spot, Item zombies[])
@@ -593,7 +596,7 @@ void paintGame(const char g[][SIZEX], string mess, int lives, string playerName,
 	void paintGrid(const char g[][SIZEX], char m[][SIZEX]);
 	int getPlayerScore(string playerName);
 	//display game title
-	showMessage(clBlack, clYellow, 0, 0, "___GAME___");
+	showMessage(clBlack, clYellow, ((SIZEX-2)/2-8), 1, "SPOT AND ZOMBIES");
 	SelectBackColour(clDarkGrey);
 	SelectTextColour(clYellow);
 
@@ -628,11 +631,12 @@ void paintGame(const char g[][SIZEX], string mess, int lives, string playerName,
 	showMessage(clDarkGrey, clYellow, 40, 8, "| Movement: Arrows    |");
 	showMessage(clDarkGrey, clYellow, 40, 9, "| Kill Zombles: X     |");
 	showMessage(clDarkGrey, clYellow, 40, 10, "| Freeze: F           |");
-	showMessage(clDarkGrey, clYellow, 40, 11, "| Quit: Q             |");
-	showMessage(clDarkGrey, clYellow, 40, 12, "-----------------------");
+	showMessage(clDarkGrey, clYellow, 40, 11, "| Eat Pills: E        |");
+	showMessage(clDarkGrey, clYellow, 40, 12, "| Quit: Q             |");
+	showMessage(clDarkGrey, clYellow, 40, 13, "-----------------------");
 
-	showMessage(clBlack, clGreen, 40, 14, ss.str());
-	showMessage(clBlack, clGreen, 40, 15, pps.str());
+	showMessage(clBlack, clGreen, 40, 15, ss.str());
+	showMessage(clBlack, clGreen, 40, 16, pps.str());
 
 	int zombiesRemaining = 0;
 	for (int zomb = 0; zomb < 4; zomb++)
@@ -644,7 +648,7 @@ void paintGame(const char g[][SIZEX], string mess, int lives, string playerName,
 	}
 	string zombs = to_string(zombiesRemaining);
 
-	showMessage(clBlack, clGreen, 40, 16, "Zombs remaining: " + zombs);
+	showMessage(clBlack, clGreen, 40, 17, "Zombs remaining: " + zombs);
 
 	string score = to_string(getPlayerScore(playerName));
 	showMessage(clBlack, clGreen, 40, 18, playerName);
@@ -768,4 +772,13 @@ void endProgram()
 	void showMessage(const WORD backColour, const WORD textColour, int x, int y, const string message);
 	showMessage(clRed, clYellow, 40, 26, "");
 	system("pause");	//hold output screen until a keyboard key is hit
+}
+
+void changeCursorVisibility(bool v)
+{
+	HANDLE out = GetStdHandle(STD_OUTPUT_HANDLE);
+	CONSOLE_CURSOR_INFO cursorInfo;
+	GetConsoleCursorInfo(out, &cursorInfo);
+	cursorInfo.bVisible = v; // set the cursor visibility
+	SetConsoleCursorInfo(out, &cursorInfo);
 }
