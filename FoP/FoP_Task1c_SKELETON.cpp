@@ -356,7 +356,7 @@ void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& me
 		case WALL:  		//hit a wall and stay there
 			mess = "CANNOT GO THERE!";
 			break;
-			case HOLE;			// Fall into a hole //
+		case HOLE:		// Fall into a hole //
 			spot.y += dy;
 			spot.x += dx;
 			lives--;
