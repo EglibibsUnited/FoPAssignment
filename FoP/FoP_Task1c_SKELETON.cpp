@@ -66,6 +66,7 @@ int main()
 	bool isArrowKey(const int k);
 	bool isCheatCode(const int k);
 	int  getKeyPress();
+	void runCheatCode(const int, int&, Item[]);
 	void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& mess, int& lives, char m[][SIZEX], int& powerPills, Item zombies[]);
 	void showMessage(const WORD backColour, const WORD textColour, int x, int y, const string message);
 	void updateGrid(char g[][SIZEX], const char m[][SIZEX], const Item spot, Item zombies[]);
@@ -118,7 +119,9 @@ int main()
 		}
 		if (isCheatCode(key)) 
 		{
-			
+			runCheatCode(key, powerPills, zombies);
+				
+			updateGrid(grid, maze, spot, zombies);
 
 		}
 		else
@@ -277,14 +280,11 @@ void setMaze(char grid[][SIZEX], const char maze[][SIZEX], Item zombies[], const
 		for (int col(0); col < SIZEX; ++col)
 			grid[row][col] = maze[row][col];
 
-	// ZOMBIES MOVE //
+	// ZOMBIES placement on grid //
 	for (int zomb = 0; zomb < 4; zomb++)
 	{
 
-		if (zombies[zomb].x + 1 < SIZEX-2)
-		{
-			zombies[zomb].x++;
-		}
+		
 
 		grid[zombies[zomb].y][zombies[zomb].x] = zombies[zomb].symbol;
 	}
@@ -338,6 +338,10 @@ void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& me
 	}
 
 	// Move Zombies //
+	
+	{
+
+	}
 	for (int zomb = 0; zomb < 4; zomb++)
 	{
 
@@ -459,16 +463,29 @@ bool isCheatCode(const int key)
 	return (key == 'E') || (key == 'X') || (key == 'F');
 }
 
-void runCheatCode(const int key, int& powerPills, Item zombs[]) {
+void runCheatCode(const int key, int& powerPills, Item zombs[], bool& zombieFreeze) {
 	switch (key)
 	{
 	case 'E': powerPills = 0;
 		break;
 	case 'X': 
-	
-
-
-	case 'F':
+		for (int i = 0; i < 4; i++)
+	{
+		if (zombs[i].symbol == ' ') 
+		{
+			zombs[i].symbol = ZOMBIE;
+			zombs[0].y = 1; zombs[0].x = 1;
+			zombs[1].y = 1; zombs[1].x = SIZEX - 2;
+			zombs[2].y = SIZEY - 2; zombs[2].x = 1;
+			zombs[3].y = SIZEY - 2; zombs[3].x = SIZEX - 2;
+			
+		}
+		else 
+		{
+			zombs[i].symbol = ' ';
+		}
+	}
+	case 'F': zombieFreeze == false;
 	default:
 		break;
 	}
