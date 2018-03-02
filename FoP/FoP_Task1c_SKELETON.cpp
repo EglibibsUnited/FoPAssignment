@@ -54,23 +54,48 @@ struct Item {
 	int defaultX, defaultY;
 };
 
-//---------------------------------------------------------------------------
-//----- run game
-//---------------------------------------------------------------------------
-
 int main()
 {
-	//function declarations (prototypes)
 	void displayStartScreen();
+	void displayMenuScreen(string playerName);
+	void runGame();
+	void changeCursorVisibility(bool);
+	void endProgram();
+
+	Seed();								//seed the random number generator
+	SetConsoleTitle("Spot and Zombies Game - FoP 2017-18");
+
+	displayStartScreen();
+	string playerName;
+	cin >> playerName;
+	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 0);
+	Clrscr();
+
+	displayMenuScreen(playerName);
+	Clrscr();
+
+	changeCursorVisibility(false);
+
+
+	endProgram();						//display final message
+	return 0;
+}
+
+//---------------------------------------------------------------------------
+//----- Run game
+//---------------------------------------------------------------------------
+
+void runGame(string playerName)
+{
+	//function declarations (prototypes)
 	void initialiseGame(char g[][SIZEX], char m[][SIZEX], Item& spot, Item zombies[]);
 	void paintGame(const char g[][SIZEX], string mess, int lives, string playerName, int powerPills, char m[][SIZEX], Item zombies[]);
 	bool wantsToQuit(const int key);
 	bool isArrowKey(const int k);
 	bool isCheatCode(const int k);
 	int  getKeyPress();
-
+	void changeCursorVisibility(bool);
 	void runCheatCode(const int k, int& powerPills, Item zombies[], bool& zombFreeze, int& zombieCount);
-	
 	void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& mess, int& lives, char m[][SIZEX], int& powerPills, Item zombies[], int& powerpillTouch, int moveCounter, bool zombMove, int& zombieCount, bool& powerpillTouched);
 
 	void showMessage(const WORD backColour, const WORD textColour, int x, int y, const string message);
@@ -78,7 +103,7 @@ int main()
 	void powerpillProtection(int moveCounter, int& powerpillTouch, Item& spot, bool& powerpillTouched);
 	int getPlayerScore(string playerName);
 	void playerData(string playerName, int lives, bool hasCheated);
-	void endProgram();
+	bool hasWon(Item zombies[], int powerPills);
 
 	//local variable declarations 
 	char grid[SIZEY][SIZEX];			//grid for display
@@ -95,16 +120,6 @@ int main()
 
 	int moveCounter(0), powerpillTouch(0);
 
-
-	Seed();								//seed the random number generator
-	SetConsoleTitle("Spot and Zombies Game - FoP 2017-18");
-
-	displayStartScreen();
-	string playerName;
-	cin >> playerName;
-	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 0);
-	Clrscr();
-
 	ifstream getScore;
 	getScore.open(".\\Players\\" + playerName + ".txt", ios::in);
 	int value, sum(0);
@@ -118,7 +133,7 @@ int main()
 	}
 
 	initialiseGame(grid, maze, spot, zombies);	//initialise grid (incl. walls and spot)
-  
+
 	paintGame(grid, message, lives, playerName, powerPills, maze, zombies);			//display game info, modified grid and messages
 	int key;							//current key selected by player
 	do {
@@ -130,7 +145,7 @@ int main()
 			updateGrid(grid, maze, spot, zombies);					//update grid information
 			moveCounter++;
 		}
-		if (isCheatCode(key)) 
+		if (isCheatCode(key))
 		{
 			runCheatCode(key, powerPills, zombies, zombiesMove, zombieCount);
 			updateGameData(grid, spot, key, message, lives, maze, powerPills, zombies, powerpillTouch, moveCounter, zombiesMove, zombieCount, powerpillTouched);
@@ -140,10 +155,10 @@ int main()
 		else
 			message = "INVALID KEY!";	//set 'Invalid key' message
 		paintGame(grid, message, lives, playerName, powerPills, maze, zombies);		//display game info, modified grid and messages
-	} while (!wantsToQuit(key) && lives >= 0);		//while user does not want to quit and they still have lives left //
+	} while (!wantsToQuit(key) && lives >= 0 && hasWon(zombies, powerPills) == false);		//while user does not want to quit and they still have lives left //
+	showMessage(clRed, clYellow, 40, 24, "Congratulations!! You Win!!");
 	playerData(playerName, lives, hasCheated);
-	endProgram();						//display final message
-	return 0;
+	changeCursorVisibility(true);
 }
 
 //---------------------------------------------------------------------------
@@ -182,11 +197,42 @@ void displayStartScreen()
 	showMessage(clDarkGrey, clYellow, 40, 8, "| Movement: Arrows    |");
 	showMessage(clDarkGrey, clYellow, 40, 9, "| Kill Zombles: X     |");
 	showMessage(clDarkGrey, clYellow, 40, 10, "| Freeze: F           |");
-	showMessage(clDarkGrey, clYellow, 40, 11, "| Quit: Q             |");
-	showMessage(clDarkGrey, clYellow, 40, 12, "-----------------------");
+	showMessage(clDarkGrey, clYellow, 40, 11, "| Eat Pills: E        |");
+	showMessage(clDarkGrey, clYellow, 40, 12, "| Quit: Q             |");
+	showMessage(clDarkGrey, clYellow, 40, 13, "-----------------------");
 
-	showMessage(clDarkGrey, clYellow, 5, 14, "Enter your name to start:");
-	showMessage(clBlack, clRed, 31, 14, " ");
+	showMessage(clDarkGrey, clYellow, 5, 15, "Enter your name to start:");
+	showMessage(clBlack, clRed, 31, 15, " ");
+}
+void displayMenuScreen(string playerName) 
+{
+
+	void showMessage(const WORD backColour, const WORD textColour, int x, int y, const string message);
+	void endProgram();
+
+	showMessage(clDarkGrey, clYellow, 5, 2, "--------------------------");
+	showMessage(clDarkGrey, clYellow, 5, 3, "|    SPOT AND ZOMBIES    |");
+	showMessage(clDarkGrey, clYellow, 5, 4, "--------------------------");
+	showMessage(clDarkGrey, clYellow, 5, 6, "--------------------------");
+	showMessage(clDarkGrey, clYellow, 5, 7, "| > Play Game (P)        |");
+	showMessage(clDarkGrey, clYellow, 5, 8, "| > See Score (S)        |");
+	showMessage(clDarkGrey, clYellow, 5, 9, "| > See Rules (R)        |");
+	showMessage(clDarkGrey, clYellow, 5, 10, "| > Quit (Q)             |");
+	showMessage(clDarkGrey, clYellow, 5, 11, "--------------------------");
+	showMessage(clDarkGrey, clYellow, 5, 13, "Please enter answer: ");
+	char answer;
+	showMessage(clBlack, clRed, 28, 13, " ");
+	cin >> answer;
+	switch (toupper(answer))
+	{
+		case 'P':
+			SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 0);
+			runGame(playerName);
+			break;
+
+		case 'Q':
+			endProgram();
+	}
 }
 
 void initialiseGame(char grid[][SIZEX], char maze[][SIZEX], Item& spot, Item zombies[])
@@ -351,12 +397,13 @@ void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& me
 		case TUNNEL:		//can move
 			spot.y += dy;	//go in that Y direction
 			spot.x += dx;	//go in that X direction
+			if (powerpillTouched == true) cout << "\a";
 			powerpillProtection(moveCounter, powerpillTouch, spot, powerpillTouched);
 			break;
 		case WALL:  		//hit a wall and stay there
 			mess = "CANNOT GO THERE!";
 			break;
-			case HOLE;			// Fall into a hole //
+		case HOLE:		// Fall into a hole //
 			spot.y += dy;
 			spot.x += dx;
 			lives--;
@@ -378,27 +425,45 @@ void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& me
 		{
 			for (int zomb = 0; zomb < 4; zomb++)
 			{
-				if (zombies[zomb].x < spot.x && zombies[zomb].x + 1 < SIZEX - 2 && zombies[zomb].canMove == true)
+				if (zombies[zomb].x < spot.x && zombies[zomb].x + 1 < SIZEX - 2 && zombies[zomb].canMove == true && powerpillTouched == false)
 				{
 					zombies[zomb].x++;
 				}
-				else if (zombies[zomb].y < spot.y && zombies[zomb].y + 1 < SIZEY - 2 && zombies[zomb].canMove == true)
+				else if (zombies[zomb].y < spot.y && zombies[zomb].y + 1 < SIZEY - 2 && zombies[zomb].canMove == true && powerpillTouched == false)
 				{
 					zombies[zomb].y++;
 				}
 
-				if (zombies[zomb].x > spot.x && zombies[zomb].x + 1 > 1 && zombies[zomb].canMove == true)
+				if (zombies[zomb].x > spot.x && zombies[zomb].x + 1 > 1 && zombies[zomb].canMove == true && powerpillTouched == false)
 				{
 					zombies[zomb].x--;
 				}
-				else if (zombies[zomb].y > spot.y && zombies[zomb].y + 1 > 1 && zombies[zomb].canMove == true)
+				else if (zombies[zomb].y > spot.y && zombies[zomb].y + 1 > 1 && zombies[zomb].canMove == true && powerpillTouched == false)
+				{
+					zombies[zomb].y--;
+				}
+				
+				if (zombies[zomb].x < spot.x && zombies[zomb].x + 1 < SIZEX - 2 && zombies[zomb].canMove == true && powerpillTouched == true)
+				{
+					zombies[zomb].x--;
+				}
+				else if (zombies[zomb].y < spot.y && zombies[zomb].y + 1 < SIZEY - 2 && zombies[zomb].canMove == true && powerpillTouched == true)
 				{
 					zombies[zomb].y--;
 				}
 
+				if (zombies[zomb].x > spot.x && zombies[zomb].x + 1 > 1 && zombies[zomb].canMove == true && powerpillTouched == true)
+				{
+					zombies[zomb].x++;
+				}
+				else if (zombies[zomb].y > spot.y && zombies[zomb].y + 1 > 1 && zombies[zomb].canMove == true && powerpillTouched == true)
+				{
+					zombies[zomb].y++;
+				}
+
 				// See if a zombie is touching spot //
 
-				if ((zombies[zomb].y == spot.y) && (zombies[zomb].x == spot.x))
+				if ((zombies[zomb].y == spot.y) && (zombies[zomb].x == spot.x) && powerpillTouched == false)
 				{
 					switch (zomb)
 					{
@@ -416,6 +481,28 @@ void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& me
 						break;
 					}
 					lives--;
+				}
+				if ((zombies[zomb].y == spot.y) && (zombies[zomb].x == spot.x) && powerpillTouched == true) // Powerpill active, kills zombies when touched
+				{
+					switch (zomb)
+					{
+					case 0:
+						zombies[zomb].y = -1; zombies[zomb].x = -1;
+						zombies[zomb].canMove = false;
+						break;
+					case 1:
+						zombies[zomb].y = -1; zombies[zomb].x = -1;
+						zombies[zomb].canMove = false;
+						break;
+					case 2:
+						zombies[zomb].y = -1; zombies[zomb].x = -1;
+						zombies[zomb].canMove = false;
+						break;
+					case 3:
+						zombies[zomb].y = -1; zombies[zomb].x = -1;
+						zombies[zomb].canMove = false;
+						break;
+					}
 				}
 
 				// Check for zombies touching a hole //
@@ -593,7 +680,7 @@ void paintGame(const char g[][SIZEX], string mess, int lives, string playerName,
 	void paintGrid(const char g[][SIZEX], char m[][SIZEX]);
 	int getPlayerScore(string playerName);
 	//display game title
-	showMessage(clBlack, clYellow, 0, 0, "___GAME___");
+	showMessage(clBlack, clYellow, ((SIZEX-2)/2-8), 1, "SPOT AND ZOMBIES");
 	SelectBackColour(clDarkGrey);
 	SelectTextColour(clYellow);
 
@@ -628,11 +715,12 @@ void paintGame(const char g[][SIZEX], string mess, int lives, string playerName,
 	showMessage(clDarkGrey, clYellow, 40, 8, "| Movement: Arrows    |");
 	showMessage(clDarkGrey, clYellow, 40, 9, "| Kill Zombles: X     |");
 	showMessage(clDarkGrey, clYellow, 40, 10, "| Freeze: F           |");
-	showMessage(clDarkGrey, clYellow, 40, 11, "| Quit: Q             |");
-	showMessage(clDarkGrey, clYellow, 40, 12, "-----------------------");
+	showMessage(clDarkGrey, clYellow, 40, 11, "| Eat Pills: E        |");
+	showMessage(clDarkGrey, clYellow, 40, 12, "| Quit: Q             |");
+	showMessage(clDarkGrey, clYellow, 40, 13, "-----------------------");
 
-	showMessage(clBlack, clGreen, 40, 14, ss.str());
-	showMessage(clBlack, clGreen, 40, 15, pps.str());
+	showMessage(clBlack, clGreen, 40, 15, ss.str());
+	showMessage(clBlack, clGreen, 40, 16, pps.str());
 
 	int zombiesRemaining = 0;
 	for (int zomb = 0; zomb < 4; zomb++)
@@ -644,7 +732,7 @@ void paintGame(const char g[][SIZEX], string mess, int lives, string playerName,
 	}
 	string zombs = to_string(zombiesRemaining);
 
-	showMessage(clBlack, clGreen, 40, 16, "Zombs remaining: " + zombs);
+	showMessage(clBlack, clGreen, 40, 17, "Zombs remaining: " + zombs);
 
 	string score = to_string(getPlayerScore(playerName));
 	showMessage(clBlack, clGreen, 40, 18, playerName);
@@ -762,10 +850,36 @@ void playerData(string playerName, int lives, bool hasCheated)
 		writeScore << lives;
 	}
 }
+bool hasWon(Item zombies[], int powerPills)
+{
+	bool winner = false;
+	int zombiesRemaining = 0;
+	for (int zomb = 0; zomb < 4; zomb++)
+	{
+		if (zombies[zomb].canMove)
+		{
+			zombiesRemaining++;
+		}
+	}
+	if (zombiesRemaining == 0 && powerPills == 0)
+	{
+		winner = true;
+	}
+	return winner;
+}	
 
 void endProgram()
 {
 	void showMessage(const WORD backColour, const WORD textColour, int x, int y, const string message);
 	showMessage(clRed, clYellow, 40, 26, "");
 	system("pause");	//hold output screen until a keyboard key is hit
+}
+
+void changeCursorVisibility(bool v)
+{
+	HANDLE out = GetStdHandle(STD_OUTPUT_HANDLE);
+	CONSOLE_CURSOR_INFO cursorInfo;
+	GetConsoleCursorInfo(out, &cursorInfo);
+	cursorInfo.bVisible = v; // set the cursor visibility
+	SetConsoleCursorInfo(out, &cursorInfo);
 }
