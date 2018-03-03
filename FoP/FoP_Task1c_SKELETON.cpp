@@ -164,11 +164,11 @@ void runGame(string playerName)
 		paintGame(grid, message, lives, playerName, powerPills, maze, zombieCount);		//display game info, modified grid and messages
 	} while (!wantsToQuit(key) && lives >= 0 && hasWon(zombies, powerPills) == false); // Game quits if user presses Q, Spot has no lives or wins the game //
 	
-	if (lives < 0)
+	if (lives < 0 && !wantsToQuit(key))
 	{
 		showMessage(clRed, clYellow, 40, 24, "Unlucky, try again next time!");
 	}
-	else
+	else if (!wantsToQuit(key))
 	{
 		showMessage(clBlack, clGreen, 40, 24, "Congratulations!! You Win!!");
 	}
@@ -294,6 +294,10 @@ bool menuScreen(string playerName)
 		break;
 	case 'Q':
 		quit = true;
+		break;
+	default:
+		showMessage(clBlack, clRed, 5, 15, "Invalid Key!!");
+		Sleep(1000);
 		break;
 	}
 
@@ -963,7 +967,7 @@ bool hasWon(Item zombies[], int powerPills)
 void endProgram()
 {
 	void showMessage(const WORD backColour, const WORD textColour, int x, int y, const string message);
-	showMessage(clRed, clYellow, 40, 26, "");
+	showMessage(clRed, clYellow, 5, 15, "");
 	system("pause");	//hold output screen until a keyboard key is hit
 }
 
