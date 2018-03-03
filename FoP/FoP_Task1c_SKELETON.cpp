@@ -211,7 +211,7 @@ void displayStartScreen()
 	for (int i = 18; titleArt; i++)
 	{
 		getline(titleArt, value);
-		showMessage(clRed, clWhite, 18, i, value);
+		showMessage(clRed, clWhite, 6, i, value);
 	}
 	titleArt.close();
 
@@ -251,6 +251,8 @@ bool menuScreen(string playerName)
 
 	bool quit = false;
 	Clrscr();
+
+
 	showMessage(clDarkGrey, clYellow, 5, 2, "--------------------------");
 	showMessage(clDarkGrey, clYellow, 5, 3, "|    SPOT AND ZOMBIES    |");
 	showMessage(clDarkGrey, clYellow, 5, 4, "--------------------------");
@@ -282,7 +284,8 @@ bool menuScreen(string playerName)
 		break;
 	}
 
-	Clrscr();
+	cin.get();
+
 	return quit;
 }
 void scoreScreen(string playerName)
@@ -308,7 +311,41 @@ void rulesScreen()
 	Clrscr();
 	showMessage(clDarkGrey, clYellow, 5, 2, "--------------------------");
 	showMessage(clDarkGrey, clYellow, 5, 3, "|    SPOT AND ZOMBIES    |");
-	showMessage(clDarkGrey, clYellow, 5, 4, "--------------------------");
+	showMessage(clDarkGrey, clYellow, 5, 4, "|                        |");
+	showMessage(clDarkGrey, clYellow, 5, 5, "|         RULES          |");
+	showMessage(clDarkGrey, clYellow, 5, 6, "--------------------------");
+
+	showMessage(clBlack, clGrey, 5, 9, "1: When Spot ( ) eats a Power Pill ( ), he gains a life.");
+	showMessage(clBlack, clBlue, 19, 9, "@");
+	showMessage(clBlack, clYellow, 41, 9, "*");
+
+	showMessage(clBlack, clGrey, 5, 10, "2: When Spot ( ) falls into a hole ( ), he loses a life.");
+	showMessage(clBlack, clBlue, 19, 10, "@");
+	showMessage(clBlack, clRed, 41, 10, "0");
+
+	showMessage(clBlack, clGrey, 5, 11, "3: When Spot ( ) touches a zombie ( ), he loses a life.");
+	showMessage(clBlack, clGrey, 15, 12, "(The zombie returns to its original position)");
+	showMessage(clBlack, clBlue, 19, 11, "@");
+	showMessage(clBlack, clGreen, 40, 11, "Z");
+
+	showMessage(clBlack, clGrey, 5, 13, "4: A zombie ( ) cannot eat a Power Pill ( ).");
+	showMessage(clBlack, clGreen, 18, 13, "Z");
+	showMessage(clBlack, clYellow, 46, 13, "*");
+
+	showMessage(clBlack, clGrey, 5, 14, "5: If Spot ( ) eats a Power Pill ( ) and touches a zombie ( ) at the same time, they cancel out.");
+	showMessage(clBlack, clGrey, 56, 15, "(The zombie returns to its original position)");
+	showMessage(clBlack, clBlue, 17, 14, "@");
+	showMessage(clBlack, clYellow, 39, 14, "*");
+	showMessage(clBlack, clGreen , 64, 14, "Z");
+
+	showMessage(clBlack, clGrey, 5, 16, "6: If two zombies ( ) collide, they both return to their original positions.");
+	showMessage(clBlack, clGreen, 24, 16, "Z");
+
+	showMessage(clBlack, clGrey, 5, 17, "7: A zombie ( ) that falls into a hole will disappear and not return.");
+	showMessage(clBlack, clGreen, 18, 17, "Z");
+
+
+	cin.ignore();
 }
 
 void setSpotInitialCoordinates(Item& spot, char maze[][SIZEX])
