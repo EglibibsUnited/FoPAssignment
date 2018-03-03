@@ -571,12 +571,19 @@ void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& me
 						{
 							zombies[zomb].x--;
 						}
-						else
+						else if (!powerpillTouched)
 						{
-							if (!powerpillTouched)
-							{
+							
 								zombies[zomb].x++;
-							}
+								if ((zombies[zomb].y == spot.y) && (zombies[zomb].x == spot.x))
+								{
+
+									zombies[zomb].y = zombies[zomb].defaultY;
+									zombies[zomb].x = zombies[zomb].defaultX;
+
+									lives--;
+
+								}
 						}
 					}
 
@@ -588,12 +595,11 @@ void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& me
 						{
 							zombies[zomb].x++;
 						}
-						else
+						else if (!powerpillTouched)
 						{
-							if (!powerpillTouched)
-							{
+							
 								zombies[zomb].x--;
-							}
+							
 						}
 					}
 
@@ -603,12 +609,19 @@ void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& me
 						{
 							zombies[zomb].y++;
 						}
-						else
+						else if (!powerpillTouched)
 						{
-							if (!powerpillTouched)
-							{
+							
 								zombies[zomb].y--;
-							}
+								if ((zombies[zomb].y == spot.y) && (zombies[zomb].x == spot.x))
+								{
+								
+										zombies[zomb].y = zombies[zomb].defaultY;
+										zombies[zomb].x = zombies[zomb].defaultX;
+
+										lives--;
+									
+								}
 						}
 					}
 					
@@ -618,16 +631,15 @@ void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& me
 						{
 							zombies[zomb].y--;
 						}
-						else
+						else if (!powerpillTouched)
 						{
-							if (!powerpillTouched)
-							{
+							
 								zombies[zomb].y++;
-							}
+							
 						}
 					}
-					zombiesReplay.push_back(zombies[zomb]);
-
+					
+					
 				}
 
 				// See if a zombie is touching spot //
@@ -646,9 +658,10 @@ void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& me
 					}
 					else
 					{
-						lives--;
-						zombies[zomb].x = zombies[zomb].defaultX;
 						zombies[zomb].y = zombies[zomb].defaultY;
+						zombies[zomb].x = zombies[zomb].defaultX;
+						
+						lives--;
 					}
 					
 				}
