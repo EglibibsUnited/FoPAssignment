@@ -33,7 +33,7 @@ using namespace std;
 const int  SIZEX(38);    	//horizontal dimension
 const int  SIZEY(25);		//vertical dimension
 							//defining symbols used for display of the grid and content
-char SPOT('@');			 	//spot
+const char SPOT('@');			 	//spot
 const char TUNNEL(' ');    	//tunnel
 const char WALL('#');    	//border
 const char HOLE('0');    	//hole
@@ -246,10 +246,12 @@ void displayStartScreen()
 	showMessage(clDarkGrey, clYellow, 40, 10, "| Freeze: F           |");
 	showMessage(clDarkGrey, clYellow, 40, 11, "| Eat Pills: E        |");
 	showMessage(clDarkGrey, clYellow, 40, 12, "| Quit: Q             |");
-	showMessage(clDarkGrey, clYellow, 40, 13, "-----------------------");
+	showMessage(clDarkGrey, clYellow, 40, 13, "| Save Game: S        |");
+	showMessage(clDarkGrey, clYellow, 40, 14, "| Load Game: L        |");
+	showMessage(clDarkGrey, clYellow, 40, 15, "-----------------------");
 
-	showMessage(clDarkGrey, clYellow, 5, 15, "Enter your name to start:");
-	showMessage(clBlack, clRed, 31, 15, " ");
+	showMessage(clDarkGrey, clYellow, 5, 16, "Enter your name to start:");
+	showMessage(clBlack, clRed, 31, 16, " ");
 }
 
 bool menuScreen(string playerName)
@@ -812,22 +814,24 @@ void paintGame(const char g[][SIZEX], string mess, int lives, string playerName,
 	showMessage(clDarkGrey, clYellow, 40, 10, "| Freeze: F           |");
 	showMessage(clDarkGrey, clYellow, 40, 11, "| Eat Pills: E        |");
 	showMessage(clDarkGrey, clYellow, 40, 12, "| Quit: Q             |");
-	showMessage(clDarkGrey, clYellow, 40, 13, "-----------------------");
+	showMessage(clDarkGrey, clYellow, 40, 13, "| Save Game: S        |");
+	showMessage(clDarkGrey, clYellow, 40, 14, "| Load Game: L        |");
+	showMessage(clDarkGrey, clYellow, 40, 15, "-----------------------");
 
-	showMessage(clBlack, clGreen, 40, 15, ss.str());
-	showMessage(clBlack, clGreen, 40, 16, pps.str());
+	showMessage(clBlack, clGreen, 40, 17, ss.str());
+	showMessage(clBlack, clGreen, 40, 18, pps.str());
 
-	showMessage(clBlack, clGreen, 40, 17, "Zombs remaining: " + to_string(zombieCount));
+	showMessage(clBlack, clGreen, 40, 19, "Zombs remaining: " + to_string(zombieCount));
 
 	string score = to_string(getPlayerScore(playerName));
-	showMessage(clBlack, clGreen, 40, 18, playerName);
+	showMessage(clBlack, clGreen, 40, 20, playerName);
 	if (score == "-1")
 	{
-		showMessage(clBlack, clGreen, 40, 19, playerName + " has no previous best score!");
+		showMessage(clBlack, clGreen, 40, 21, playerName + " has no previous best score!");
 	}
 	else
 	{
-		showMessage(clBlack, clGreen, 40, 19, playerName + "'s previous best score is: " + score);
+		showMessage(clBlack, clGreen, 40, 21, playerName + "'s previous best score is: " + score);
 	}
 
 	//print auxiliary messages if any
@@ -889,7 +893,7 @@ void powerpillProtection(int moveCounter, int& powerpillTouch, Item& spot, bool&
 	}
 	else if (moveCounter - 10 > powerpillTouch && powerpillTouched == true)
 	{
-		spot.symbol = '@';
+		spot.symbol = SPOT;
 		powerpillTouched = false;
 	}
 }
