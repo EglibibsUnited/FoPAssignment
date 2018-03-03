@@ -315,7 +315,14 @@ void scoreScreen(string playerName)
 	showMessage(clDarkGrey, clYellow, 5, 3, "|    SPOT AND ZOMBIES    |");
 	showMessage(clDarkGrey, clYellow, 5, 4, "--------------------------");
 	int score =  getPlayerScore(playerName);
-	showMessage(clDarkGrey, clYellow, 5, 5, "|> Previous Best Score: " + to_string(score) +"|");
+	if (score >= -1)
+	{
+		showMessage(clDarkGrey, clYellow, 5, 5, "|> Previous Best Score: " + to_string(score) + "|");
+	}
+	else
+	{
+		showMessage(clDarkGrey, clYellow, 5, 5, "|> No Previous Best Score!");
+	}
 	showMessage(clBlack, clYellow, 5, 7, "Press enter to return...");
 
 	cin.ignore();
@@ -513,7 +520,7 @@ void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& me
 		case TUNNEL:		//can move
 			spot.y += dy;	//go in that Y direction
 			spot.x += dx;	//go in that X direction
-			if (powerpillTouched == true) cout << "\a";
+			if (powerpillTouched == true)
 				powerpillProtection(moveCounter, powerpillTouch, spot, powerpillTouched);
 			break;
 		case WALL:  		//hit a wall and stay there
@@ -544,7 +551,7 @@ void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& me
 				if (zombies[zomb].canMove)
 				{
 					// Move the zombie //
-					if ((maze[zombies[zomb].y][zombies[zomb].x + 1] != WALL) && (spot.x > zombies[zomb].x)) // Right //
+					if ((maze[zombies[zomb].y][zombies[zomb].x + 1] != WALL) && (spot.x >= zombies[zomb].x)) // Right //
 					{
 						if (powerpillTouched && maze[zombies[zomb].y][zombies[zomb].x - 1] != WALL)
 						{
@@ -555,7 +562,7 @@ void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& me
 							zombies[zomb].x++;
 						}
 					}
-					else if ((maze[zombies[zomb].y][zombies[zomb].x - 1] != WALL) && (spot.x < zombies[zomb].x)) // Left //
+					else if ((maze[zombies[zomb].y][zombies[zomb].x - 1] != WALL) && (spot.x <= zombies[zomb].x)) // Left //
 					{
 						if (powerpillTouched && maze[zombies[zomb].y][zombies[zomb].x + 1] != WALL)
 						{
@@ -567,7 +574,7 @@ void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& me
 						}
 					}
 
-					if ((maze[zombies[zomb].y - 1][zombies[zomb].x] != WALL) && (spot.y < zombies[zomb].y)) // Up //
+					if ((maze[zombies[zomb].y - 1][zombies[zomb].x] != WALL) && (spot.y <= zombies[zomb].y)) // Up //
 					{
 						if (powerpillTouched && maze[zombies[zomb].y + 1][zombies[zomb].x] != WALL)
 						{
@@ -578,7 +585,7 @@ void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& me
 							zombies[zomb].y--;
 						}
 					}
-					else if ((maze[zombies[zomb].y + 1][zombies[zomb].x] != WALL) && (spot.y > zombies[zomb].y)) // Downs //
+					else if ((maze[zombies[zomb].y + 1][zombies[zomb].x] != WALL) && (spot.y >= zombies[zomb].y)) // Downs //
 					{
 						if (powerpillTouched && maze[zombies[zomb].y - 1][zombies[zomb].x] != WALL)
 						{
@@ -615,6 +622,7 @@ void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& me
 				if (maze[zombies[zomb].y][zombies[zomb].x] == HOLE)
 				{
 					zombies[zomb].y = -1; zombies[zomb].x = -1;
+					zombies[zomb].symbol = ' ';
 					zombieCount--;
 					zombies[zomb].canMove = false;
 				}
