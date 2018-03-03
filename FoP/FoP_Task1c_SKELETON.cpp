@@ -106,8 +106,8 @@ void runGame(string playerName)
 	void playerData(string playerName, int lives);
 	bool hasWon(Item zombies[], int powerPills);
 	void checkPlayerScore(string playerName);
-	void saveGame(const char grid[][SIZEX], string playerName ,int lives ,int powerPills ,int zombieCount);
-	void loadGame(char maze[][SIZEX], string playerName, int& lives, int& powerPills, int& zombieCount);
+	void saveGame(const char grid[][SIZEX], string playerName ,int lives ,int powerPills ,int zombieCount, Item spot, Item zombies[]);
+	void loadGame(char maze[][SIZEX], string playerName, int& lives, int& powerPills, int& zombieCount, Item& spot, Item zombies[]);
 
 	//local variable declarations 
 	char grid[SIZEY][SIZEX];			//grid for display
@@ -150,11 +150,11 @@ void runGame(string playerName)
 		}
 		if (key == 'S')
 		{
-			saveGame(grid, playerName, lives, powerPills, zombieCount);
+			saveGame(grid, playerName, lives, powerPills, zombieCount, spot, zombies);
 		}
 		if (key == 'L')
 		{
-			loadGame(maze, playerName, lives, powerPills, zombieCount);
+			loadGame(maze, playerName, lives, powerPills, zombieCount, spot, zombies);
 			updateGrid(grid, maze, spot, zombies);
 		}
 		else
@@ -974,7 +974,7 @@ void changeCursorVisibility(bool v)
 
 
 //SAVE AND LOAD - REQUIRES FOLDER CALLED SAVES
-void saveGame(const char g[][SIZEX], string playerName, int lives, int powerPills, int zombieCount) {
+void saveGame(const char g[][SIZEX], string playerName, int lives, int powerPills, int zombieCount, Item spot, Item zombies[]) {
 	ofstream writeGrid;
 	writeGrid.open(".//Saves//" + playerName + ".txt.", ios::out);
 	int value;
@@ -983,6 +983,7 @@ void saveGame(const char g[][SIZEX], string playerName, int lives, int powerPill
 		for  (int col(0);col < SIZEX; col++)
 		{
 			writeGrid.put(g[row][col]);
+			
 		}
 	}
 	writeGrid.put(' ');
@@ -991,9 +992,21 @@ void saveGame(const char g[][SIZEX], string playerName, int lives, int powerPill
 	writeGrid << powerPills;
 	writeGrid.put(' ');
 	writeGrid << zombieCount;
+	writeGrid.put(' ');
+	writeGrid << spot.x;
+	writeGrid.put(' ');
+	writeGrid << spot.y;
+	for (int i = 0; i < 4; i++)
+	{
+		writeGrid.put(' ');
+		writeGrid << zombies[i].x;
+		writeGrid.put(' ');
+		writeGrid << zombies[i].y;
+	}
 }
 
-void loadGame(char m[][SIZEX], string playerName, int& lives, int& powerPills, int& zombieCount) {
+//LOAD
+void loadGame(char m[][SIZEX], string playerName, int& lives, int& powerPills, int& zombieCount, Item& spot, Item zombies[]) {
 	ifstream readGrid;
 	int value;
 	readGrid.open(".//Saves//" + playerName + ".txt", ios::in);
@@ -1002,6 +1015,10 @@ void loadGame(char m[][SIZEX], string playerName, int& lives, int& powerPills, i
 		for (int col(0); col < SIZEX; col++)
 		{
 			readGrid.get(m[row][col]);
+			if (m[row][col] == SPOT || m[row][col] == ZOMBIE)
+			{
+				m[row][col] = TUNNEL;
+			}
 		}
 	}
 	readGrid >> value;
@@ -1010,4 +1027,15 @@ void loadGame(char m[][SIZEX], string playerName, int& lives, int& powerPills, i
 	powerPills = value;
 	readGrid >> value;
 	zombieCount = value;
+	readGrid >> value;
+	spot.x = value;
+	readGrid >> value;
+	spot.y = value;
+	for (int i = 0; i < 4; i++)
+	{
+		readGrid >> value;
+		zombies[i].x = value;
+		readGrid >> value;
+		zombies[i].y = value;
+	}
 }
