@@ -145,8 +145,8 @@ void runGame(string playerName)
 		{
 			runCheatCode(key, powerPills, zombies, zombiesMove, zombieCount);
 			hasCheated = true;
-			//updateGameData(grid, spot, key, message, lives, maze, powerPills, zombies, powerpillTouch, moveCounter, zombiesMove, zombieCount, powerpillTouched);
-			//updateGrid(grid, maze, spot, zombies);
+			updateGameData(grid, spot, key, message, lives, maze, powerPills, zombies, powerpillTouch, moveCounter, zombiesMove, zombieCount, powerpillTouched);
+			updateGrid(grid, maze, spot, zombies);
 		}
 		if (key == 'S')
 		{
@@ -717,7 +717,7 @@ void runCheatCode(const int key, int& powerPills, Item zombs[4], bool& zombieMov
 			if (zombs[i].symbol == ' ')
 			{
 				zombs[i].symbol = ZOMBIE;
-				zombieMove = true;
+				
 				zombieCount = 4;
 			}
 			else
@@ -725,7 +725,7 @@ void runCheatCode(const int key, int& powerPills, Item zombs[4], bool& zombieMov
 				zombs[i].symbol = ' ';
 				zombs[i].x = zombs[i].defaultX;
 				zombs[i].y = zombs[i].defaultY;
-				zombieMove = false;
+				
 				zombieCount = 0;
 				zombs[i].canMove = false;
 			}
