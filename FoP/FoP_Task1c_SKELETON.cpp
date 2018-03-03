@@ -33,7 +33,7 @@ using namespace std;
 const int  SIZEX(38);    	//horizontal dimension
 const int  SIZEY(25);		//vertical dimension
 							//defining symbols used for display of the grid and content
-char SPOT('@');			 	//spot
+const char SPOT('@');			 	//spot
 const char TUNNEL(' ');    	//tunnel
 const char WALL('#');    	//border
 const char HOLE('0');    	//hole
@@ -106,6 +106,8 @@ void runGame(string playerName)
 	void playerData(string playerName, int lives);
 	bool hasWon(Item zombies[], int powerPills);
 	void checkPlayerScore(string playerName);
+	void saveGame(const char grid[][SIZEX], string playerName ,int lives ,int powerPills ,int zombieCount, Item spot, Item zombies[]);
+	void loadGame(char maze[][SIZEX], string playerName, int& lives, int& powerPills, int& zombieCount, Item& spot, Item zombies[]);
 
 	//local variable declarations 
 	char grid[SIZEY][SIZEX];			//grid for display
@@ -146,6 +148,15 @@ void runGame(string playerName)
 			//updateGameData(grid, spot, key, message, lives, maze, powerPills, zombies, powerpillTouch, moveCounter, zombiesMove, zombieCount, powerpillTouched);
 			//updateGrid(grid, maze, spot, zombies);
 		}
+		if (key == 'S')
+		{
+			saveGame(grid, playerName, lives, powerPills, zombieCount, spot, zombies);
+		}
+		if (key == 'L')
+		{
+			loadGame(maze, playerName, lives, powerPills, zombieCount, spot, zombies);
+			updateGrid(grid, maze, spot, zombies);
+		}
 		else
 		{
 			message = "INVALID KEY!";	//set 'Invalid key' message
@@ -153,11 +164,11 @@ void runGame(string playerName)
 		paintGame(grid, message, lives, playerName, powerPills, maze, zombieCount);		//display game info, modified grid and messages
 	} while (!wantsToQuit(key) && lives >= 0 && hasWon(zombies, powerPills) == false); // Game quits if user presses Q, Spot has no lives or wins the game //
 	
-	if (lives < 0)
+	if (lives < 0 && !wantsToQuit(key))
 	{
 		showMessage(clRed, clYellow, 40, 24, "Unlucky, try again next time!");
 	}
-	else
+	else if (!wantsToQuit(key))
 	{
 		showMessage(clYellow, clRed, 40, 24, "Congratulations!! You Win!!");
 	}
@@ -235,10 +246,12 @@ void displayStartScreen()
 	showMessage(clDarkGrey, clYellow, 40, 10, "| Freeze: F           |");
 	showMessage(clDarkGrey, clYellow, 40, 11, "| Eat Pills: E        |");
 	showMessage(clDarkGrey, clYellow, 40, 12, "| Quit: Q             |");
-	showMessage(clDarkGrey, clYellow, 40, 13, "-----------------------");
+	showMessage(clDarkGrey, clYellow, 40, 13, "| Save Game: S        |");
+	showMessage(clDarkGrey, clYellow, 40, 14, "| Load Game: L        |");
+	showMessage(clDarkGrey, clYellow, 40, 15, "-----------------------");
 
-	showMessage(clDarkGrey, clYellow, 5, 15, "Enter your name to start:");
-	showMessage(clBlack, clRed, 31, 15, " ");
+	showMessage(clDarkGrey, clYellow, 5, 16, "Enter your name to start:");
+	showMessage(clBlack, clRed, 31, 16, " ");
 }
 
 bool menuScreen(string playerName)
@@ -282,6 +295,10 @@ bool menuScreen(string playerName)
 	case 'Q':
 		quit = true;
 		break;
+	default:
+		showMessage(clBlack, clRed, 5, 15, "Invalid Key!!");
+		Sleep(1000);
+		break;
 	}
 
 	cin.get();
@@ -298,7 +315,14 @@ void scoreScreen(string playerName)
 	showMessage(clDarkGrey, clYellow, 5, 3, "|    SPOT AND ZOMBIES    |");
 	showMessage(clDarkGrey, clYellow, 5, 4, "--------------------------");
 	int score =  getPlayerScore(playerName);
-	showMessage(clDarkGrey, clYellow, 5, 5, "|> Previous Best Score: " + to_string(score) +"|");
+	if (score >= -1)
+	{
+		showMessage(clDarkGrey, clYellow, 5, 5, "|> Previous Best Score: " + to_string(score) + "|");
+	}
+	else
+	{
+		showMessage(clDarkGrey, clYellow, 5, 5, "|> No Previous Best Score!");
+	}
 	showMessage(clBlack, clYellow, 5, 7, "Press enter to return...");
 
 	cin.ignore();
@@ -496,7 +520,7 @@ void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& me
 		case TUNNEL:		//can move
 			spot.y += dy;	//go in that Y direction
 			spot.x += dx;	//go in that X direction
-			if (powerpillTouched == true) cout << "\a";
+			if (powerpillTouched == true)
 				powerpillProtection(moveCounter, powerpillTouch, spot, powerpillTouched);
 			break;
 		case WALL:  		//hit a wall and stay there
@@ -527,7 +551,7 @@ void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& me
 				if (zombies[zomb].canMove)
 				{
 					// Move the zombie //
-					if ((maze[zombies[zomb].y][zombies[zomb].x + 1] != WALL) && (spot.x > zombies[zomb].x)) // Right //
+					if ((maze[zombies[zomb].y][zombies[zomb].x + 1] != WALL) && (spot.x >= zombies[zomb].x)) // Right //
 					{
 						if (powerpillTouched && maze[zombies[zomb].y][zombies[zomb].x - 1] != WALL)
 						{
@@ -541,7 +565,7 @@ void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& me
 							}
 						}
 					}
-					else if ((maze[zombies[zomb].y][zombies[zomb].x - 1] != WALL) && (spot.x < zombies[zomb].x)) // Left //
+					else if ((maze[zombies[zomb].y][zombies[zomb].x - 1] != WALL) && (spot.x <= zombies[zomb].x)) // Left //
 					{
 						if (powerpillTouched && maze[zombies[zomb].y][zombies[zomb].x + 1] != WALL)
 						{
@@ -556,7 +580,7 @@ void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& me
 						}
 					}
 
-					if ((maze[zombies[zomb].y - 1][zombies[zomb].x] != WALL) && (spot.y < zombies[zomb].y)) // Up //
+					if ((maze[zombies[zomb].y - 1][zombies[zomb].x] != WALL) && (spot.y <= zombies[zomb].y)) // Up //
 					{
 						if (powerpillTouched && maze[zombies[zomb].y + 1][zombies[zomb].x] != WALL)
 						{
@@ -570,7 +594,7 @@ void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& me
 							}
 						}
 					}
-					else if ((maze[zombies[zomb].y + 1][zombies[zomb].x] != WALL) && (spot.y > zombies[zomb].y)) // Downs //
+					else if ((maze[zombies[zomb].y + 1][zombies[zomb].x] != WALL) && (spot.y >= zombies[zomb].y)) // Downs //
 					{
 						if (powerpillTouched && maze[zombies[zomb].y - 1][zombies[zomb].x] != WALL)
 						{
@@ -597,6 +621,7 @@ void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& me
 						zombies[zomb].symbol = ' ';
 						zombies[zomb].x = -1;
 						zombies[zomb].y = -1;
+						zombies--;
 					}
 					else
 					{
@@ -815,22 +840,24 @@ void paintGame(const char g[][SIZEX], string mess, int lives, string playerName,
 	showMessage(clDarkGrey, clYellow, 40, 10, "| Freeze: F           |");
 	showMessage(clDarkGrey, clYellow, 40, 11, "| Eat Pills: E        |");
 	showMessage(clDarkGrey, clYellow, 40, 12, "| Quit: Q             |");
-	showMessage(clDarkGrey, clYellow, 40, 13, "-----------------------");
+	showMessage(clDarkGrey, clYellow, 40, 13, "| Save Game: S        |");
+	showMessage(clDarkGrey, clYellow, 40, 14, "| Load Game: L        |");
+	showMessage(clDarkGrey, clYellow, 40, 15, "-----------------------");
 
-	showMessage(clBlack, clGreen, 40, 15, ss.str());
-	showMessage(clBlack, clGreen, 40, 16, pps.str());
+	showMessage(clBlack, clGreen, 40, 17, ss.str());
+	showMessage(clBlack, clGreen, 40, 18, pps.str());
 
-	showMessage(clBlack, clGreen, 40, 17, "Zombs remaining: " + to_string(zombieCount));
+	showMessage(clBlack, clGreen, 40, 19, "Zombs remaining: " + to_string(zombieCount));
 
 	string score = to_string(getPlayerScore(playerName));
-	showMessage(clBlack, clGreen, 40, 18, playerName);
+	showMessage(clBlack, clGreen, 40, 20, playerName);
 	if (score == "-1")
 	{
-		showMessage(clBlack, clGreen, 40, 19, playerName + " has no previous best score!");
+		showMessage(clBlack, clGreen, 40, 21, playerName + " has no previous best score!");
 	}
 	else
 	{
-		showMessage(clBlack, clGreen, 40, 19, playerName + "'s previous best score is: " + score);
+		showMessage(clBlack, clGreen, 40, 21, playerName + "'s previous best score is: " + score);
 	}
 
 	//print auxiliary messages if any
@@ -892,7 +919,7 @@ void powerpillProtection(int moveCounter, int& powerpillTouch, Item& spot, bool&
 	}
 	else if (moveCounter - 10 > powerpillTouch && powerpillTouched == true)
 	{
-		spot.symbol = '@';
+		spot.symbol = SPOT;
 		powerpillTouched = false;
 	}
 }
@@ -962,7 +989,7 @@ bool hasWon(Item zombies[], int powerPills)
 void endProgram()
 {
 	void showMessage(const WORD backColour, const WORD textColour, int x, int y, const string message);
-	showMessage(clRed, clYellow, 40, 26, "");
+	showMessage(clRed, clYellow, 5, 15, "");
 	system("pause");	//hold output screen until a keyboard key is hit
 }
 
@@ -973,4 +1000,76 @@ void changeCursorVisibility(bool v)
 	GetConsoleCursorInfo(out, &cursorInfo);
 	cursorInfo.bVisible = v; // set the cursor visibility
 	SetConsoleCursorInfo(out, &cursorInfo);
+}
+
+
+//SAVE AND LOAD - REQUIRES FOLDER CALLED SAVES
+void saveGame(const char g[][SIZEX], string playerName, int lives, int powerPills, int zombieCount, Item spot, Item zombies[]) {
+	ofstream writeGrid;
+	writeGrid.open(".//Saves//" + playerName + ".txt.", ios::out);
+	int value;
+	for (int row(0); row < SIZEY; row++)
+	{
+		for  (int col(0);col < SIZEX; col++)
+		{
+			writeGrid.put(g[row][col]);
+			
+		}
+	}
+	writeGrid.put(' ');
+	writeGrid << lives;
+	writeGrid.put(' ');
+	writeGrid << powerPills;
+	writeGrid.put(' ');
+	writeGrid << zombieCount;
+	writeGrid.put(' ');
+	writeGrid << spot.x;
+	writeGrid.put(' ');
+	writeGrid << spot.y;
+	for (int i = 0; i < 4; i++)
+	{
+		writeGrid.put(' ');
+		writeGrid << zombies[i].x;
+		writeGrid.put(' ');
+		writeGrid << zombies[i].y;
+		writeGrid.put(' ');
+		writeGrid << zombies[i].canMove;
+	}
+}
+
+//LOAD
+void loadGame(char m[][SIZEX], string playerName, int& lives, int& powerPills, int& zombieCount, Item& spot, Item zombies[]) {
+	ifstream readGrid;
+	int value;
+	readGrid.open(".//Saves//" + playerName + ".txt", ios::in);
+	for (int row(0); row < SIZEY; row++)
+	{
+		for (int col(0); col < SIZEX; col++)
+		{
+			readGrid.get(m[row][col]);
+			if (m[row][col] == SPOT || m[row][col] == ZOMBIE)
+			{
+				m[row][col] = TUNNEL;
+			}
+		}
+	}
+	readGrid >> value;
+	lives = value;
+	readGrid >> value;
+	powerPills = value;
+	readGrid >> value;
+	zombieCount = value;
+	readGrid >> value;
+	spot.x = value;
+	readGrid >> value;
+	spot.y = value;
+	for (int i = 0; i < 4; i++)
+	{
+		readGrid >> value;
+		zombies[i].x = value;
+		readGrid >> value;
+		zombies[i].y = value;
+		readGrid >> value;
+		zombies[i].canMove = value;
+	}
 }
