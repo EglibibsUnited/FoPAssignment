@@ -1,6 +1,6 @@
 //---------------------------------------------------------------------------
 //Program: Skeleton for Task 1c – group assignment
-//Author: Pascale Vacher
+//Author: Jake Stinger / Michael Elsom / James Nelhams
 //Last updated: 1 March 2018
 //---------------------------------------------------------------------------
 
@@ -57,7 +57,7 @@ struct Item {
 int main()
 {
 	void displayStartScreen();
-	bool menuScreen(string playerName);
+	bool menuScreen(string playerName, int level);
 	void runGame();
 	void changeCursorVisibility(bool);
 	void endProgram();
@@ -71,11 +71,13 @@ int main()
 	changeCursorVisibility(false);
 	Clrscr();
 
+	int level = 1;
+
 	do
 	{
-		menuScreen(playerName);
+		menuScreen(playerName, level);
 		Clrscr();
-	} while (!menuScreen(playerName));
+	} while (!menuScreen(playerName, level));
 
 
 	endProgram();						//display final message
@@ -86,11 +88,11 @@ int main()
 //----- Run game
 //---------------------------------------------------------------------------
 
-void runGame(string playerName)
+void runGame(string playerName, int level)
 {
 	//function declarations (prototypes)
 	void initialiseGame(char g[][SIZEX], char m[][SIZEX], Item& spot, Item zombies[]);
-	void paintGame(const char g[][SIZEX], string mess, int lives, string playerName, int powerPills, char m[][SIZEX], int zombieCount);
+	void paintGame(const char g[][SIZEX], string mess, int lives, string playerName, int powerPills, char m[][SIZEX], int zombieCount, int level);
 	bool wantsToQuit(const int key);
 	bool isArrowKey(const int k);
 	bool isCheatCode(const int k);
@@ -129,7 +131,7 @@ void runGame(string playerName)
 
 	initialiseGame(grid, maze, spot, zombies);	// Initialise grid (incl. walls and spot) //
 
-	paintGame(grid, message, lives, playerName, powerPills, maze, zombieCount);			//display game info, modified grid and messages
+	paintGame(grid, message, lives, playerName, powerPills, maze, zombieCount, level);			//display game info, modified grid and messages
 	
 	int key;							//current key selected by player
 	do {
@@ -161,7 +163,7 @@ void runGame(string playerName)
 		{
 			message = "INVALID KEY!";	//set 'Invalid key' message
 		}
-		paintGame(grid, message, lives, playerName, powerPills, maze, zombieCount);		//display game info, modified grid and messages
+		paintGame(grid, message, lives, playerName, powerPills, maze, zombieCount, level);		//display game info, modified grid and messages
 	} while (!wantsToQuit(key) && lives >= 0 && hasWon(zombies, powerPills) == false); // Game quits if user presses Q, Spot has no lives or wins the game //
 	
 	if (lives < 0 && !wantsToQuit(key))
@@ -171,6 +173,7 @@ void runGame(string playerName)
 	else if (!wantsToQuit(key))
 	{
 		showMessage(clYellow, clRed, 40, 24, "Congratulations!! You Win!!");
+		level++; // TODO: Make levels work
 	}
 
 	if (!hasCheated)
@@ -254,7 +257,7 @@ void displayStartScreen()
 	showMessage(clBlack, clRed, 31, 16, " ");
 }
 
-bool menuScreen(string playerName)
+bool menuScreen(string playerName, int level)
 {
 
 	void showMessage(const WORD backColour, const WORD textColour, int x, int y, const string message);
@@ -282,21 +285,21 @@ bool menuScreen(string playerName)
 	cin >> answer;
 	switch (toupper(answer))
 	{
-	case 'P':
+	case 'P':	// Play the game //
 		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 0);
-		runGame(playerName);
+		runGame(playerName, level);
 		break;
-	case 'S':
+	case 'S':	// See the scores //
 		scoreScreen(playerName);
 		break;
-	case 'R':
+	case 'R':	// See the rules //
 		rulesScreen();
 		break;
-	case 'Q':
+	case 'Q':	// Quit the game //
 		quit = true;
 		break;
 	default:
-		showMessage(clBlack, clRed, 5, 15, "Invalid Key!!");
+		showMessage(clBlack, clRed, 5, 15, "Invalid Key!!");	// Otherwise, say an invalid key has been pressed //
 		Sleep(1000);
 		break;
 	}
@@ -496,7 +499,6 @@ void placeItem(char g[][SIZEX], const Item item)
 //---------------------------------------------------------------------------
 
 void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& mess, int& lives, char maze[][SIZEX], int& powerPills, Item zombies[], int& powerpillTouch, int moveCounter, bool zombiesMove, int& zombieCount, bool& powerpillTouched)
-
 { //move spot in required direction
 	bool isArrowKey(const int k);
 	bool isCheatCode(const int k);
@@ -565,7 +567,10 @@ void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& me
 							}
 						}
 					}
-					else if ((maze[zombies[zomb].y][zombies[zomb].x - 1] != WALL) && (spot.x <= zombies[zomb].x)) // Left //
+
+					// TODO: I changed these to four if's not two if's/elseif's cos it seems to fix the zigzag issue but maybe caused other bits to fuck up now... //
+					
+					if ((maze[zombies[zomb].y][zombies[zomb].x - 1] != WALL) && (spot.x <= zombies[zomb].x)) // Left //
 					{
 						if (powerpillTouched && maze[zombies[zomb].y][zombies[zomb].x + 1] != WALL)
 						{
@@ -594,7 +599,8 @@ void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& me
 							}
 						}
 					}
-					else if ((maze[zombies[zomb].y + 1][zombies[zomb].x] != WALL) && (spot.y >= zombies[zomb].y)) // Downs //
+					
+					if ((maze[zombies[zomb].y + 1][zombies[zomb].x] != WALL) && (spot.y >= zombies[zomb].y)) // Downs //
 					{
 						if (powerpillTouched && maze[zombies[zomb].y - 1][zombies[zomb].x] != WALL)
 						{
@@ -612,6 +618,7 @@ void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& me
 
 				// See if a zombie is touching spot //
 				// TODO: Having powerpillTouched being true seems to make the next IF statement not fire for some reason? //
+				// TODO: Also seems that this if statement only fires if two zombies are both above and below spot >:( //
 
 				if ((zombies[zomb].y == spot.y) && (zombies[zomb].x == spot.x))
 				{
@@ -795,7 +802,7 @@ void showMessage(const WORD backColour, const WORD textColour, int x, int y, con
 	SelectTextColour(textColour);
 	cout << message;
 }
-void paintGame(const char g[][SIZEX], string mess, int lives, string playerName, int powerPills, char m[][SIZEX], int zombieCount)
+void paintGame(const char g[][SIZEX], string mess, int lives, string playerName, int powerPills, char m[][SIZEX], int zombieCount, int level)
 { //display game title, messages, maze, spot and other items on screen
 	string tostring(char x);
 	void showMessage(const WORD backColour, const WORD textColour, int x, int y, const string message);
@@ -848,6 +855,9 @@ void paintGame(const char g[][SIZEX], string mess, int lives, string playerName,
 	showMessage(clBlack, clGreen, 40, 18, pps.str());
 
 	showMessage(clBlack, clGreen, 40, 19, "Zombs remaining: " + to_string(zombieCount));
+
+	string lss = to_string(level);
+	showMessage(clBlack, clGreen, 40, 24, "LEVEL " + lss);
 
 	string score = to_string(getPlayerScore(playerName));
 	showMessage(clBlack, clGreen, 40, 20, playerName);
@@ -970,7 +980,6 @@ void playerData(string playerName, int lives)
 }
 bool hasWon(Item zombies[], int powerPills)
 {
-	bool winner = false;
 	int zombiesRemaining = 0;
 	for (int zomb = 0; zomb < 4; zomb++)
 	{
@@ -979,11 +988,7 @@ bool hasWon(Item zombies[], int powerPills)
 			zombiesRemaining++;
 		}
 	}
-	if (zombiesRemaining == 0 && powerPills == 0)
-	{
-		winner = true;
-	}
-	return winner;
+	return (zombiesRemaining == 0 && powerPills == 0);
 }
 
 void endProgram()
@@ -1007,7 +1012,7 @@ void changeCursorVisibility(bool v)
 void saveGame(const char g[][SIZEX], string playerName, int lives, int powerPills, int zombieCount, Item spot, Item zombies[]) {
 	ofstream writeGrid;
 	writeGrid.open(".//Saves//" + playerName + ".txt.", ios::out);
-	int value;
+	//int value;
 	for (int row(0); row < SIZEY; row++)
 	{
 		for  (int col(0);col < SIZEX; col++)
