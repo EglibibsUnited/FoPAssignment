@@ -441,12 +441,7 @@ void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& me
 
 	if (isArrowKey(key))
 	{
-
 		void powerpillProtection(int moveCounter, int& powerpillTouch, Item& spot, bool& powerpillTouched);
-		assert(isArrowKey(key));
-
-
-
 		assert(isArrowKey(key));
 
 		//reset message to blank
@@ -566,12 +561,25 @@ void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& me
 					zombieCount--;
 					zombies[zomb].canMove = false;
 				}
+			}
+		}
 
-				//// Check if a zombie is touching another zombie //
-				//if (maze[zombies[zomb].y][zombies[zomb].x + 1] == ZOMBIE)
-				//{
+		// Check if two zombies are touching //
 
-				//}
+		for (int zomb = 0; zomb < 4; zomb++)
+		{
+			Item z = zombies[zomb];
+			for (int zomb2 = 0; zomb2 < 4; zomb2++)
+			{
+				Item z2 = zombies[zomb2];
+				if (zomb != zomb2 && z.x == z2.x && z.y == z2.y)
+				{
+					zombies[zomb].x = zombies[zomb].defaultX;
+					zombies[zomb].y = zombies[zomb].defaultY;
+
+					zombies[zomb2].x = zombies[zomb2].defaultX;
+					zombies[zomb2].y = zombies[zomb2].defaultY;
+				}
 			}
 		}
 
