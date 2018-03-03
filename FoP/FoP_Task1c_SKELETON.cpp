@@ -281,6 +281,8 @@ bool menuScreen(string playerName)
 		quit = true;
 		break;
 	}
+
+	Clrscr();
 	return quit;
 }
 void scoreScreen(string playerName)
