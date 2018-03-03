@@ -723,12 +723,11 @@ void runCheatCode(const int key, int& powerPills, Item zombs[4], bool& zombieMov
 			else
 			{
 				zombs[i].symbol = ' ';
-				zombs[0].y = 1; zombs[0].x = 1;
-				zombs[1].y = 1; zombs[1].x = SIZEX - 2;
-				zombs[2].y = SIZEY - 2; zombs[2].x = 1;
-				zombs[3].y = SIZEY - 2; zombs[3].x = SIZEX - 2;
+				zombs[i].x = zombs[i].defaultX;
+				zombs[i].y = zombs[i].defaultY;
 				zombieMove = false;
 				zombieCount = 0;
+				zombs[i].canMove = false;
 			}
 		}
 		break;
