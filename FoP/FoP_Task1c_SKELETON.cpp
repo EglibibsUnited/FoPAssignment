@@ -1002,6 +1002,8 @@ void saveGame(const char g[][SIZEX], string playerName, int lives, int powerPill
 		writeGrid << zombies[i].x;
 		writeGrid.put(' ');
 		writeGrid << zombies[i].y;
+		writeGrid.put(' ');
+		writeGrid << zombies[i].canMove;
 	}
 }
 
@@ -1037,5 +1039,7 @@ void loadGame(char m[][SIZEX], string playerName, int& lives, int& powerPills, i
 		zombies[i].x = value;
 		readGrid >> value;
 		zombies[i].y = value;
+		readGrid >> value;
+		zombies[i].canMove = value;
 	}
 }
