@@ -159,7 +159,7 @@ void runGame(string playerName)
 	}
 	else
 	{
-		showMessage(clBlack, clGreen, 40, 24, "Congratulations!! You Win!!");
+		showMessage(clYellow, clRed, 40, 24, "Congratulations!! You Win!!");
 	}
 
 	if (!hasCheated)
@@ -535,7 +535,10 @@ void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& me
 						}
 						else
 						{
-							zombies[zomb].x++;
+							if (!powerpillTouched)
+							{
+								zombies[zomb].x++;
+							}
 						}
 					}
 					else if ((maze[zombies[zomb].y][zombies[zomb].x - 1] != WALL) && (spot.x < zombies[zomb].x)) // Left //
@@ -546,7 +549,10 @@ void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& me
 						}
 						else
 						{
-							zombies[zomb].x--;
+							if (!powerpillTouched)
+							{
+								zombies[zomb].x--;
+							}
 						}
 					}
 
@@ -558,7 +564,10 @@ void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& me
 						}
 						else
 						{
-							zombies[zomb].y--;
+							if (!powerpillTouched)
+							{
+								zombies[zomb].y--;
+							}
 						}
 					}
 					else if ((maze[zombies[zomb].y + 1][zombies[zomb].x] != WALL) && (spot.y > zombies[zomb].y)) // Downs //
@@ -569,18 +578,23 @@ void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& me
 						}
 						else
 						{
-							zombies[zomb].y++;
+							if (!powerpillTouched)
+							{
+								zombies[zomb].y++;
+							}
 						}
 					}
 				}
 
 				// See if a zombie is touching spot //
+				// TODO: Having powerpillTouched being true seems to make the next IF statement not fire for some reason? //
 
 				if ((zombies[zomb].y == spot.y) && (zombies[zomb].x == spot.x))
 				{
-					if (powerpillTouched)
+					if (powerpillTouched) // Can spot kill the zombie? //
 					{
 						zombies[zomb].canMove = false;
+						zombies[zomb].symbol = ' ';
 						zombies[zomb].x = -1;
 						zombies[zomb].y = -1;
 					}
@@ -597,6 +611,7 @@ void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& me
 				if (maze[zombies[zomb].y][zombies[zomb].x] == HOLE)
 				{
 					zombies[zomb].y = -1; zombies[zomb].x = -1;
+					zombies[zomb].symbol = ' ';
 					zombieCount--;
 					zombies[zomb].canMove = false;
 				}
