@@ -106,6 +106,8 @@ void runGame(string playerName)
 	void playerData(string playerName, int lives);
 	bool hasWon(Item zombies[], int powerPills);
 	void checkPlayerScore(string playerName);
+	void saveGame(const char grid[][SIZEX], string playerName ,int lives ,int powerPills ,int zombieCount);
+	void loadGame(char grid[][SIZEX], string playerName, int& lives, int& powerPills, int& zombieCount);
 
 	//local variable declarations 
 	char grid[SIZEY][SIZEX];			//grid for display
@@ -145,6 +147,14 @@ void runGame(string playerName)
 			hasCheated = true;
 			//updateGameData(grid, spot, key, message, lives, maze, powerPills, zombies, powerpillTouch, moveCounter, zombiesMove, zombieCount, powerpillTouched);
 			//updateGrid(grid, maze, spot, zombies);
+		}
+		if (key == 'S')
+		{
+			saveGame(grid, playerName, lives, powerPills, zombieCount);
+		}
+		if (key == 'L')
+		{
+			loadGame(grid, playerName, lives, powerPills, zombieCount);
 		}
 		else
 		{
@@ -583,6 +593,7 @@ void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& me
 						zombies[zomb].canMove = false;
 						zombies[zomb].x = -1;
 						zombies[zomb].y = -1;
+						zombies--;
 					}
 					else
 					{
@@ -958,4 +969,44 @@ void changeCursorVisibility(bool v)
 	GetConsoleCursorInfo(out, &cursorInfo);
 	cursorInfo.bVisible = v; // set the cursor visibility
 	SetConsoleCursorInfo(out, &cursorInfo);
+}
+
+
+//SAVE AND LOAD - REQUIRES FOLDER CALLED SAVES
+void saveGame(const char g[][SIZEX], string playerName, int lives, int powerPills, int zombieCount) {
+	ofstream writeGrid;
+	writeGrid.open(".//Saves//" + playerName + ".txt.", ios::out);
+	int value;
+	for (int row(0); row < SIZEY; row++)
+	{
+		for  (int col(0);col < SIZEX; col++)
+		{
+			writeGrid.put(g[row][col]);
+		}
+	}
+	writeGrid.put(' ');
+	writeGrid << lives;
+	writeGrid.put(' ');
+	writeGrid << powerPills;
+	writeGrid.put(' ');
+	writeGrid << zombieCount;
+}
+
+void loadGame(char g[][SIZEX], string playerName, int& lives, int& powerPills, int& zombieCount) {
+	ifstream readGrid;
+	int value;
+	readGrid.open(".//Saves//" + playerName + ".txt", ios::in);
+	for (int row(0); row < SIZEY; row++)
+	{
+		for (int col(0); col < SIZEX; col++)
+		{
+			readGrid.get(g[row][col]);
+		}
+	}
+	readGrid >> value;
+	lives = value;
+	readGrid >> value;
+	powerPills = value;
+	readGrid >> value;
+	zombieCount = value;
 }
