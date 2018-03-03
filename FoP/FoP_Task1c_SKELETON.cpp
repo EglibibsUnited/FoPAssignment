@@ -506,7 +506,7 @@ void placeItem(char g[][SIZEX], const Item item)
 //----- move items on the grid
 //---------------------------------------------------------------------------
 
-void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& mess, int& lives, char maze[][SIZEX], int& powerPills, Item zombies[], int& powerpillTouch, int moveCounter, bool zombiesMove, int& zombieCount, bool& powerpillTouched)
+void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& mess, int& lives, char maze[][SIZEX], int& powerPills, Item zombies[], int& powerpillTouch, int moveCounter, bool zombiesMove, int& zombieCount, bool& powerpillTouched, vector<Item> spotReplay, vector<Item> zombiesReplay)
 { //move spot in required direction
 	bool isArrowKey(const int k);
 	bool isCheatCode(const int k);
@@ -626,7 +626,7 @@ void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& me
 							}
 						}
 					}
-					zombieReplay.push_back(zombies[zomb]);
+					zombiesReplay.push_back(zombies[zomb]);
 
 				}
 
@@ -1025,7 +1025,7 @@ void changeCursorVisibility(bool v)
 void saveGame(const char g[][SIZEX], string playerName, int lives, int powerPills, int zombieCount, Item spot, Item zombies[]) {
 	ofstream writeGrid;
 	writeGrid.open(".//Saves//" + playerName + ".txt.", ios::out);
-	//int value;
+	
 	for (int row(0); row < SIZEY; row++)
 	{
 		for  (int col(0);col < SIZEX; col++)
