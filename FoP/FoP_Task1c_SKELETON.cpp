@@ -107,7 +107,7 @@ void runGame(string playerName)
 	bool hasWon(Item zombies[], int powerPills);
 	void checkPlayerScore(string playerName);
 	void saveGame(const char grid[][SIZEX], string playerName ,int lives ,int powerPills ,int zombieCount);
-	void loadGame(char grid[][SIZEX], string playerName, int& lives, int& powerPills, int& zombieCount);
+	void loadGame(char maze[][SIZEX], string playerName, int& lives, int& powerPills, int& zombieCount);
 
 	//local variable declarations 
 	char grid[SIZEY][SIZEX];			//grid for display
@@ -154,7 +154,8 @@ void runGame(string playerName)
 		}
 		if (key == 'L')
 		{
-			loadGame(grid, playerName, lives, powerPills, zombieCount);
+			loadGame(maze, playerName, lives, powerPills, zombieCount);
+			updateGrid(grid, maze, spot, zombies);
 		}
 		else
 		{
@@ -992,7 +993,7 @@ void saveGame(const char g[][SIZEX], string playerName, int lives, int powerPill
 	writeGrid << zombieCount;
 }
 
-void loadGame(char g[][SIZEX], string playerName, int& lives, int& powerPills, int& zombieCount) {
+void loadGame(char m[][SIZEX], string playerName, int& lives, int& powerPills, int& zombieCount) {
 	ifstream readGrid;
 	int value;
 	readGrid.open(".//Saves//" + playerName + ".txt", ios::in);
@@ -1000,7 +1001,7 @@ void loadGame(char g[][SIZEX], string playerName, int& lives, int& powerPills, i
 	{
 		for (int col(0); col < SIZEX; col++)
 		{
-			readGrid.get(g[row][col]);
+			readGrid.get(m[row][col]);
 		}
 	}
 	readGrid >> value;
