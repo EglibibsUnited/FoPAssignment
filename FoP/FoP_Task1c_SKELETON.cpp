@@ -1008,37 +1008,46 @@ void saveGame(const char g[][SIZEX], string playerName, int lives, int powerPill
 
 //LOAD
 void loadGame(char m[][SIZEX], string playerName, int& lives, int& powerPills, int& zombieCount, Item& spot, Item zombies[]) {
+	void showMessage(const WORD backColour, const WORD textColour, int x, int y, const string message);
 	ifstream readGrid;
 	int value;
 	readGrid.open(".//Saves//" + playerName + ".txt", ios::in);
-	for (int row(0); row < SIZEY; row++)
+	if (readGrid.fail())
 	{
-		for (int col(0); col < SIZEX; col++)
+		
+		showMessage(clRed, clYellow, 40, 25, "No save file present");
+	}
+	else 
+	{
+		for (int row(0); row < SIZEY; row++)
 		{
-			readGrid.get(m[row][col]);
-			if (m[row][col] == SPOT || m[row][col] == ZOMBIE)
+			for (int col(0); col < SIZEX; col++)
 			{
-				m[row][col] = TUNNEL;
+				readGrid.get(m[row][col]);
+				if (m[row][col] == SPOT || m[row][col] == ZOMBIE)
+				{
+					m[row][col] = TUNNEL;
+				}
 			}
 		}
-	}
-	readGrid >> value;
-	lives = value;
-	readGrid >> value;
-	powerPills = value;
-	readGrid >> value;
-	zombieCount = value;
-	readGrid >> value;
-	spot.x = value;
-	readGrid >> value;
-	spot.y = value;
-	for (int i = 0; i < 4; i++)
-	{
 		readGrid >> value;
-		zombies[i].x = value;
+		lives = value;
 		readGrid >> value;
-		zombies[i].y = value;
+		powerPills = value;
 		readGrid >> value;
-		zombies[i].canMove = value;
+		zombieCount = value;
+		readGrid >> value;
+		spot.x = value;
+		readGrid >> value;
+		spot.y = value;
+		for (int i = 0; i < 4; i++)
+		{
+			readGrid >> value;
+			zombies[i].x = value;
+			readGrid >> value;
+			zombies[i].y = value;
+			readGrid >> value;
+			zombies[i].canMove = value;
+		}
 	}
 }
