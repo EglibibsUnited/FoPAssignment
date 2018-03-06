@@ -116,15 +116,14 @@ void runGame(string playerName, int levelNumber)
 	void checkPlayerScore(string playerName);
 	void saveGame(const char grid[][SIZEX], string playerName ,int lives ,int powerPills ,int zombieCount, Item spot, Item zombies[]);
 	void loadGame(char maze[][SIZEX], string playerName, int& lives, int& powerPills, int& zombieCount, Item& spot, Item zombies[]);
-	void showReplay(const char m[][SIZEX], char g[][SIZEX], Item spot, Item zombies[], vector<Item> spotReplay, vector<Item> zombiesReplay);
+	void showReplay(const char m[][SIZEX], char g[][SIZEX], Item spot, Item zombies[], vector<Item> gameReplay);
 
 	//local variable declarations 
 	char grid[SIZEY][SIZEX];			//grid for display
 	char maze[SIZEY][SIZEX];			//structure of the maze
 	Item spot = { 0, 0, SPOT }; 		//spot's position and symbol
 	Item zombies[4];					// Array of zombies // 
-	vector<Item> spotReplay;
-	vector<Item> zombieReplay;
+	vector<Item> gameReplay;
 	string message("LET'S START...");	//current message to player
 	int lives = 3;						// Initialise Spot with 3 lives //
 	int powerPills = 8;					// Initialise the game with 8 power pills //
@@ -194,11 +193,7 @@ void runGame(string playerName, int levelNumber)
 		}
 		if (key == 'R')
 		{
-			showReplay(maze, grid, spot, zombies, spotReplay, zombieReplay);
-		}
-		else
-		{
-			message = "INVALID KEY!";	//set 'Invalid key' message
+			showReplay(maze, grid, spot, zombies, gameReplay);
 		}
 		paintGame(grid, message, lives, playerName, powerPills, maze, zombieCount, levelNumber);		//display game info, modified grid and messages
 	} while (!wantsToQuit(key) && lives >= 0 && hasWon(zombies, powerPills) == false); // Game quits if user presses Q, Spot has no lives or wins the game //
@@ -308,6 +303,7 @@ bool menuScreen(string playerName)
 	void showMessage(const WORD backColour, const WORD textColour, int x, int y, const string message);
 	void scoreScreen(string playerName);
 	void rulesScreen();
+	void chooseLevel(string playerName);
 	void endProgram();
 
 	bool quit = false;
@@ -332,7 +328,7 @@ bool menuScreen(string playerName)
 	{
 	case 'P':	// Play the game //
 		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 0);
-		runGame(playerName, level);
+		chooseLevel(playerName);
 		break;
 	case 'S':	// See the scores //
 		scoreScreen(playerName);
@@ -348,10 +344,57 @@ bool menuScreen(string playerName)
 		Sleep(1000);
 		break;
 	}
-
-	cin.get();
-
 	return quit;
+}
+void chooseLevel(string playerName)
+{
+	void showMessage(const WORD backColour, const WORD textColour, int x, int y, const string message);
+	void scoreScreen(string playerName);
+	void rulesScreen();
+	void endProgram();
+
+	bool quit = false;
+	Clrscr();
+
+
+	showMessage(clDarkGrey, clYellow, 5, 2, "--------------------------");
+	showMessage(clDarkGrey, clYellow, 5, 3, "|    SPOT AND ZOMBIES    |");
+	showMessage(clDarkGrey, clYellow, 5, 4, "--------------------------");
+	showMessage(clDarkGrey, clYellow, 5, 6, "--------------------------");
+	showMessage(clDarkGrey, clYellow, 5, 7, "| > Level 1 (Easy)        |");
+	showMessage(clDarkGrey, clYellow, 5, 8, "| > Level 2 (Medium)      |");
+	showMessage(clDarkGrey, clYellow, 5, 9, "| > Level 3 (Hard)        |");
+	showMessage(clDarkGrey, clYellow, 5, 10, "| > Quit (Q)             |");
+	showMessage(clDarkGrey, clYellow, 5, 11, "--------------------------");
+	showMessage(clDarkGrey, clYellow, 5, 13, "Please enter answer: ");
+
+	char answer;								// Get user input regarding what menu options to select //
+	bool gameHasRun = false;
+	showMessage(clBlack, clRed, 28, 13, " ");
+	do {
+		cin >> answer;
+		switch (toupper(answer))
+		{
+		case '1':
+			gameHasRun = true;
+			runGame(playerName, 1);
+			break;
+		case '2':
+			gameHasRun = true;
+			runGame(playerName, 2);
+			break;
+		case '3':
+			gameHasRun = true;
+			runGame(playerName, 3);
+			break;
+		case 'R':
+			break;
+		default:
+			showMessage(clBlack, clRed, 5, 15, "Invalid Key!!");	// Otherwise, say an invalid key has been pressed //
+			Sleep(1000);
+			break;
+		}
+	} while (!gameHasRun);
 }
 void scoreScreen(string playerName)
 {
@@ -581,7 +624,7 @@ void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& me
 			break;
 		case WALL:  		//hit a wall and stay there
 			mess = "CANNOT GO THERE!";
-			spotReplay.push_back(spot);
+			gameReplay.push_back(spot);
 			break;
 		case HOLE:		// Fall into a hole //
 			spot.y += dy;
@@ -719,6 +762,7 @@ void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& me
 					zombieCount--;
 					zombies[zomb].canMove = false;
 				}
+				gameReplay.push_back(zombies[zomb]);
 			}
 		}
 
@@ -1108,6 +1152,7 @@ void saveGame(const char g[][SIZEX], string playerName, int lives, int powerPill
 		writeGrid << zombies[i].y;
 		writeGrid.put(' ');
 		writeGrid << zombies[i].canMove;
+		
 	}
 }
 
@@ -1153,11 +1198,12 @@ void loadGame(char m[][SIZEX], string playerName, int& lives, int& powerPills, i
 			zombies[i].y = value;
 			readGrid >> value;
 			zombies[i].canMove = value;
+			zombies[i].symbol = ZOMBIE;   //Resets the zombies symbol for example if the zombie has fallen down a hole prior to load
 		}
 	}
 }
 
-void showReplay(const char m[][SIZEX], char g[][SIZEX], Item spot, Item zombies[], vector<Item> spotReplay, vector<Item> zombiesReplay) {
+void showReplay(const char m[][SIZEX], char g[][SIZEX], Item spot, Item zombies[], vector<Item> gameReplay) {
 	void updateGrid(char g[][SIZEX], const char m[][SIZEX], const Item, Item[]);
 	for (int row = 0; row < SIZEY; row++)
 	{
@@ -1166,7 +1212,7 @@ void showReplay(const char m[][SIZEX], char g[][SIZEX], Item spot, Item zombies[
 			g[row][col] = m[row][col];
 		}
 	}
-	for (Item n : spotReplay)
+	for (Item n : gameReplay)
 	{
 		spot.x = n.x;
 		spot.y = n.y;
