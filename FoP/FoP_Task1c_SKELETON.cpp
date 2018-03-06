@@ -100,7 +100,7 @@ void runGame(string playerName, int level)
 	int  getKeyPress();
 	void changeCursorVisibility(bool);
 	void runCheatCode(const int k, int& powerPills, Item zombies[], bool& zombFreeze, int& zombieCount);
-	void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& mess, int& lives, char m[][SIZEX], int& powerPills, Item zombies[], int& powerpillTouch, int moveCounter, bool zombMove, int& zombieCount, bool& powerpillTouched, vector<Item>, vector<Item>);
+	void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& mess, int& lives, char m[][SIZEX], int& powerPills, Item zombies[], int& powerpillTouch, int moveCounter, bool zombMove, int& zombieCount, bool& powerpillTouched, vector<Item>);
 
 	void showMessage(const WORD backColour, const WORD textColour, int x, int y, const string message);
 	void updateGrid(char g[][SIZEX], const char m[][SIZEX], const Item spot, Item zombies[]);
@@ -111,15 +111,14 @@ void runGame(string playerName, int level)
 	void checkPlayerScore(string playerName);
 	void saveGame(const char grid[][SIZEX], string playerName ,int lives ,int powerPills ,int zombieCount, Item spot, Item zombies[]);
 	void loadGame(char maze[][SIZEX], string playerName, int& lives, int& powerPills, int& zombieCount, Item& spot, Item zombies[]);
-	void showReplay(const char m[][SIZEX], char g[][SIZEX], Item spot, Item zombies[], vector<Item> spotReplay, vector<Item> zombiesReplay);
+	void showReplay(const char m[][SIZEX], char g[][SIZEX], Item spot, Item zombies[], vector<Item> gameReplay);
 
 	//local variable declarations 
 	char grid[SIZEY][SIZEX];			//grid for display
 	char maze[SIZEY][SIZEX];			//structure of the maze
 	Item spot = { 0, 0, SPOT }; 		//spot's position and symbol
 	Item zombies[4];					// Array of zombies // 
-	vector<Item> spotReplay;
-	vector<Item> zombieReplay;
+	vector<Item> gameReplay;
 	string message("LET'S START...");	//current message to player
 	int lives = 3;						// Initialise Spot with 3 lives //
 	int powerPills = 8;					// Initialise the game with 8 power pills //
@@ -143,7 +142,7 @@ void runGame(string playerName, int level)
 		key = toupper(key);
 		if (isArrowKey(key))
 		{
-			updateGameData(grid, spot, key, message, lives, maze, powerPills, zombies, powerpillTouch, moveCounter, zombiesMove, zombieCount, powerpillTouched, spotReplay, zombieReplay);		//move spot in that direction
+			updateGameData(grid, spot, key, message, lives, maze, powerPills, zombies, powerpillTouch, moveCounter, zombiesMove, zombieCount, powerpillTouched, gameReplay);		//move spot in that direction
 			updateGrid(grid, maze, spot, zombies);					//update grid information
 			moveCounter++;
 		}
@@ -151,7 +150,7 @@ void runGame(string playerName, int level)
 		{
 			runCheatCode(key, powerPills, zombies, zombiesMove, zombieCount);
 			hasCheated = true;
-			updateGameData(grid, spot, key, message, lives, maze, powerPills, zombies, powerpillTouch, moveCounter, zombiesMove, zombieCount, powerpillTouched, spotReplay, zombieReplay);
+			updateGameData(grid, spot, key, message, lives, maze, powerPills, zombies, powerpillTouch, moveCounter, zombiesMove, zombieCount, powerpillTouched, gameReplay);
 			updateGrid(grid, maze, spot, zombies);
 		}
 		if (key == 'S')
@@ -165,7 +164,7 @@ void runGame(string playerName, int level)
 		}
 		if (key == 'R')
 		{
-			showReplay(maze, grid, spot, zombies, spotReplay, zombieReplay);
+			showReplay(maze, grid, spot, zombies, gameReplay);
 		}
 		else
 		{
@@ -506,7 +505,7 @@ void placeItem(char g[][SIZEX], const Item item)
 //----- move items on the grid
 //---------------------------------------------------------------------------
 
-void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& mess, int& lives, char maze[][SIZEX], int& powerPills, Item zombies[], int& powerpillTouch, int moveCounter, bool zombiesMove, int& zombieCount, bool& powerpillTouched, vector<Item> spotReplay, vector<Item> zombiesReplay)
+void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& mess, int& lives, char maze[][SIZEX], int& powerPills, Item zombies[], int& powerpillTouch, int moveCounter, bool zombiesMove, int& zombieCount, bool& powerpillTouched, vector<Item> gameReplay)
 { //move spot in required direction
 	bool isArrowKey(const int k);
 	bool isCheatCode(const int k);
@@ -532,17 +531,17 @@ void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& me
 			spot.x += dx;	//go in that X direction
 			if (powerpillTouched == true)
 				powerpillProtection(moveCounter, powerpillTouch, spot, powerpillTouched);
-				spotReplay.push_back(spot);
+				gameReplay.push_back(spot);
 			break;
 		case WALL:  		//hit a wall and stay there
 			mess = "CANNOT GO THERE!";
-			spotReplay.push_back(spot);
+			gameReplay.push_back(spot);
 			break;
 		case HOLE:		// Fall into a hole //
 			spot.y += dy;
 			spot.x += dx;
 			lives--;
-			spotReplay.push_back(spot);
+			gameReplay.push_back(spot);
 			break;
 		case POWERPILL:		// Eat power pill // Task 2a Function Call
 			spot.y += dy;
@@ -553,7 +552,7 @@ void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& me
 			powerpillProtection(moveCounter, powerpillTouch, spot, powerpillTouched);
 			lives++;
 			powerPills--;
-			spotReplay.push_back(spot);
+			gameReplay.push_back(spot);
 			break;
 		}
 
@@ -674,6 +673,7 @@ void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& me
 					zombieCount--;
 					zombies[zomb].canMove = false;
 				}
+				gameReplay.push_back(zombies[zomb]);
 			}
 		}
 
@@ -1114,7 +1114,7 @@ void loadGame(char m[][SIZEX], string playerName, int& lives, int& powerPills, i
 	}
 }
 
-void showReplay(const char m[][SIZEX], char g[][SIZEX], Item spot, Item zombies[], vector<Item> spotReplay, vector<Item> zombiesReplay) {
+void showReplay(const char m[][SIZEX], char g[][SIZEX], Item spot, Item zombies[], vector<Item> gameReplay) {
 	void updateGrid(char g[][SIZEX], const char m[][SIZEX], const Item, Item[]);
 	for (int row = 0; row < SIZEY; row++)
 	{
@@ -1123,7 +1123,7 @@ void showReplay(const char m[][SIZEX], char g[][SIZEX], Item spot, Item zombies[
 			g[row][col] = m[row][col];
 		}
 	}
-	for (Item n : spotReplay)
+	for (Item n : gameReplay)
 	{
 		spot.x = n.x;
 		spot.y = n.y;
