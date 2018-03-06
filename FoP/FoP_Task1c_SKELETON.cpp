@@ -906,7 +906,7 @@ void paintGame(const char g[][SIZEX], string mess, int lives, string playerName,
 
 	string score = to_string(getPlayerScore(playerName));
 	showMessage(clBlack, clGreen, 40, 20, playerName);
-	if (score == "-1")
+	if (stoi(score) < -1)
 	{
 		showMessage(clBlack, clGreen, 40, 21, playerName + " has no previous best score!");
 	}
