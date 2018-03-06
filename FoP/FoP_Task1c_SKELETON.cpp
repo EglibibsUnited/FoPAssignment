@@ -96,6 +96,8 @@ int main()
 
 void runGame(string playerName, int levelNumber)
 {
+	// TODO: Replace all instances of 'lives' with GameData's lives attribute //
+
 	//function declarations (prototypes)
 	void initialiseGame(char g[][SIZEX], char m[][SIZEX], Item& spot, Item zombies[], int levelNumber, GameData level);
 	void paintGame(const char g[][SIZEX], string mess, int lives, string playerName, int powerPills, char m[][SIZEX], int zombieCount, int level);
