@@ -58,7 +58,7 @@ struct Item {
 int main()
 {
 	void displayStartScreen();
-	bool menuScreen(string playerName, int level);
+	bool menuScreen(string playerName);
 	void runGame();
 	void changeCursorVisibility(bool);
 	void endProgram();
@@ -72,13 +72,11 @@ int main()
 	changeCursorVisibility(false);
 	Clrscr();
 
-	int level = 1;
-
 	do
 	{
-		menuScreen(playerName, level);
+		menuScreen(playerName);
 		Clrscr();
-	} while (!menuScreen(playerName, level));
+	} while (!menuScreen(playerName));
 
 
 	endProgram();						//display final message
@@ -165,10 +163,6 @@ void runGame(string playerName, int level)
 		if (key == 'R')
 		{
 			showReplay(maze, grid, spot, zombies, gameReplay);
-		}
-		else
-		{
-			message = "INVALID KEY!";	//set 'Invalid key' message
 		}
 		paintGame(grid, message, lives, playerName, powerPills, maze, zombieCount, level);		//display game info, modified grid and messages
 	} while (!wantsToQuit(key) && lives >= 0 && hasWon(zombies, powerPills) == false); // Game quits if user presses Q, Spot has no lives or wins the game //
@@ -284,12 +278,13 @@ void displayStartScreen()
 	showMessage(clBlack, clRed, 31, 16, " ");
 }
 
-bool menuScreen(string playerName, int level)
+bool menuScreen(string playerName)
 {
 
 	void showMessage(const WORD backColour, const WORD textColour, int x, int y, const string message);
 	void scoreScreen(string playerName);
 	void rulesScreen();
+	void chooseLevel(string playerName);
 	void endProgram();
 
 	bool quit = false;
@@ -314,7 +309,7 @@ bool menuScreen(string playerName, int level)
 	{
 	case 'P':	// Play the game //
 		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 0);
-		runGame(playerName, level);
+		chooseLevel(playerName);
 		break;
 	case 'S':	// See the scores //
 		scoreScreen(playerName);
@@ -330,10 +325,57 @@ bool menuScreen(string playerName, int level)
 		Sleep(1000);
 		break;
 	}
-
-	cin.get();
-
 	return quit;
+}
+void chooseLevel(string playerName)
+{
+	void showMessage(const WORD backColour, const WORD textColour, int x, int y, const string message);
+	void scoreScreen(string playerName);
+	void rulesScreen();
+	void endProgram();
+
+	bool quit = false;
+	Clrscr();
+
+
+	showMessage(clDarkGrey, clYellow, 5, 2, "--------------------------");
+	showMessage(clDarkGrey, clYellow, 5, 3, "|    SPOT AND ZOMBIES    |");
+	showMessage(clDarkGrey, clYellow, 5, 4, "--------------------------");
+	showMessage(clDarkGrey, clYellow, 5, 6, "--------------------------");
+	showMessage(clDarkGrey, clYellow, 5, 7, "| > Level 1 (Easy)        |");
+	showMessage(clDarkGrey, clYellow, 5, 8, "| > Level 2 (Medium)      |");
+	showMessage(clDarkGrey, clYellow, 5, 9, "| > Level 3 (Hard)        |");
+	showMessage(clDarkGrey, clYellow, 5, 10, "| > Quit (Q)             |");
+	showMessage(clDarkGrey, clYellow, 5, 11, "--------------------------");
+	showMessage(clDarkGrey, clYellow, 5, 13, "Please enter answer: ");
+
+	char answer;								// Get user input regarding what menu options to select //
+	bool gameHasRun = false;
+	showMessage(clBlack, clRed, 28, 13, " ");
+	do {
+		cin >> answer;
+		switch (toupper(answer))
+		{
+		case '1':
+			gameHasRun = true;
+			runGame(playerName, 1);
+			break;
+		case '2':
+			gameHasRun = true;
+			runGame(playerName, 2);
+			break;
+		case '3':
+			gameHasRun = true;
+			runGame(playerName, 3);
+			break;
+		case 'R':
+			break;
+		default:
+			showMessage(clBlack, clRed, 5, 15, "Invalid Key!!");	// Otherwise, say an invalid key has been pressed //
+			Sleep(1000);
+			break;
+		}
+	} while (!gameHasRun);
 }
 void scoreScreen(string playerName)
 {
