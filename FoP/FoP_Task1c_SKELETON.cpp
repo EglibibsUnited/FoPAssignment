@@ -185,7 +185,8 @@ void runGame(string playerName, int level)
 		bool action = false;
 		do {
 			Clrscr();
-			showMessage(clYellow, clRed, 5, 5, "Continue to next level(N) or return(R) to menu?");
+			showMessage(clBlack, clBlack, 1, 1, "");
+			showMessage(clBlack, clRed, 5, 5, "Continue to next level(N) or return(R) to menu?");
 			key = getKeyPress();
 			key = toupper(key);
 			switch (key)
@@ -200,7 +201,7 @@ void runGame(string playerName, int level)
 			default:
 				break;
 			}
-		} while (true);
+		} while (action == false);
 	}
 
 	if (!hasCheated)
