@@ -180,7 +180,27 @@ void runGame(string playerName, int level)
 	else if (!wantsToQuit(key))
 	{
 		showMessage(clYellow, clRed, 40, 24, "Congratulations!! You Win!!");
-		level++; // TODO: Make levels work
+		level++; // TODO: Make levels
+		bool action = false;
+		do {
+			Clrscr();
+			showMessage(clBlack, clBlack, 1, 1, "");
+			showMessage(clBlack, clRed, 5, 5, "Continue to next level(N) or return(R) to menu?");
+			key = getKeyPress();
+			key = toupper(key);
+			switch (key)
+			{
+			case 'N':
+				// TODO Next level loads here
+				action = true;
+				break;
+			case 'R':
+				action = true;
+				break;
+			default:
+				break;
+			}
+		} while (action == false);
 	}
 
 	if (!hasCheated)
@@ -885,7 +905,7 @@ void paintGame(const char g[][SIZEX], string mess, int lives, string playerName,
 
 	string score = to_string(getPlayerScore(playerName));
 	showMessage(clBlack, clGreen, 40, 20, playerName);
-	if (score == "-1")
+	if (stoi(score) < -1)
 	{
 		showMessage(clBlack, clGreen, 40, 21, playerName + " has no previous best score!");
 	}
@@ -942,8 +962,6 @@ void paintGrid(const char g[][SIZEX], char m[][SIZEX])
 		cout << endl;
 	}
 }
-
-//TODO: Task 2a Magic Protections
 
 void powerpillProtection(int moveCounter, int& powerpillTouch, Item& spot, bool& powerpillTouched)
 {
