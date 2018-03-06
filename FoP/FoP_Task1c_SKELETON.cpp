@@ -100,7 +100,7 @@ void runGame(string playerName, int level)
 	int  getKeyPress();
 	void changeCursorVisibility(bool);
 	void runCheatCode(const int k, int& powerPills, Item zombies[], bool& zombFreeze, int& zombieCount);
-	void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& mess, int& lives, char m[][SIZEX], int& powerPills, Item zombies[], int& powerpillTouch, int moveCounter, bool zombMove, int& zombieCount, bool& powerpillTouched, vector<Item>);
+	void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& mess, int& lives, char m[][SIZEX], int& powerPills, Item zombies[], int& powerpillTouch, int moveCounter, bool zombMove, int& zombieCount, bool& powerpillTouched, vector<Item>&);
 
 	void showMessage(const WORD backColour, const WORD textColour, int x, int y, const string message);
 	void updateGrid(char g[][SIZEX], const char m[][SIZEX], const Item spot, Item zombies[]);
@@ -523,7 +523,7 @@ void placeItem(char g[][SIZEX], const Item item)
 //----- move items on the grid
 //---------------------------------------------------------------------------
 
-void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& mess, int& lives, char maze[][SIZEX], int& powerPills, Item zombies[], int& powerpillTouch, int moveCounter, bool zombiesMove, int& zombieCount, bool& powerpillTouched, vector<Item> gameReplay)
+void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& mess, int& lives, char maze[][SIZEX], int& powerPills, Item zombies[], int& powerpillTouch, int moveCounter, bool zombiesMove, int& zombieCount, bool& powerpillTouched, vector<Item>& gameReplay)
 { //move spot in required direction
 	bool isArrowKey(const int k);
 	bool isCheatCode(const int k);
@@ -1141,10 +1141,17 @@ void showReplay(const char m[][SIZEX], char g[][SIZEX], Item spot, Item zombies[
 			g[row][col] = m[row][col];
 		}
 	}
-	for (Item n : gameReplay)
+	for (int turn = 1; turn <= (gameReplay.size() / 5); turn++)
 	{
-		spot.x = n.x;
-		spot.y = n.y;
+		spot = gameReplay.at((turn * 5) - 5);
+		
+		zombies[0] = gameReplay.at((turn * 5) - 4);
+		zombies[1] = gameReplay.at((turn * 5) - 3);
+		zombies[2] = gameReplay.at((turn * 5) - 2);
+		zombies[3] = gameReplay.at((turn * 5) - 1);
 		updateGrid(g, m, spot, zombies);
+		Sleep(500);
 	}
+	
+	
 }
