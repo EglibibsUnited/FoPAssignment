@@ -489,9 +489,7 @@ void setMaze(char grid[][SIZEX], const char maze[][SIZEX], Item zombies[])
 	// ZOMBIES placement on grid //
 	for (int zomb = 0; zomb < 4; zomb++)
 	{
-
-
-
+		
 		grid[zombies[zomb].y][zombies[zomb].x] = zombies[zomb].symbol;
 	}
 }
@@ -1065,6 +1063,7 @@ void saveGame(const char g[][SIZEX], string playerName, int lives, int powerPill
 		writeGrid << zombies[i].y;
 		writeGrid.put(' ');
 		writeGrid << zombies[i].canMove;
+		
 	}
 }
 
@@ -1110,6 +1109,7 @@ void loadGame(char m[][SIZEX], string playerName, int& lives, int& powerPills, i
 			zombies[i].y = value;
 			readGrid >> value;
 			zombies[i].canMove = value;
+			zombies[i].symbol = ZOMBIE;   //Resets the zombies symbol for example if the zombie has fallen down a hole prior to load
 		}
 	}
 }
