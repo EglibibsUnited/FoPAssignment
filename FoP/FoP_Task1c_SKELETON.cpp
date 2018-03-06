@@ -127,8 +127,7 @@ void runGame(string playerName, int levelNumber)
 	Item zombies[4];					// Array of zombies // 
 	vector<Item> gameReplay;
 	string message("LET'S START...");	//current message to player
-	int lives = 3;						// Initialise Spot with 3 lives //
-	int powerPills = 8;					// Initialise the game with 8 power pills //
+
 	int zombieCount = 4;				//zombie count for checking game finish
 	bool zombiesMove(true);				//For zombie freeze cheat code
 	bool hasCheated(false);
@@ -165,7 +164,7 @@ void runGame(string playerName, int levelNumber)
 
 	initialiseGame(grid, maze, spot, zombies, levelNumber, level);	// Initialise grid (incl. walls and spot) //
 
-	paintGame(grid, message, lives, playerName, powerPills, maze, zombieCount, levelNumber);			//display game info, modified grid and messages
+	paintGame(grid, message, level.lives, playerName, level.powerPills, maze, zombieCount, levelNumber);			//display game info, modified grid and messages
 	
 	int key;							//current key selected by player
 	do {
@@ -179,28 +178,28 @@ void runGame(string playerName, int levelNumber)
 		}
 		if (isCheatCode(key))
 		{
-			runCheatCode(key, powerPills, zombies, zombiesMove, zombieCount);
+			runCheatCode(key, level.powerPills, zombies, zombiesMove, zombieCount);
 			hasCheated = true;
 			updateGameData(grid, spot, key, message, maze, zombies, powerpillTouch, moveCounter, zombiesMove, zombieCount, powerpillTouched, gameReplay, level);
 			updateGrid(grid, maze, spot, zombies);
 		}
 		if (key == 'S')
 		{
-			saveGame(grid, playerName, lives, powerPills, zombieCount, spot, zombies);
+			saveGame(grid, playerName, level.lives, level.powerPills, zombieCount, spot, zombies);
 		}
 		if (key == 'L')
 		{
-			loadGame(maze, playerName, lives, powerPills, zombieCount, spot, zombies);
+			loadGame(maze, playerName, level.lives, level.powerPills, zombieCount, spot, zombies);
 			updateGrid(grid, maze, spot, zombies);
 		}
 		if (key == 'R')
 		{
 			showReplay(maze, grid, spot, zombies, gameReplay);
 		}
-		paintGame(grid, message, lives, playerName, powerPills, maze, zombieCount, levelNumber);		//display game info, modified grid and messages
-	} while (!wantsToQuit(key) && lives >= 0 && hasWon(zombies, level) == false); // Game quits if user presses Q, Spot has no lives or wins the game //
+		paintGame(grid, message, level.lives, playerName, level.powerPills, maze, zombieCount, levelNumber);		//display game info, modified grid and messages
+	} while (!wantsToQuit(key) && level.lives >= 0 && hasWon(zombies, level) == false); // Game quits if user presses Q, Spot has no lives or wins the game //
 	
-	if (lives < 0 && !wantsToQuit(key))
+	if (level.lives < 0 && !wantsToQuit(key))
 	{
 		showMessage(clRed, clYellow, 40, 24, "Unlucky, try again next time!");
 	}
@@ -232,7 +231,7 @@ void runGame(string playerName, int levelNumber)
 
 	if (!hasCheated)
 	{
-		playerData(playerName, lives);
+		playerData(playerName, level.lives);
 	}
 
 	changeCursorVisibility(true);
@@ -345,6 +344,8 @@ bool menuScreen(string playerName)
 		Sleep(1000);
 		break;
 	}
+
+	cin.get();	// So the rules / score screen doesn't suddenly disappear //
 	return quit;
 }
 void chooseLevel(string playerName)
@@ -789,6 +790,7 @@ void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& me
 		if (level.lives < 0)
 		{
 			mess = "YOU LOSE!";
+			cin.get();
 		}
 	}
 
@@ -972,12 +974,12 @@ void paintGame(const char g[][SIZEX], string mess, int lives, string playerName,
 
 	showMessage(clBlack, clGreen, 40, 19, "Zombs remaining: " + to_string(zombieCount));
 
-	string lss = to_string(level);
-	showMessage(clBlack, clGreen, 40, 24, "LEVEL " + lss);
+	string levelString = to_string(level);
+	showMessage(clBlack, clGreen, 40, 24, "DIFFICULTY " + levelString);
 
 	string score = to_string(getPlayerScore(playerName));
 	showMessage(clBlack, clGreen, 40, 20, playerName);
-	if (stoi(score) < -1)
+	if (stoi(score) <= -1)
 	{
 		showMessage(clBlack, clGreen, 40, 21, playerName + " has no previous best score!");
 	}
