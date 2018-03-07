@@ -496,24 +496,29 @@ void setSpotInitialCoordinates(Item& spot, char maze[][SIZEX])
 void setInitialMazeStructure(char maze[][SIZEX], Item zombies[], GameData level)
 { //set the position of the walls in the maze
   //initialise maze configuration
+	void loadInitialLevel(char initialMaze[][SIZEX], GameData level);
 	char initialMaze[SIZEY][SIZEX];
 
-	for (int column = 0; column < SIZEY; column++)
-	{
-		for (int row = 0; row < SIZEX; row++)
-		{
-			if (column == 0 || column == SIZEY - 1 || row == 0 || row == SIZEX - 1)
-			{
-				// Just a row of walls //
-				initialMaze[column][row] = '#';
-			}
-			else
-			{
-				// Make it a tunnel //
-				initialMaze[column][row] = ' ';
-			}
-		}
-	}
+	loadInitialLevel(initialMaze, level);
+
+	//for (int column = 0; column < SIZEY; column++)
+	//{
+	//	for (int row = 0; row < SIZEX; row++)
+	//	{
+	//		if (column == 0 || column == SIZEY - 1 || row == 0 || row == SIZEX - 1)
+	//		{
+	//			// Just a row of walls //
+	//			initialMaze[column][row] = '#';
+	//		}
+	//		else
+	//		{
+	//			// Make it a tunnel //
+	//			initialMaze[column][row] = ' ';
+	//		}
+	//	}
+	//}
+
+
 
 	// Create level.zombies - set their default X and Y positions and initialise their X and Y coords to the same //
 	zombies[0].defaultY = 1; zombies[0].defaultX = 1; zombies[0].y = 1; zombies[0].x = 1;
@@ -1220,16 +1225,20 @@ void showReplay(char g[][SIZEX], char m[][SIZEX], Item spot, Item zombies[], vec
 	void paintGame(const char g[][SIZEX], string mess, string playerName, char m[][SIZEX], int zombieCount, GameData level);
 	void updateGrid(char g[][SIZEX], const char m[][SIZEX], const Item spot, Item zombies[]);
 
+	
+
 	for (int replay = 0; replay < gameReplay.size(); replay += 5)
 	{
+		
 		for (int row = 0; row < SIZEY; row++)
 		{
 			for (int col = 0; col < SIZEX; col++)
 			{
 				g[row][col] = m[row][col];
+				
 			}
 		}
-
+		
 
 		// i = Spot, i+1, i+2, i+3 & i+4 = Zombies //
 		spot.x = gameReplay[replay].x;
@@ -1247,5 +1256,28 @@ void showReplay(char g[][SIZEX], char m[][SIZEX], Item spot, Item zombies[], vec
 		Sleep(250);
 	}
 	Clrscr();
+	for (int row = 0; row < SIZEY; row++)
+	{
+		for (int col = 0; col < SIZEX; col++)
+		{
+			g[row][col] = m[row][col];
+			if (g[row][col] == ZOMBIE || g[row][col] == SPOT)
+			{
+				g[row][col] = TUNNEL;
+			}
+		}
+	}
+}
 
+void loadInitialLevel(char initialMaze[][SIZEX], GameData level) {
+	ifstream loadMap;
+	string levelNumber = to_string(level.level);
+	loadMap.open(".//Levels/level" + levelNumber + ".txt", ios::in);
+	for (int row(0); row < SIZEY; row++)
+	{
+		for (int col(0); col < SIZEX; col++)
+		{
+			loadMap.get(initialMaze[row][col]);
+		}
+	}
 }
