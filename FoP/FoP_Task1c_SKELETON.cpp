@@ -1220,6 +1220,8 @@ void showReplay(char g[][SIZEX], char m[][SIZEX], Item spot, Item zombies[], vec
 	void paintGame(const char g[][SIZEX], string mess, string playerName, char m[][SIZEX], int zombieCount, GameData level);
 	void updateGrid(char g[][SIZEX], const char m[][SIZEX], const Item spot, Item zombies[]);
 
+	
+
 	for (int replay = 0; replay < gameReplay.size(); replay += 5)
 	{
 		for (int row = 0; row < SIZEY; row++)
@@ -1247,5 +1249,15 @@ void showReplay(char g[][SIZEX], char m[][SIZEX], Item spot, Item zombies[], vec
 		Sleep(250);
 	}
 	Clrscr();
-
+	for (int row = 0; row < SIZEY; row++)
+	{
+		for (int col = 0; col < SIZEX; col++)
+		{
+			g[row][col] = m[row][col];
+			if (g[row][col] == ZOMBIE || g[row][col] == SPOT)
+			{
+				g[row][col] = TUNNEL;
+			}
+		}
+	}
 }
