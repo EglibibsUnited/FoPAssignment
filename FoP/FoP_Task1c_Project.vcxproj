@@ -21,11 +21,13 @@
   <ItemGroup>
     <ClCompile Include="ConsoleUtils.cpp" />
     <ClCompile Include="FoP_Task1c_SKELETON.cpp" />
+    <ClCompile Include="MenuUtils.cpp" />
     <ClCompile Include="RandomUtils.cpp" />
     <ClCompile Include="TimeUtils.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ConsoleUtils.h" />
+    <ClInclude Include="MenuUtils.h" />
     <ClInclude Include="RandomUtils.h" />
     <ClInclude Include="TimeUtils.h" />
   </ItemGroup>
