@@ -428,8 +428,10 @@ void scoreScreen(string playerName)
 void rulesScreen()
 {
 	void showMessage(const WORD backColour, const WORD textColour, int x, int y, const string message);
+	void changeCursorVisibility(bool v);
 
 	Clrscr();
+	changeCursorVisibility(false);
 	showMessage(clDarkGrey, clYellow, 5, 2, "--------------------------");
 	showMessage(clDarkGrey, clYellow, 5, 3, "|    SPOT AND ZOMBIES    |");
 	showMessage(clDarkGrey, clYellow, 5, 4, "|                        |");
@@ -465,6 +467,7 @@ void rulesScreen()
 	showMessage(clBlack, clGrey, 5, 17, "7: A zombie ( ) that falls into a hole will disappear and not return.");
 	showMessage(clBlack, clGreen, 18, 17, "Z");
 
+	changeCursorVisibility(true);
 
 	cin.ignore();
 }
@@ -939,7 +942,7 @@ void paintGame(const char g[][SIZEX], string mess, string playerName, char m[][S
 	void paintGrid(const char g[][SIZEX], char m[][SIZEX]);
 	int getPlayerScore(string playerName);
 	//display game title
-	showMessage(clBlack, clYellow, ((SIZEX - 2) / 2 - 8), 1, "SPOT AND ZOMBIES");
+	showMessage(clBlack, clYellow, ((SIZEX - 2) / 2 - 7), 1, "SPOT AND ZOMBIES");
 	SelectBackColour(clDarkGrey);
 	SelectTextColour(clYellow);
 
