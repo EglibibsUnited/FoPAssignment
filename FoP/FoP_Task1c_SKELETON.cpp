@@ -212,26 +212,7 @@ void runGame(string playerName, int levelNumber)
 	{
 		showMessage(clYellow, clRed, 40, 24, "Congratulations!! You Win!!");
 		levelNumber++; // TODO: Make levels
-		bool action = false;
-		do {
-			Clrscr();
-			showMessage(clBlack, clBlack, 1, 1, "");
-			showMessage(clBlack, clRed, 5, 5, "Continue to next level(N) or return(R) to menu?");
-			key = getKeyPress();
-			key = toupper(key);
-			switch (key)
-			{
-			case 'N':
-				// TODO Next level loads here
-				action = true;
-				break;
-			case 'R':
-				action = true;
-				break;
-			default:
-				break;
-			}
-		} while (action == false);
+		Sleep(1000);
 	}
 
 	if (!hasCheated)

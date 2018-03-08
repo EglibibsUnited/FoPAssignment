@@ -120,9 +120,9 @@ void chooseLevel(string playerName)
 	showMessage(clDarkGrey, clYellow, 5, 3, "|    SPOT AND ZOMBIES    |");
 	showMessage(clDarkGrey, clYellow, 5, 4, "--------------------------");
 	showMessage(clDarkGrey, clYellow, 5, 6, "--------------------------");
-	showMessage(clDarkGrey, clYellow, 5, 7, "| > Level 1 (Easy)        |");
-	showMessage(clDarkGrey, clYellow, 5, 8, "| > Level 2 (Medium)      |");
-	showMessage(clDarkGrey, clYellow, 5, 9, "| > Level 3 (Hard)        |");
+	showMessage(clDarkGrey, clYellow, 5, 7, "| > Level 1 (Easy)       |");
+	showMessage(clDarkGrey, clYellow, 5, 8, "| > Level 2 (Medium)     |");
+	showMessage(clDarkGrey, clYellow, 5, 9, "| > Level 3 (Hard)       |");
 	showMessage(clDarkGrey, clYellow, 5, 10, "| > Quit (Q)             |");
 	showMessage(clDarkGrey, clYellow, 5, 11, "--------------------------");
 	showMessage(clDarkGrey, clYellow, 5, 13, "Please enter answer: ");
