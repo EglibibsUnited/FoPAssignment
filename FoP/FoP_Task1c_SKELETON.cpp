@@ -164,6 +164,12 @@ void runGame(string playerName, int levelNumber)
 		level.powerPills = 2;
 		level.numProtectedMoves = 5;
 		break;
+	case 4:
+		level.holes = 1;
+		level.lives = 6000000;
+		level.powerPills = 10;
+		level.numProtectedMoves = 9;
+		break;
 	}
 	level.level = levelNumber;
 
