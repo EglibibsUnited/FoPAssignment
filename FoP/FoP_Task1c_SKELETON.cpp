@@ -1272,7 +1272,7 @@ void showReplay(char g[][SIZEX], char m[][SIZEX], Item spot, Item zombies[], vec
 void loadInitialLevel(char initialMaze[][SIZEX], GameData level) {
 	ifstream loadMap;
 	string levelNumber = to_string(level.level);
-	loadMap.open(".//Levels/level" + levelNumber + ".txt", ios::in);
+	loadMap.open(".//Levels/level" + levelNumber + ".spot", ios::in);
 	for (int row(0); row < SIZEY; row++)
 	{
 		for (int col(0); col < SIZEX; col++)
