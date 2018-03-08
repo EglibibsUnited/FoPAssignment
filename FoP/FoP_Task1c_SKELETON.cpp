@@ -18,7 +18,7 @@
 #include <string>
 #include <sstream>
 #include <fstream>
-#include<vector>
+#include <vector>
 using namespace std;
 
 //include our own libraries
@@ -100,7 +100,7 @@ void runGame(string playerName, int levelNumber)
 	// TODO: Replace all instances of 'lives' with GameData's lives attribute //
 
 	//function declarations (prototypes)
-	void initialiseGame(char g[][SIZEX], char m[][SIZEX], Item& spot, Item zombies[], int levelNumber, GameData level);
+	void initialiseGame(char g[][SIZEX], char m[][SIZEX], Item& spot, Item zombies[], GameData level);
 	void paintGame(const char g[][SIZEX], string mess, string playerName, char m[][SIZEX], int zombieCount, GameData level);
 	bool wantsToQuit(const int key);
 	bool isArrowKey(const int k);
@@ -166,7 +166,7 @@ void runGame(string playerName, int levelNumber)
 	}
 	level.level = levelNumber;
 
-	initialiseGame(grid, maze, spot, zombies, levelNumber, level);	// Initialise grid (incl. walls and spot) //
+	initialiseGame(grid, maze, spot, zombies, level);	// Initialise grid (incl. walls and spot) //
 
 	paintGame(grid, message, playerName, maze, zombieCount, level);			//display game info, modified grid and messages
 	
@@ -472,7 +472,7 @@ void rulesScreen()
 	cin.ignore();
 }
 
-void initialiseGame(char grid[][SIZEX], char maze[][SIZEX], Item& spot, Item zombies[], int levelNumber, GameData level)
+void initialiseGame(char grid[][SIZEX], char maze[][SIZEX], Item& spot, Item zombies[], GameData level)
 { //initialise grid and place spot in middle
 	void setInitialMazeStructure(char maze[][SIZEX], Item zombies[], GameData level);
 	void setSpotInitialCoordinates(Item& spot, char maze[][SIZEX]);
@@ -503,25 +503,6 @@ void setInitialMazeStructure(char maze[][SIZEX], Item zombies[], GameData level)
 	char initialMaze[SIZEY][SIZEX];
 
 	loadInitialLevel(initialMaze, level);
-
-	//for (int column = 0; column < SIZEY; column++)
-	//{
-	//	for (int row = 0; row < SIZEX; row++)
-	//	{
-	//		if (column == 0 || column == SIZEY - 1 || row == 0 || row == SIZEX - 1)
-	//		{
-	//			// Just a row of walls //
-	//			initialMaze[column][row] = '#';
-	//		}
-	//		else
-	//		{
-	//			// Make it a tunnel //
-	//			initialMaze[column][row] = ' ';
-	//		}
-	//	}
-	//}
-
-
 
 	// Create level.zombies - set their default X and Y positions and initialise their X and Y coords to the same //
 	zombies[0].defaultY = 1; zombies[0].defaultX = 1; zombies[0].y = 1; zombies[0].x = 1;
@@ -1272,7 +1253,8 @@ void showReplay(char g[][SIZEX], char m[][SIZEX], Item spot, Item zombies[], vec
 	}
 }
 
-void loadInitialLevel(char initialMaze[][SIZEX], GameData level) {
+void loadInitialLevel(char initialMaze[][SIZEX], GameData level)
+{
 	ifstream loadMap;
 	string levelNumber = to_string(level.level);
 	loadMap.open(".//Levels/level" + levelNumber + ".spot", ios::in);
@@ -1280,7 +1262,7 @@ void loadInitialLevel(char initialMaze[][SIZEX], GameData level) {
 	{
 		for (int col(0); col < SIZEX; col++)
 		{
-			loadMap.get(initialMaze[row][col]);
+			loadMap.get(initialMaze[row][col]);	// Get each row and column into the initialMaze array //
 		}
 	}
 }
