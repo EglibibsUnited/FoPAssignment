@@ -259,7 +259,7 @@ void setSpotInitialCoordinates(Item& spot, char maze[][SIZEX])
 { //set spot coordinates inside the grid at random at beginning of game
 	int y = Random(SIZEY - 2);      //vertical coordinate in range [1..(SIZEY - 2)]
 	int x = Random(SIZEX - 2);      //horizontal coordinate in range [1..(SIZEX - 2)]
-	while (maze[y][x] == WALL)
+	while (maze[y][x] == WALL || maze[y][x] == ZOMBIE || maze[y][x] == HOLE || maze[y][x] == POWERPILL)
 	{
 		y = Random(SIZEY - 2);      //vertical coordinate in range [1..(SIZEY - 2)]
 		x = Random(SIZEX - 2);		//horizontal coordinate in range [1..(SIZEX - 2)]
@@ -283,11 +283,11 @@ void setInitialMazeStructure(char maze[][SIZEX], Item zombies[], GameData level)
 	zombies[3].defaultY = SIZEY - 2; zombies[3].defaultX = SIZEX - 2; zombies[3].y = SIZEY - 2; zombies[3].x = SIZEX - 2;
 	for (int zomb = 0; zomb < 4; zomb++)
 	{
-		zombies[zomb].symbol = 'Z';
+		zombies[zomb].symbol = ZOMBIE;
 		//initialMaze[zombies[zomb].y][zombies[zomb].x] = zombies[zomb].symbol;
 	}
 
-	for (int holesCount = level.holes; holesCount >= 0; holesCount--) // Add holes //
+	for (int holesCount = level.holes; holesCount > 0; holesCount--) // Add holes //
 	{
 		int x = Random(SIZEX - 2);
 		int y = Random(SIZEY - 2);
@@ -296,7 +296,7 @@ void setInitialMazeStructure(char maze[][SIZEX], Item zombies[], GameData level)
 			x = Random(SIZEX - 2);
 			y = Random(SIZEY - 2);
 		}
-		initialMaze[y][x] = '0';
+		initialMaze[y][x] = HOLE;
 	}
 
 	for (int powerpills = level.powerPills; powerpills > 0; powerpills--) // Add power pills //
@@ -308,7 +308,7 @@ void setInitialMazeStructure(char maze[][SIZEX], Item zombies[], GameData level)
 			x = Random(SIZEX - 2);
 			y = Random(SIZEY - 2);
 		}
-		initialMaze[y][x] = '*';
+		initialMaze[y][x] = POWERPILL;
 	}
 
 	//with '#' for wall, ' ' for tunnel, etc. 
@@ -1033,13 +1033,13 @@ void showReplay(char g[][SIZEX], char m[][SIZEX], Item spot, Item zombies[], vec
 		zombies[2].x = gameReplay[replay + 3].x; zombies[2].y = gameReplay[replay + 3].y;
 		zombies[3].x = gameReplay[replay + 4].x; zombies[3].y = gameReplay[replay + 4].y;
 
-		Clrscr();
+		
 		updateGrid(g, m, spot, zombies);
 		paintGame(g, "", playerName, m, zombieCount, level);
 
-		Sleep(250);
+		Sleep(50);
 	}
-	Clrscr();
+	
 	for (int row = 0; row < SIZEY; row++)
 	{
 		for (int col = 0; col < SIZEX; col++)
