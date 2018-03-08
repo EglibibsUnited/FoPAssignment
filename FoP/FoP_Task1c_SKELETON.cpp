@@ -408,6 +408,34 @@ void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& me
 			level.lives++;
 			level.powerPills--;
 			break;
+		case ZOMBIE:
+			if (powerpillTouched)
+			{
+				spot.y += dy;
+				spot.x += dx;
+				for (int zomb = 0; zomb < 4; zomb++)
+				{
+					if ((zombies[zomb].y == spot.y) && (zombies[zomb].x == spot.x))
+					{
+						if (powerpillTouched) // Can spot kill the zombie? //
+						{
+							zombies[zomb].canMove = false;
+							zombies[zomb].symbol = ' ';
+							zombies[zomb].x = -1;
+							zombies[zomb].y = -1;
+							zombies--;
+						}
+						else
+						{
+							zombies[zomb].y = zombies[zomb].defaultY;
+							zombies[zomb].x = zombies[zomb].defaultX;
+
+							level.lives--;
+						}
+					}
+				}
+				
+			}
 		}
 
 		gameReplay.push_back(spot); // Add spot to the replay //
