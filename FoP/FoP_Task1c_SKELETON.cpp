@@ -1005,13 +1005,13 @@ void showReplay(char g[][SIZEX], char m[][SIZEX], Item spot, Item zombies[], vec
 		zombies[2].x = gameReplay[replay + 3].x; zombies[2].y = gameReplay[replay + 3].y;
 		zombies[3].x = gameReplay[replay + 4].x; zombies[3].y = gameReplay[replay + 4].y;
 
-		Clrscr();
+		
 		updateGrid(g, m, spot, zombies);
 		paintGame(g, "", playerName, m, zombieCount, level);
 
-		Sleep(250);
+		Sleep(50);
 	}
-	Clrscr();
+	
 	for (int row = 0; row < SIZEY; row++)
 	{
 		for (int col = 0; col < SIZEX; col++)
