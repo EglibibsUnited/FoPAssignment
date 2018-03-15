@@ -981,7 +981,7 @@ void showReplay(char g[][SIZEX], char m[][SIZEX], Item spot, Item zombies[], vec
 	void paintGame(const char g[][SIZEX], string mess, string playerName, char m[][SIZEX], int zombieCount, GameData level);
 	void updateGrid(char g[][SIZEX], const char m[][SIZEX], const Item spot, Item zombies[]);
 
-	
+	char tempGrid[SIZEY][SIZEX];
 
 	for (int replay = 0; replay < gameReplay.size(); replay += 5)
 	{
@@ -990,8 +990,7 @@ void showReplay(char g[][SIZEX], char m[][SIZEX], Item spot, Item zombies[], vec
 		{
 			for (int col = 0; col < SIZEX; col++)
 			{
-				g[row][col] = m[row][col];
-				
+				tempGrid[row][col] = m[row][col];
 			}
 		}
 		
@@ -1000,14 +999,14 @@ void showReplay(char g[][SIZEX], char m[][SIZEX], Item spot, Item zombies[], vec
 		spot.x = gameReplay[replay].x;
 		spot.y = gameReplay[replay].y;
 
-		zombies[0].x = gameReplay[replay + 1].x; zombies[0].y = gameReplay[replay + 1].y;
-		zombies[1].x = gameReplay[replay + 2].x; zombies[1].y = gameReplay[replay + 2].y;
-		zombies[2].x = gameReplay[replay + 3].x; zombies[2].y = gameReplay[replay + 3].y;
-		zombies[3].x = gameReplay[replay + 4].x; zombies[3].y = gameReplay[replay + 4].y;
+		zombies[0].x = gameReplay[replay + 1].x; zombies[0].y = gameReplay[replay + 1].y; zombies[0].symbol = ZOMBIE;
+		zombies[1].x = gameReplay[replay + 2].x; zombies[1].y = gameReplay[replay + 2].y; zombies[1].symbol = ZOMBIE;
+		zombies[2].x = gameReplay[replay + 3].x; zombies[2].y = gameReplay[replay + 3].y; zombies[2].symbol = ZOMBIE;
+		zombies[3].x = gameReplay[replay + 4].x; zombies[3].y = gameReplay[replay + 4].y; zombies[3].symbol = ZOMBIE;
 
 		
-		updateGrid(g, m, spot, zombies);
-		paintGame(g, "", playerName, m, zombieCount, level);
+		updateGrid(tempGrid, m, spot, zombies);
+		paintGame(tempGrid, "", playerName, m, zombieCount, level);
 
 		Sleep(50);
 	}
@@ -1022,6 +1021,15 @@ void showReplay(char g[][SIZEX], char m[][SIZEX], Item spot, Item zombies[], vec
 				g[row][col] = TUNNEL;
 			}
 		}
+	}
+
+	for (int i = 0; i < 4; i++)
+	{
+		if (!zombies[i].canMove)
+		{
+			zombies[i].symbol = TUNNEL;
+		}
+		
 	}
 }
 
