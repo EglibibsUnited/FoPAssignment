@@ -20,7 +20,7 @@ namespace SpotMapMaker
   
         private void Form1_Load(object sender, EventArgs e)
         {
-            for (int length = 8; length < 38; length++)
+            for (int length = 8; length <= 38; length++)
             {
                 xHeightBox.Items.Add(length);
                 yHeightBox.Items.Add(length);
@@ -132,7 +132,6 @@ namespace SpotMapMaker
                     {
                         File.AppendAllText(save.FileName, levelPart);
                     }
-                    File.AppendAllText(save.FileName, Environment.NewLine);
                 }
             } catch (Exception)
             {
