@@ -409,6 +409,7 @@ void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& me
 			level.powerPills--;
 			break;
 		case ZOMBIE:
+
 			spot.y += dy;
 			spot.x += dx;
 			if (powerpillTouched)
@@ -424,6 +425,7 @@ void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& me
 						zombieCount--;
 					}
 				}
+
 			}
 		}
 
@@ -724,6 +726,9 @@ void paintGame(const char g[][SIZEX], string mess, string playerName, char m[][S
 	}
 	else
 	{
+		ss << "Lives:         ";
+		showMessage(clBlack, clGreen, 40, 17, ss.str());
+		ss.str("");
 		ss << "Lives: " << level.lives;
 	}
 	stringstream pps;

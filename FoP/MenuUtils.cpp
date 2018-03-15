@@ -145,7 +145,6 @@ void chooseLevel(string playerName)
 		case '3':
 			gameHasRun = true;
 			runGame(playerName, 3);
-			break;
 		case 'R':
 			break;
 		default:
