@@ -120,8 +120,8 @@ void runGame(string playerName, int levelNumber)
 	void playerData(string playerName, int lives);
 	bool hasWon(Item zombies[], GameData level);
 	void checkPlayerScore(string playerName);
-	void saveGame(const char grid[][SIZEX], string playerName ,int lives ,int powerPills ,int zombieCount, Item spot, Item zombies[]);
-	void loadGame(char maze[][SIZEX], string playerName, int& lives, int& powerPills, int& zombieCount, Item& spot, Item zombies[]);
+	void saveGame(const char grid[][SIZEX], string playerName ,int lives ,int powerPills, int moveCounter ,int zombieCount, Item spot, Item zombies[]);
+	void loadGame(char maze[][SIZEX], string playerName, int& lives, int& powerPills, int& moveCounter, int& zombieCount, Item& spot, Item zombies[], bool& powerpillTouched);
 	void showReplay(char g[][SIZEX], char m[][SIZEX], Item spot, Item zombies[], vector<Item> gameReplay, GameData level, string playerName, int zombieCount);
 
 	//local variable declarations 
@@ -190,11 +190,11 @@ void runGame(string playerName, int levelNumber)
 		}
 		if (key == 'S')
 		{
-			saveGame(grid, playerName, level.lives, level.powerPills, zombieCount, spot, zombies);
+			saveGame(grid, playerName, level.lives, level.powerPills, moveCounter, zombieCount, spot, zombies);
 		}
 		if (key == 'L')
 		{
-			loadGame(maze, playerName, level.lives, level.powerPills, zombieCount, spot, zombies);
+			loadGame(maze, playerName, level.lives, level.powerPills, moveCounter, zombieCount, spot, zombies, powerpillTouched);
 			updateGrid(grid, maze, spot, zombies);
 		}
 		if (key == 'R')
@@ -408,6 +408,23 @@ void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& me
 			level.lives++;
 			level.powerPills--;
 			break;
+		case ZOMBIE:
+			spot.y += dy;
+			spot.x += dx;
+			if (powerpillTouched)
+			{
+				for (int i = 0; i < 4; i++)
+				{
+					if (maze[zombies[i].y][zombies[i].x] == SPOT || maze[spot.y][spot.x] == ZOMBIE)
+					{
+						zombies[i].canMove = false;
+						zombies[i].symbol = ' ';
+						zombies[i].x = -1;
+						zombies[i].y = -1;
+						zombieCount--;
+					}
+				}
+			}
 		}
 
 		gameReplay.push_back(spot); // Add spot to the replay //
@@ -509,7 +526,7 @@ void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& me
 						zombies[zomb].symbol = ' ';
 						zombies[zomb].x = -1;
 						zombies[zomb].y = -1;
-						zombies--;
+						zombieCount--;
 					}
 					else
 					{
@@ -895,7 +912,7 @@ void changeCursorVisibility(bool v)
 
 
 // SAVE AND LOAD - REQUIRES FOLDER CALLED SAVES //
-void saveGame(const char g[][SIZEX], string playerName, int lives, int powerPills, int zombieCount, Item spot, Item zombies[]) {
+void saveGame(const char g[][SIZEX], string playerName, int lives, int powerPills, int powerMovesRemain, int zombieCount, Item spot, Item zombies[]) {
 	ofstream writeGrid;
 	writeGrid.open(".//Saves//" + playerName + ".txt.", ios::out);
 	
@@ -903,6 +920,7 @@ void saveGame(const char g[][SIZEX], string playerName, int lives, int powerPill
 	{
 		for  (int col(0);col < SIZEX; col++)
 		{
+			
 			writeGrid.put(g[row][col]);
 			
 		}
@@ -911,6 +929,8 @@ void saveGame(const char g[][SIZEX], string playerName, int lives, int powerPill
 	writeGrid << lives;
 	writeGrid.put(' ');
 	writeGrid << powerPills;
+	writeGrid.put(' ');
+	writeGrid << powerMovesRemain;
 	writeGrid.put(' ');
 	writeGrid << zombieCount;
 	writeGrid.put(' ');
@@ -930,7 +950,7 @@ void saveGame(const char g[][SIZEX], string playerName, int lives, int powerPill
 }
 
 // LOAD //
-void loadGame(char m[][SIZEX], string playerName, int& lives, int& powerPills, int& zombieCount, Item& spot, Item zombies[]) {
+void loadGame(char m[][SIZEX], string playerName, int& lives, int& powerPills, int& powerMovesRemain, int& zombieCount, Item& spot, Item zombies[], bool& powerpillTouched) {
 	void showMessage(const WORD backColour, const WORD textColour, int x, int y, const string message);
 	ifstream readGrid;
 	int value;
@@ -947,7 +967,12 @@ void loadGame(char m[][SIZEX], string playerName, int& lives, int& powerPills, i
 			for (int col(0); col < SIZEX; col++)
 			{
 				readGrid.get(m[row][col]);
-				if (m[row][col] == SPOT || m[row][col] == ZOMBIE)
+				if (m[row][col] == '$')
+				{
+					powerpillTouched = true;
+					spot.symbol = '$';
+				}
+				if (m[row][col] == SPOT || m[row][col] == ZOMBIE || m[row][col] == '$')
 				{
 					m[row][col] = TUNNEL;
 				}
@@ -957,6 +982,8 @@ void loadGame(char m[][SIZEX], string playerName, int& lives, int& powerPills, i
 		lives = value;
 		readGrid >> value;
 		powerPills = value;
+		readGrid >> value;
+		powerMovesRemain = value;
 		readGrid >> value;
 		zombieCount = value;
 		readGrid >> value;
