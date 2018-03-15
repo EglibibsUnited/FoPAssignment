@@ -735,6 +735,9 @@ void paintGame(const char g[][SIZEX], string mess, string playerName, char m[][S
 	}
 	else
 	{
+		ss << "Lives:         ";
+		showMessage(clBlack, clGreen, 40, 17, ss.str());
+		ss.str("");
 		ss << "Lives: " << level.lives;
 	}
 	stringstream pps;
