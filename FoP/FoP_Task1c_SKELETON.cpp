@@ -169,6 +169,8 @@ void runGame(string playerName, int levelNumber)
 
 	initialiseGame(grid, maze, spot, zombies, level);	// Initialise grid (incl. walls and spot) //
 
+	SelectBackColour(clDarkGrey);
+	Clrscr();
 	paintGame(grid, message, playerName, maze, zombieCount, level);			//display game info, modified grid and messages
 	
 	int key;							//current key selected by player
@@ -721,7 +723,7 @@ void paintGame(const char g[][SIZEX], string mess, string playerName, char m[][S
 	void paintGrid(const char g[][SIZEX], char m[][SIZEX]);
 	int getPlayerScore(string playerName);
 	//display game title
-	showMessage(clBlack, clYellow, ((SIZEX - 2) / 2 - 7), 1, "SPOT AND ZOMBIES");
+	showMessage(clDarkGrey, clYellow, ((SIZEX - 2) / 2 - 7), 1, "SPOT AND ZOMBIES");
 	SelectBackColour(clDarkGrey);
 	SelectTextColour(clYellow);
 
@@ -734,7 +736,7 @@ void paintGame(const char g[][SIZEX], string mess, string playerName, char m[][S
 	else
 	{
 		ss << "Lives:         ";
-		showMessage(clBlack, clGreen, 40, 17, ss.str());
+		showMessage(clDarkGrey, clGreen, 40, 17, ss.str());
 		ss.str("");
 		ss << "Lives: " << level.lives;
 	}
@@ -766,28 +768,28 @@ void paintGame(const char g[][SIZEX], string mess, string playerName, char m[][S
 	showMessage(clDarkGrey, clYellow, 40, 14, "| Load Game: L        |");
 	showMessage(clDarkGrey, clYellow, 40, 15, "-----------------------");
 
-	showMessage(clBlack, clGreen, 40, 17, ss.str());
-	showMessage(clBlack, clGreen, 40, 18, pps.str());
+	showMessage(clDarkGrey, clGreen, 40, 17, ss.str());
+	showMessage(clDarkGrey, clGreen, 40, 18, pps.str());
 
-	showMessage(clBlack, clGreen, 40, 19, "Zombs remaining: " + to_string(zombieCount));
+	showMessage(clDarkGrey, clGreen, 40, 19, "Zombs remaining: " + to_string(zombieCount));
 
 	string levelString = to_string(level.level);
-	showMessage(clBlack, clGreen, 40, 24, "LEVEL " + levelString);
+	showMessage(clDarkGrey, clGreen, 40, 24, "LEVEL " + levelString);
 
 	string score = to_string(getPlayerScore(playerName));
-	showMessage(clBlack, clGreen, 40, 20, playerName);
+	showMessage(clDarkGrey, clGreen, 40, 20, playerName);
 
 	if (stoi(score) <= -1)
 	{
-		showMessage(clBlack, clGreen, 40, 21, playerName + " has no previous best score!");
+		showMessage(clDarkGrey, clGreen, 40, 21, playerName + " has no previous best score!");
 	}
 	else
 	{
-		showMessage(clBlack, clGreen, 40, 21, playerName + "'s previous best score is: " + score);
+		showMessage(clDarkGrey, clGreen, 40, 21, playerName + "'s previous best score is: " + score);
 	}
 
 	//print auxiliary messages if any
-	showMessage(clBlack, clWhite, 40, 26, mess);
+	showMessage(clDarkGrey, clWhite, 40, 26, mess);
 
 
 	paintGrid(g, m);
