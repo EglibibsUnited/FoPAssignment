@@ -765,7 +765,7 @@ void paintGame(const char g[][SIZEX], string mess, string playerName, char m[][S
 	showMessage(clBlack, clGreen, 40, 19, "Zombs remaining: " + to_string(zombieCount));
 
 	string levelString = to_string(level.level);
-	showMessage(clBlack, clGreen, 40, 24, "DIFFICULTY " + levelString);
+	showMessage(clBlack, clGreen, 40, 24, "LEVEL " + levelString);
 
 	string score = to_string(getPlayerScore(playerName));
 	showMessage(clBlack, clGreen, 40, 20, playerName);
