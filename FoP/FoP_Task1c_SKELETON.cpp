@@ -422,7 +422,10 @@ void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& me
 						zombies[i].symbol = ' ';
 						zombies[i].x = -1;
 						zombies[i].y = -1;
-						zombieCount--;
+						if (zombies[i].canMove)
+						{
+							zombieCount--;
+						}
 					}
 				}
 
@@ -449,14 +452,14 @@ void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& me
 						{
 							
 								zombies[zomb].x++;
-								if ((zombies[zomb].y == spot.y) && (zombies[zomb].x == spot.x))
+								if ((zombies[zomb].y == spot.y) && (zombies[zomb].x == spot.x) && (zombies[zomb].canMove)) //Spot only dies if the zombie can move meaning it is alive
 								{
-
+								
 									zombies[zomb].y = zombies[zomb].defaultY;
 									zombies[zomb].x = zombies[zomb].defaultX;
-
+								
 									level.lives--;
-
+								
 								}
 						}
 					}
@@ -487,12 +490,12 @@ void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& me
 						{
 							
 								zombies[zomb].y--;
-								if ((zombies[zomb].y == spot.y) && (zombies[zomb].x == spot.x))
+								if ((zombies[zomb].y == spot.y) && (zombies[zomb].x == spot.x) && (zombies[zomb].canMove)) //Spot only dies if the zombie can move meaning it is alive
 								{
 								
 										zombies[zomb].y = zombies[zomb].defaultY;
 										zombies[zomb].x = zombies[zomb].defaultX;
-
+								
 										level.lives--;
 									
 								}
@@ -530,7 +533,7 @@ void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& me
 						zombies[zomb].y = -1;
 						zombieCount--;
 					}
-					else
+					else if(zombies[zomb].canMove) //Spot only dies if the zombie can move meaning it is alive
 					{
 						zombies[zomb].y = zombies[zomb].defaultY;
 						zombies[zomb].x = zombies[zomb].defaultX;
@@ -547,6 +550,10 @@ void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& me
 					zombies[zomb].symbol = ' ';
 					zombieCount--;
 					zombies[zomb].canMove = false;
+				}
+				if (!zombies[zomb].canMove) //Resets zombies symbol to blank for if they are dead and something has reset its symbol inadvertently
+				{
+					zombies[zomb].symbol = ' ';
 				}
 			}
 		}
@@ -1003,7 +1010,11 @@ void loadGame(char m[][SIZEX], string playerName, int& lives, int& powerPills, i
 			zombies[i].y = value;
 			readGrid >> value;
 			zombies[i].canMove = value;
-			zombies[i].symbol = ZOMBIE;   // Resets the zombies symbol for example if the zombie has fallen down a hole prior to load //
+			if (zombies[i].canMove)
+			{
+				zombies[i].symbol = ZOMBIE;   // Resets the zombies symbol for example if the zombie has fallen down a hole prior to load //
+			}
+			
 		}
 	}
 }
