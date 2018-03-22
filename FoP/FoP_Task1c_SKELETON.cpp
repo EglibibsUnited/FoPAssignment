@@ -284,7 +284,7 @@ void setInitialMazeStructure(char maze[][SIZEX], Item zombies[], GameData level)
 	for (int zomb = 0; zomb < 4; zomb++)
 	{
 		zombies[zomb].symbol = ZOMBIE;
-		//initialMaze[zombies[zomb].y][zombies[zomb].x] = zombies[zomb].symbol;
+		initialMaze[zombies[zomb].y][zombies[zomb].x] = zombies[zomb].symbol; //Set intial maze coords to zombie symbol so holes and pills cant spawn there
 	}
 
 	for (int holesCount = level.holes; holesCount > 0; holesCount--) // Add holes //
@@ -322,7 +322,7 @@ void setInitialMazeStructure(char maze[][SIZEX], Item zombies[], GameData level)
 			case ' ': maze[row][col] = TUNNEL; break;
 			case '0': maze[row][col] = HOLE; break;
 			case '*': maze[row][col] = POWERPILL; break;
-			case 'Z': maze[row][col] = ZOMBIE; break;
+			case 'Z': maze[row][col] = TUNNEL; break;
 			}
 }
 
