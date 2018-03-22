@@ -1017,14 +1017,19 @@ void showReplay(char g[][SIZEX], char m[][SIZEX], Item spot, Item zombies[], vec
 
 	for (int replay = 0; replay < gameReplay.size(); replay += 5)
 	{
-		
-		for (int row = 0; row < SIZEY; row++)
-		{
-			for (int col = 0; col < SIZEX; col++)
+			for (int row = 0; row < SIZEY; row++)
 			{
-				tempGrid[row][col] = m[row][col];
+				for (int col = 0; col < SIZEX; col++)
+				{
+					tempGrid[row][col] = m[row][col];
+					if (m[row][col] == SPOT || m[row][col] == ZOMBIE || m[row][col] == '$')
+					{
+						m[row][col] = TUNNEL;
+					}
+
+				}
 			}
-		}
+		
 		
 
 		// i = Spot, i+1, i+2, i+3 & i+4 = Zombies //
@@ -1043,17 +1048,6 @@ void showReplay(char g[][SIZEX], char m[][SIZEX], Item spot, Item zombies[], vec
 		Sleep(50);
 	}
 	
-	for (int row = 0; row < SIZEY; row++)
-	{
-		for (int col = 0; col < SIZEX; col++)
-		{
-			g[row][col] = m[row][col];
-			if (g[row][col] == ZOMBIE || g[row][col] == SPOT)
-			{
-				g[row][col] = TUNNEL;
-			}
-		}
-	}
 
 	for (int i = 0; i < 4; i++)
 	{
