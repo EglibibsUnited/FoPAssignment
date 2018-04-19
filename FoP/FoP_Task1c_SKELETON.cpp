@@ -450,10 +450,12 @@ void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& me
 						{
 							zombies[zomb].x--;
 						}
-						else if (!powerpillTouched)
+						else
 						{
-							
+							if (!powerpillTouched)
+							{
 								zombies[zomb].x++;
+<<<<<<< HEAD
 								if ((zombies[zomb].y == spot.y) && (zombies[zomb].x == spot.x) && (zombies[zomb].canMove)) //Spot only dies if the zombie can move meaning it is alive
 								{
 								
@@ -463,6 +465,9 @@ void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& me
 									level.lives--;
 								
 								}
+=======
+							}
+>>>>>>> parent of 4784c7d... zombie move fix
 						}
 					}
 
@@ -474,11 +479,12 @@ void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& me
 						{
 							zombies[zomb].x++;
 						}
-						else if (!powerpillTouched)
+						else
 						{
-							
+							if (!powerpillTouched)
+							{
 								zombies[zomb].x--;
-							
+							}
 						}
 					}
 
@@ -488,10 +494,12 @@ void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& me
 						{
 							zombies[zomb].y++;
 						}
-						else if (!powerpillTouched)
+						else
 						{
-							
+							if (!powerpillTouched)
+							{
 								zombies[zomb].y--;
+<<<<<<< HEAD
 								if ((zombies[zomb].y == spot.y) && (zombies[zomb].x == spot.x) && (zombies[zomb].canMove)) //Spot only dies if the zombie can move meaning it is alive
 								{
 								
@@ -501,6 +509,9 @@ void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& me
 										level.lives--;
 									
 								}
+=======
+							}
+>>>>>>> parent of 4784c7d... zombie move fix
 						}
 					}
 					
@@ -510,15 +521,16 @@ void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& me
 						{
 							zombies[zomb].y--;
 						}
-						else if (!powerpillTouched)
+						else
 						{
-							
+							if (!powerpillTouched)
+							{
 								zombies[zomb].y++;
-							
+							}
 						}
 					}
-					
-					
+					zombiesReplay.push_back(zombies[zomb]);
+
 				}
 
 				// See if a zombie is touching spot //
@@ -537,10 +549,16 @@ void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& me
 					}
 					else if(zombies[zomb].canMove) //Spot only dies if the zombie can move meaning it is alive
 					{
+<<<<<<< HEAD
 						zombies[zomb].y = zombies[zomb].defaultY;
 						zombies[zomb].x = zombies[zomb].defaultX;
 						
 						level.lives--;
+=======
+						lives--;
+						zombies[zomb].x = zombies[zomb].defaultX;
+						zombies[zomb].y = zombies[zomb].defaultY;
+>>>>>>> parent of 4784c7d... zombie move fix
 					}
 					
 				}
