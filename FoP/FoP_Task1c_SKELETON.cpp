@@ -293,7 +293,7 @@ void setInitialMazeStructure(char maze[][SIZEX], Item zombies[], GameData level)
 	{
 		int x = Random(SIZEX - 2);
 		int y = Random(SIZEY - 2);
-		while (initialMaze[y][x] == WALL || initialMaze[y][x] == ZOMBIE)
+		while (initialMaze[y][x] == WALL || initialMaze[y][x] == ZOMBIE || initialMaze[y][x] == HOLE)
 		{
 			x = Random(SIZEX - 2);
 			y = Random(SIZEY - 2);
@@ -305,7 +305,7 @@ void setInitialMazeStructure(char maze[][SIZEX], Item zombies[], GameData level)
 	{
 		int x = Random(SIZEX - 2);
 		int y = Random(SIZEY - 2);
-		while (initialMaze[y][x] == WALL || initialMaze[y][x] == ZOMBIE || initialMaze[y][x] == HOLE)
+		while (initialMaze[y][x] == WALL || initialMaze[y][x] == ZOMBIE || initialMaze[y][x] == HOLE || initialMaze[y][x] == POWERPILL)
 		{
 			x = Random(SIZEX - 2);
 			y = Random(SIZEY - 2);
