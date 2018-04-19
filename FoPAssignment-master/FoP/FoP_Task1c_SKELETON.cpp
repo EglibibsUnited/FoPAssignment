@@ -1,7 +1,7 @@
 //---------------------------------------------------------------------------
 //Program: Skeleton for Task 1c – group assignment
 //Author: Jake Stinger / Michael Elsom / James Nelhams
-//Last updated: 1 March 2018
+//Last updated: 19th April 2018
 //---------------------------------------------------------------------------
 
 //Go to 'View > Task List' menu to open the 'Task List' pane listing the initial amendments needed to this program
