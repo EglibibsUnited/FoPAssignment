@@ -455,19 +455,15 @@ void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& me
 							if (!powerpillTouched)
 							{
 								zombies[zomb].x++;
-<<<<<<< HEAD
 								if ((zombies[zomb].y == spot.y) && (zombies[zomb].x == spot.x) && (zombies[zomb].canMove)) //Spot only dies if the zombie can move meaning it is alive
 								{
 								
 									zombies[zomb].y = zombies[zomb].defaultY;
 									zombies[zomb].x = zombies[zomb].defaultX;
 								
-									level.lives--;
-								
+									level.lives--;								
 								}
-=======
 							}
->>>>>>> parent of 4784c7d... zombie move fix
 						}
 					}
 
@@ -499,7 +495,7 @@ void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& me
 							if (!powerpillTouched)
 							{
 								zombies[zomb].y--;
-<<<<<<< HEAD
+
 								if ((zombies[zomb].y == spot.y) && (zombies[zomb].x == spot.x) && (zombies[zomb].canMove)) //Spot only dies if the zombie can move meaning it is alive
 								{
 								
@@ -509,9 +505,9 @@ void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& me
 										level.lives--;
 									
 								}
-=======
+
 							}
->>>>>>> parent of 4784c7d... zombie move fix
+
 						}
 					}
 					
@@ -529,7 +525,7 @@ void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& me
 							}
 						}
 					}
-					zombiesReplay.push_back(zombies[zomb]);
+					
 
 				}
 
@@ -549,16 +545,12 @@ void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& me
 					}
 					else if(zombies[zomb].canMove) //Spot only dies if the zombie can move meaning it is alive
 					{
-<<<<<<< HEAD
+
 						zombies[zomb].y = zombies[zomb].defaultY;
 						zombies[zomb].x = zombies[zomb].defaultX;
 						
 						level.lives--;
-=======
-						lives--;
-						zombies[zomb].x = zombies[zomb].defaultX;
-						zombies[zomb].y = zombies[zomb].defaultY;
->>>>>>> parent of 4784c7d... zombie move fix
+
 					}
 					
 				}
