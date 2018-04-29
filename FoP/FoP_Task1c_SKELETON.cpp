@@ -1,7 +1,7 @@
 //---------------------------------------------------------------------------
-//Program: Skeleton for Task 1c – group assignment
+//Program: Extended Version for Task 1c – group assignment
 //Author: Jake Stinger / Michael Elsom / James Nelhams
-//Last updated: 1 March 2018
+//Last updated: 29 April 2018
 //---------------------------------------------------------------------------
 
 //Go to 'View > Task List' menu to open the 'Task List' pane listing the initial amendments needed to this program
@@ -98,7 +98,7 @@ int main()
 
 void runGame(string playerName, int levelNumber)
 {
-	// TODO: Replace all instances of 'lives' with GameData's lives attribute //
+	
 
 	//function declarations (prototypes)
 	void initialiseGame(char g[][SIZEX], char m[][SIZEX], Item& spot, Item zombies[], GameData level);
@@ -530,8 +530,7 @@ void updateGameData(const char g[][SIZEX], Item& spot, const int key, string& me
 				}
 
 				// See if a zombie is touching spot //
-				// TODO: Having powerpillTouched being true seems to make the next IF statement not fire for some reason? //
-				// TODO: Also seems that this if statement only fires if two zombies are both above and below spot >:( //
+				
 
 				if ((zombies[zomb].y == spot.y) && (zombies[zomb].x == spot.x))
 				{
